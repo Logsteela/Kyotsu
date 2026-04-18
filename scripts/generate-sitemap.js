@@ -6,7 +6,7 @@ import { readFileSync } from 'fs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const BASE_URL = 'https://kyotsu.org'; 
+const BASE_URL = 'https://kyotsutest.vercel.app'; 
 const OUTPUT_PATH = join(__dirname, '../public/sitemap.xml');
 const DATABASE_PATH = join(__dirname, '../src/app/data/testDatabase.ts');
 
