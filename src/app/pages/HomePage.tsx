@@ -115,7 +115,7 @@ export function HomePage() {
             <div className="space-y-4">
               <div className="border-l-4 border-gray-300 pl-4 py-2">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
-                  <span className="text-sm font-semibold text-gray-900">2026年4月20日</span>
+                  <span className="text-sm font-semibold text-gray-900">2026年4月19日</span>
                   <span className="text-sm text-gray-600">Ver 0.0.1β</span>
                 </div>
                 <p className="text-gray-700 text-sm leading-relaxed">
