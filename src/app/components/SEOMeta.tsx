@@ -25,7 +25,7 @@ export function SEOMeta({
   type = 'website',
   imageUrl = '/ogp-image.png',
 }: SEOMetaProps) {
-  const baseUrl = 'https://kyotsu.org'; // 本番環境のURLに変更してください
+  const baseUrl = 'https://kyotsutest.vercel.app'; // 本番環境のURLに変更してください
   const fullUrl = `${baseUrl}${path}`;
   const fullImageUrl = imageUrl.startsWith('http') ? imageUrl : `${baseUrl}${imageUrl}`;
 
