@@ -26,7 +26,7 @@ export function StructuredData({
   itemListName,
   items = [],
 }: StructuredDataProps) {
-  const baseUrl = 'https://kyotsu.org'; // 本番環境のURLに変更してください
+  const baseUrl = 'https://kyotsutest.vercel.app'; // 本番環境のURLに変更してください
 
   const generateWebSiteSchema = () => ({
     '@context': 'https://schema.org',
