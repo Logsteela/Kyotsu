@@ -3,7 +3,7 @@ import { ChevronDown } from 'lucide-react';
 import { Link } from 'react-router';
 import { Button } from '@/app/components/ui/button';
 import { getEraDisplay } from '@/app/utils/era';
-import { EnhancedTestRecord, FILTERABLE_SUBJECTS, getOtherSubjectOrder } from '@/app/data/testDatabase';
+import { EnhancedTestRecord, FILTERABLE_SUBJECTS, getOtherSubjectOrder, resolvePublicPdfUrl } from '@/app/data/testDatabase';
 import { FilterButton } from '@/app/components/FilterButton';
 import { PDFActionGroup, AudioActionGroup } from '@/app/components/PDFActionButton';
 import { TableLegend } from '@/app/components/TableLegend';
@@ -16,20 +16,126 @@ interface PDFTableWithFilterProps {
   selectedCategorySubject: string | null;
 }
 
+type PdfState = 1 | 2 | 3;
+type ManifestStatus = 'loading' | 'ready' | 'missing';
+
+const PDF_BASE_URL = (import.meta.env.VITE_PDF_BASE_URL ?? '')
+  .trim()
+  .replace(/\/+$/, '');
+
+const PDF_MANIFEST_URL = (import.meta.env.VITE_PDF_MANIFEST_URL ?? (PDF_BASE_URL ? `${PDF_BASE_URL}/manifest.json` : ''))
+  .trim();
+
+function normalizeAssetKey(pathOrUrl: string | undefined | null): string | null {
+  const s = (pathOrUrl ?? '').trim();
+  if (!s) return null;
+
+  const withoutOrigin = s.replace(/^https?:\/\/[^/]+\//, '');
+  const normalized = withoutOrigin
+    .replace(/^\/+/, '')
+    .replace(/^pdfs\//, '');
+
+  return normalized || null;
+}
+
+function createManifestMap(payload: unknown): Record<string, true> {
+  const entries = Array.isArray(payload)
+    ? payload
+    : payload && typeof payload === 'object' && Array.isArray((payload as { files?: unknown }).files)
+      ? (payload as { files: unknown[] }).files
+      : payload && typeof payload === 'object' && Array.isArray((payload as { keys?: unknown }).keys)
+        ? (payload as { keys: unknown[] }).keys
+        : [];
+
+  const next: Record<string, true> = {};
+
+  for (const entry of entries) {
+    if (typeof entry !== 'string') continue;
+    const key = normalizeAssetKey(entry);
+    if (key) next[key] = true;
+  }
+
+  return next;
+}
+
+async function checkUrlExists(url: string): Promise<boolean> {
+  try {
+    const headResponse = await fetch(url, {
+      method: 'HEAD',
+      mode: 'cors',
+      cache: 'no-store',
+    });
+
+    return headResponse.ok;
+  } catch {
+    try {
+      const getResponse = await fetch(url, {
+        method: 'GET',
+        mode: 'cors',
+        cache: 'no-store',
+      });
+
+      return getResponse.ok;
+    } catch {
+      return false;
+    }
+  }
+}
+
 export function PDFTableWithFilter({ items, title, viewMode, selectedCategorySubject }: PDFTableWithFilterProps) {
-  // フィルタリング対象かどうか判定
   const filterableSubject = selectedCategorySubject && selectedCategorySubject in FILTERABLE_SUBJECTS
     ? selectedCategorySubject as keyof typeof FILTERABLE_SUBJECTS
     : null;
 
-  // リスニング判定：選択された教科がリスニング、または表示されるアイテムにリスニングが含まれる場合
-  const isListening = selectedCategorySubject === '英語（Listening）' || 
+  const isListening = selectedCategorySubject === '英語（Listening）' ||
     items.some(item => item.categorySubject === '英語（Listening）');
 
-  // チェックボックスの状態（デフォルトすべてON）
   const [selectedFilters, setSelectedFilters] = useState<Record<string, boolean>>({});
+  const [manifestMap, setManifestMap] = useState<Record<string, true>>({});
+  const [manifestStatus, setManifestStatus] = useState<ManifestStatus>(PDF_MANIFEST_URL ? 'loading' : 'missing');
+  const [urlExistsMap, setUrlExistsMap] = useState<Record<string, boolean>>({});
 
-  // フィルターの初期化と更新
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!PDF_MANIFEST_URL) {
+      setManifestStatus('missing');
+      return;
+    }
+
+    setManifestStatus('loading');
+
+    const loadManifest = async () => {
+      try {
+        const response = await fetch(PDF_MANIFEST_URL, {
+          method: 'GET',
+          mode: 'cors',
+          cache: 'no-store',
+        });
+
+        if (!response.ok) {
+          throw new Error(`manifest fetch failed: ${response.status}`);
+        }
+
+        const json = await response.json();
+        if (cancelled) return;
+
+        setManifestMap(createManifestMap(json));
+        setManifestStatus('ready');
+      } catch {
+        if (cancelled) return;
+        setManifestMap({});
+        setManifestStatus('missing');
+      }
+    };
+
+    void loadManifest();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   useEffect(() => {
     if (!filterableSubject) {
       setSelectedFilters({});
@@ -37,14 +143,12 @@ export function PDFTableWithFilter({ items, title, viewMode, selectedCategorySub
     }
 
     const filters: Record<string, boolean> = {};
-    
+
     if (filterableSubject === 'その他') {
-      // その他の場合はデータベース初出順で取得
       const otherSubjects = getOtherSubjectOrder();
-      // 現在のitemsに含まれる科目のみをフィルタリング
       const currentSubjects = Array.from(new Set(items.map(item => item.essentialSubject)));
       const orderedSubjects = otherSubjects.filter(s => currentSubjects.includes(s));
-      
+
       orderedSubjects.forEach(subject => {
         filters[subject] = selectedFilters[subject] !== undefined ? selectedFilters[subject] : true;
       });
@@ -53,6 +157,7 @@ export function PDFTableWithFilter({ items, title, viewMode, selectedCategorySub
         filters[subject] = selectedFilters[subject] !== undefined ? selectedFilters[subject] : true;
       });
     }
+
     setSelectedFilters(filters);
   }, [filterableSubject, items.length]);
 
@@ -63,21 +168,105 @@ export function PDFTableWithFilter({ items, title, viewMode, selectedCategorySub
     }));
   };
 
-  // フィルタリング後のアイテム
   const filteredItems = useMemo(() => {
     if (!filterableSubject) return items;
     return items.filter(item => selectedFilters[item.essentialSubject] !== false);
   }, [items, filterableSubject, selectedFilters]);
 
-  // 号外判定（yearが文字列の場合は号外）
+  const visibleAssetUrls = useMemo(() => {
+    return Array.from(
+      new Set(
+        filteredItems
+          .flatMap(item => [item.questionPdf, item.answerPdf, item.audio])
+          .map(path => resolvePublicPdfUrl(path))
+          .filter((url): url is string => Boolean(url))
+      )
+    );
+  }, [filteredItems]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (manifestStatus !== 'missing') return;
+
+    const uncheckedUrls = visibleAssetUrls.filter(url => !(url in urlExistsMap));
+    if (uncheckedUrls.length === 0) return;
+
+    const verifyUrls = async () => {
+      const results = await Promise.all(
+        uncheckedUrls.map(async (url) => [url, await checkUrlExists(url)] as const)
+      );
+
+      if (cancelled) return;
+
+      setUrlExistsMap(prev => {
+        const next = { ...prev };
+        for (const [url, exists] of results) {
+          next[url] = exists;
+        }
+        return next;
+      });
+    };
+
+    void verifyUrls();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [manifestStatus, visibleAssetUrls, urlExistsMap]);
+
+  function resolveExists(pathOrName: string | undefined | null, fallback: boolean): boolean {
+    const key = normalizeAssetKey(pathOrName);
+    if (!key) return false;
+
+    if (manifestStatus === 'ready') {
+      return Boolean(manifestMap[key]);
+    }
+
+    const url = resolvePublicPdfUrl(pathOrName);
+    if (!url) return false;
+
+    if (url in urlExistsMap) {
+      return urlExistsMap[url];
+    }
+
+    return fallback;
+  }
+
+  function derivePdfState(questionExists: boolean, answerExists: boolean, audioExists: boolean, hasAudio: boolean): PdfState {
+    const checks = hasAudio
+      ? [questionExists, answerExists, audioExists]
+      : [questionExists, answerExists];
+
+    const missingCount = checks.filter(value => !value).length;
+
+    if (missingCount === 0) return 1;
+    if (missingCount === checks.length) return 3;
+    return 2;
+  }
+
+  function getEffectiveItem(item: EnhancedTestRecord): EnhancedTestRecord {
+    const questionExists = resolveExists(item.questionPdf, item.questionExists);
+    const answerExists = resolveExists(item.answerPdf, item.answerExists);
+    const hasAudio = Boolean(item.audio?.trim());
+    const audioExists = hasAudio ? resolveExists(item.audio, item.audioExists) : false;
+    const pdfState = derivePdfState(questionExists, answerExists, audioExists, hasAudio);
+
+    return {
+      ...item,
+      questionExists,
+      answerExists,
+      audioExists,
+      pdfState,
+    };
+  }
+
   const isSpecialYear = items.length > 0 && typeof items[0].year === 'string';
 
-  // 総覧モードの場合：特別試験を分離
-  const specialTests = viewMode === 'overview' 
+  const specialTests = viewMode === 'overview'
     ? filteredItems.filter((item) => typeof item.year === 'string')
     : [];
 
-  // 通常テスト（本試験・追試験）
   const regularTests = viewMode === 'overview'
     ? filteredItems.filter((item) => typeof item.year === 'number')
     : filteredItems;
@@ -85,7 +274,6 @@ export function PDFTableWithFilter({ items, title, viewMode, selectedCategorySub
   const mainTests = regularTests.filter((item) => item.testType === 'main');
   const makeupTests = regularTests.filter((item) => item.testType === 'makeup');
 
-  // データがない場合
   if (items.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -98,8 +286,7 @@ export function PDFTableWithFilter({ items, title, viewMode, selectedCategorySub
     document.getElementById('makeup-section')?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // pdfStateに応じた背景色を取得
-  const getPdfStateBgColor = (pdfState: 1 | 2 | 3, isEven: boolean) => {
+  const getPdfStateBgColor = (pdfState: PdfState, isEven: boolean) => {
     if (pdfState === 3) {
       return 'bg-[var(--color-state-complete-missing)]';
     } else if (pdfState === 2) {
@@ -109,8 +296,7 @@ export function PDFTableWithFilter({ items, title, viewMode, selectedCategorySub
     }
   };
 
-  // pdfStateに応じたホバー色を取得
-  const getPdfStateHoverColor = (pdfState: 1 | 2 | 3) => {
+  const getPdfStateHoverColor = (pdfState: PdfState) => {
     if (pdfState === 3) {
       return 'hover:bg-[var(--color-state-complete-missing-hover)]';
     } else if (pdfState === 2) {
@@ -120,54 +306,37 @@ export function PDFTableWithFilter({ items, title, viewMode, selectedCategorySub
     }
   };
 
-const renderSubject = (item: EnhancedTestRecord) => {
-  // 個別ページへのリンクを生成
-  const detailPageUrl = `/test/${encodeURIComponent(item.questionPdf)}`;
-  
-  return (
-    <Link 
-      to={detailPageUrl} 
-      className="font-bold underline decoration-1 underline-offset-2 text-black hover:text-gray-600 transition-colors"
-    >
-      {getDisplaySubject(item.subject)}
-    </Link>
-  );
-};
+  const renderSubject = (item: EnhancedTestRecord) => {
+    const detailPageUrl = `/test/${encodeURIComponent(item.questionPdf)}`;
 
+    return (
+      <Link
+        to={detailPageUrl}
+        className="font-bold underline decoration-1 underline-offset-2 text-black hover:text-gray-600 transition-colors"
+      >
+        {getDisplaySubject(item.subject)}
+      </Link>
+    );
+  };
 
   const renderTable = (tests: EnhancedTestRecord[], tableTitle: string, id?: string) => {
-    // 特別試験かどうかを判定（yearが文字列の場合）
     const isSpecialTest = tests.length > 0 && typeof tests[0].year === 'string';
-    
-    // レスポンシブモードの決定
-    // 年度別 + リスニング: year-with-audio
-    // 年度別 + リスニングなし: year-no-audio
-    // 総覧 + リスニング: overview-with-audio
-    // 総覧 + リスニングなし: year-no-audio
-    // 教科別 + リスニング: subject-with-audio
-    // 教科別 + リスニングなし: subject-no-audio
-    // 特別試験 + リスニング: special-with-audio
-    // 特別試験 + リスニングなし: special-no-audio
+
     const getResponsiveMode = (): 'year-with-audio' | 'year-no-audio' | 'subject-no-audio' | 'subject-with-audio' | 'overview-with-audio' | 'special-with-audio' | 'special-no-audio' => {
-      // 特別試験の場合は専用のモードを使用
       if (isSpecialTest) {
         return isListening ? 'special-with-audio' : 'special-no-audio';
       }
-      
+
       if (viewMode === 'byYear') {
-        // 年度別
         return isListening ? 'year-with-audio' : 'year-no-audio';
       } else if (viewMode === 'overview') {
-        // 総覧
         return isListening ? 'overview-with-audio' : 'year-no-audio';
       } else {
-        // 教科別
         return isListening ? 'subject-with-audio' : 'subject-no-audio';
       }
     };
-    const responsiveMode = getResponsiveMode();
 
-    // 総覧モードかどうか
+    const responsiveMode = getResponsiveMode();
     const isOverviewMode = viewMode === 'overview';
 
     return (
@@ -181,7 +350,6 @@ const renderSubject = (item: EnhancedTestRecord) => {
           <table className="w-full table-fixed">
             <thead className="bg-[var(--color-table-header-bg)] border-b border-[var(--color-table-border)]">
               <tr>
-                {/* 総覧モードの場合は年度と教科の両方を表示 */}
                 {isOverviewMode ? (
                   <>
                     <th className="text-left p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 border-r border-[var(--color-table-border)] w-[15%] md:w-[18%]">
@@ -206,14 +374,14 @@ const renderSubject = (item: EnhancedTestRecord) => {
                   </th>
                 )}
                 <th className={`text-center p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 ${
-                  isListening 
+                  isListening
                     ? (isOverviewMode || viewMode === 'bySubject' ? 'w-[23.33%] md:w-[21.33%]' : 'w-[26.67%] md:w-[26%]')
                     : (isOverviewMode || viewMode === 'bySubject' ? 'w-[35%] md:w-[32%]' : 'w-[40%] md:w-[39%]')
                 } border-r border-[var(--color-table-border)]`}>
                   問題
                 </th>
                 <th className={`text-center p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 ${
-                  isListening 
+                  isListening
                     ? (isOverviewMode || viewMode === 'bySubject' ? 'w-[23.33%] md:w-[21.33%] border-r border-[var(--color-table-border)]' : 'w-[26.67%] md:w-[26%] border-r border-[var(--color-table-border)]')
                     : (isOverviewMode || viewMode === 'bySubject' ? 'w-[35%] md:w-[32%]' : 'w-[40%] md:w-[39%]')
                 }`}>
@@ -229,73 +397,76 @@ const renderSubject = (item: EnhancedTestRecord) => {
               </tr>
             </thead>
             <tbody>
-              {tests.map((item, index) => (
-                <tr
-                  key={`${item.year}-${item.subject}-${item.testType}-${index}`}
-                  className={`border-b border-[var(--color-table-border)] last:border-b-0 ${getPdfStateHoverColor(item.pdfState)} ${getPdfStateBgColor(item.pdfState, index % 2 === 0)}`}
-                >
-                  {/* 総覧モードの場合は年度と教科の両方を表示 */}
-                  {isOverviewMode ? (
-                    <>
-                      <td className="p-2 sm:p-3 text-xs sm:text-sm text-gray-700 border-r border-[var(--color-table-border)] break-words overflow-hidden">
-                        {typeof item.year === 'number' 
-                          ? `${item.year}（${getEraDisplay(item.year)}）`
-                          : item.year}
-                      </td>
+              {tests.map((rawItem, index) => {
+                const item = getEffectiveItem(rawItem);
+
+                return (
+                  <tr
+                    key={`${item.year}-${item.subject}-${item.testType}-${index}`}
+                    className={`border-b border-[var(--color-table-border)] last:border-b-0 ${getPdfStateHoverColor(item.pdfState)} ${getPdfStateBgColor(item.pdfState, index % 2 === 0)}`}
+                  >
+                    {isOverviewMode ? (
+                      <>
+                        <td className="p-2 sm:p-3 text-xs sm:text-sm text-gray-700 border-r border-[var(--color-table-border)] break-words overflow-hidden">
+                          {typeof item.year === 'number'
+                            ? `${item.year}（${getEraDisplay(item.year)}）`
+                            : item.year}
+                        </td>
+                        <td className="p-2 sm:p-3 text-xs sm:text-sm font-medium text-gray-900 border-r border-[var(--color-table-border)] break-words overflow-hidden">
+                          {renderSubject(item)}
+                        </td>
+                      </>
+                    ) : viewMode === 'bySubject' ? (
+                      <>
+                        <td className="p-2 sm:p-3 text-xs sm:text-sm text-gray-700 border-r border-[var(--color-table-border)] break-words overflow-hidden">
+                          {typeof item.year === 'number'
+                            ? `${item.year}（${getEraDisplay(item.year)}）`
+                            : item.year}
+                        </td>
+                        <td className="p-2 sm:p-3 text-xs sm:text-sm font-medium text-gray-900 border-r border-[var(--color-table-border)] break-words overflow-hidden">
+                          {renderSubject(item)}
+                        </td>
+                      </>
+                    ) : (
                       <td className="p-2 sm:p-3 text-xs sm:text-sm font-medium text-gray-900 border-r border-[var(--color-table-border)] break-words overflow-hidden">
                         {renderSubject(item)}
                       </td>
-                    </>
-                  ) : viewMode === 'bySubject' ? (
-                    <>
-                      <td className="p-2 sm:p-3 text-xs sm:text-sm text-gray-700 border-r border-[var(--color-table-border)] break-words overflow-hidden">
-                        {typeof item.year === 'number' 
-                          ? `${item.year}（${getEraDisplay(item.year)}）`
-                          : item.year}
-                      </td>
-                      <td className="p-2 sm:p-3 text-xs sm:text-sm font-medium text-gray-900 border-r border-[var(--color-table-border)] break-words overflow-hidden">
-                        {renderSubject(item)}
-                      </td>
-                    </>
-                  ) : (
-                    <td className="p-2 sm:p-3 text-xs sm:text-sm font-medium text-gray-900 border-r border-[var(--color-table-border)] break-words overflow-hidden">
-                      {renderSubject(item)}
+                    )}
+
+                    <td className="p-1.5 sm:p-2 border-r border-[var(--color-table-border)] overflow-hidden">
+                      <PDFActionGroup
+                        pdfPath={item.questionPdf}
+                        pdfState={item.pdfState}
+                        type="question"
+                        responsiveMode={responsiveMode}
+                        exists={item.questionExists}
+                      />
                     </td>
-                  )}
-                  {/* 問題 */}
-                  <td className="p-1.5 sm:p-2 border-r border-[var(--color-table-border)] overflow-hidden">
-                    <PDFActionGroup
-  pdfPath={item.questionPdf}
-  pdfState={item.pdfState}
-  type="question"
-  responsiveMode={responsiveMode}
-  exists={item.questionExists}
-/>
-                  </td>
-                  {/* 解答 */}
-                  <td className={`p-1.5 sm:p-2 ${isListening ? 'border-r border-[var(--color-table-border)]' : ''} overflow-hidden`}>
-                    <PDFActionGroup
-  pdfPath={item.answerPdf}
-  pdfState={item.pdfState}
-  type="answer"
-  responsiveMode={responsiveMode}
-  exists={item.answerExists}
-/>
-                  </td>
-                  {/* 音声（リスニングの場合のみ） */}
-                  {isListening && (
-                    <td className="p-1.5 sm:p-2 overflow-hidden">
-                      <AudioActionGroup
-  audioPath={item.audio}
-  pdfState={item.pdfState}
-  priority={item.priority}
-  responsiveMode={responsiveMode}
-  exists={item.audioExists}
-/>
+
+                    <td className={`p-1.5 sm:p-2 ${isListening ? 'border-r border-[var(--color-table-border)]' : ''} overflow-hidden`}>
+                      <PDFActionGroup
+                        pdfPath={item.answerPdf}
+                        pdfState={item.pdfState}
+                        type="answer"
+                        responsiveMode={responsiveMode}
+                        exists={item.answerExists}
+                      />
                     </td>
-                  )}
-                </tr>
-              ))}
+
+                    {isListening && (
+                      <td className="p-1.5 sm:p-2 overflow-hidden">
+                        <AudioActionGroup
+                          audioPath={item.audio}
+                          pdfState={item.pdfState}
+                          priority={item.priority}
+                          responsiveMode={responsiveMode}
+                          exists={item.audioExists}
+                        />
+                      </td>
+                    )}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -307,27 +478,24 @@ const renderSubject = (item: EnhancedTestRecord) => {
     <div className="p-4 lg:p-6 flex flex-col gap-4">
       <h1 className="text-xl lg:text-2xl font-bold text-gray-900">{title}</h1>
 
-      {/* 凡例 */}
       <TableLegend />
 
-      {/* フィルタリングUI */}
       {filterableSubject && Object.keys(selectedFilters).length > 0 && (
         <div className="p-4 bg-white border border-[var(--color-table-border)] rounded flex flex-col gap-3">
           <h3 className="text-sm font-semibold text-gray-700">科目でフィルタリング</h3>
           {filterableSubject === 'その他' ? (
-            // その他の場合：特定の位置で改行（1個、5個、1個、6個、5個、残り）
             <>
               {(() => {
                 const subjectKeys = Object.keys(selectedFilters);
                 const groups = [
-                  subjectKeys.slice(0, 1),   // 1個
-                  subjectKeys.slice(1, 6),   // 5個
-                  subjectKeys.slice(6, 7),   // 1個
-                  subjectKeys.slice(7, 13),  // 6個
-                  subjectKeys.slice(13, 18), // 5個
-                  subjectKeys.slice(18),     // 残り
+                  subjectKeys.slice(0, 1),
+                  subjectKeys.slice(1, 6),
+                  subjectKeys.slice(6, 7),
+                  subjectKeys.slice(7, 13),
+                  subjectKeys.slice(13, 18),
+                  subjectKeys.slice(18),
                 ];
-                
+
                 return groups.map((group, groupIndex) => (
                   group.length > 0 && (
                     <div key={groupIndex} className="flex flex-wrap gap-2">
@@ -345,7 +513,6 @@ const renderSubject = (item: EnhancedTestRecord) => {
               })()}
             </>
           ) : (
-            // その他以外：通常の折り返しレイアウト
             <div className="flex flex-wrap gap-2">
               {Object.keys(selectedFilters).map((subject) => (
                 <FilterButton
@@ -361,7 +528,6 @@ const renderSubject = (item: EnhancedTestRecord) => {
         </div>
       )}
 
-      {/* スマホ用：追試験へのジャンプボタン（号外でない場合のみ） */}
       {!isSpecialYear && makeupTests.length > 0 && viewMode !== 'overview' && (
         <div className="lg:hidden mb-4">
           <Button
@@ -375,28 +541,20 @@ const renderSubject = (item: EnhancedTestRecord) => {
         </div>
       )}
 
-      {/* 総覧モードの場合 */}
       {viewMode === 'overview' ? (
         <>
-          {/* 本試験 */}
           {mainTests.length > 0 && renderTable(mainTests, '本試験')}
-          
-          {/* 追試験 */}
           {makeupTests.length > 0 && renderTable(makeupTests, '追試験')}
-          
-          {/* 特別試験 */}
           {specialTests.length > 0 && renderTable(specialTests, '特別試験')}
         </>
       ) : (
         <>
-          {/* 号外の場合は本試・追試の区別なく表示 */}
           {isSpecialYear ? (
             <div>
               {renderTable(filteredItems, '')}
             </div>
           ) : (
             <>
-              {/* PC: 左右2列 */}
               <div className="hidden lg:grid lg:grid-cols-2 lg:gap-6">
                 <div>
                   {renderTable(mainTests, '本試験')}
@@ -408,7 +566,6 @@ const renderSubject = (item: EnhancedTestRecord) => {
                 )}
               </div>
 
-              {/* スマホ: 上下配置 */}
               <div className="lg:hidden">
                 {renderTable(mainTests, '本試験')}
                 {makeupTests.length > 0 && renderTable(makeupTests, '追試験', 'makeup-section')}
