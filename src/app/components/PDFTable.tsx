@@ -166,7 +166,7 @@ export function PDFTable({ items, title, viewMode }: PDFTableProps) {
       <div className="p-4 lg:p-6">
         <h1 className="text-xl lg:text-2xl font-bold mb-4 text-gray-900">{title}</h1>
         <div className="p-4 bg-white border rounded">
-          <p className="text-sm text-gray-600">manifest.json を読み込み中です…</p>
+          <p className="text-sm text-gray-600">Loading…</p>
         </div>
       </div>
     );
@@ -177,7 +177,7 @@ export function PDFTable({ items, title, viewMode }: PDFTableProps) {
       <div className="p-4 lg:p-6">
         <h1 className="text-xl lg:text-2xl font-bold mb-4 text-gray-900">{title}</h1>
         <div className="p-4 bg-red-50 border border-red-200 rounded">
-          <p className="text-sm text-red-700">manifest.json の読み込みに失敗しました。</p>
+          <p className="text-sm text-red-700">manifest.json の読み込みに失敗しました。再読み込みしてください。</p>
         </div>
       </div>
     );
