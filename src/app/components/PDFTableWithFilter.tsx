@@ -3,7 +3,7 @@ import { ChevronDown } from 'lucide-react';
 import { Link } from 'react-router';
 import { Button } from '@/app/components/ui/button';
 import { getEraDisplay } from '@/app/utils/era';
-import { EnhancedTestRecord, FILTERABLE_SUBJECTS, getOtherSubjectOrder, resolvePublicPdfUrl } from '@/app/data/testDatabase';
+import { EnhancedTestRecord, FILTERABLE_SUBJECTS, getOtherSubjectOrder } from '@/app/data/testDatabase';
 import { FilterButton } from '@/app/components/FilterButton';
 import { PDFActionGroup, AudioActionGroup } from '@/app/components/PDFActionButton';
 import { TableLegend } from '@/app/components/TableLegend';
@@ -17,14 +17,9 @@ interface PDFTableWithFilterProps {
 }
 
 type PdfState = 1 | 2 | 3;
-type ManifestStatus = 'loading' | 'ready' | 'missing';
+type ManifestStatus = 'loading' | 'ready' | 'error';
 
-const PDF_BASE_URL = (import.meta.env.VITE_PDF_BASE_URL ?? '')
-  .trim()
-  .replace(/\/+$/, '');
-
-const PDF_MANIFEST_URL = (import.meta.env.VITE_PDF_MANIFEST_URL ?? (PDF_BASE_URL ? `${PDF_BASE_URL}/manifest.json` : ''))
-  .trim();
+const MANIFEST_URL = '/manifest.json';
 
 function normalizeAssetKey(pathOrUrl: string | undefined | null): string | null {
   const s = (pathOrUrl ?? '').trim();
@@ -58,28 +53,16 @@ function createManifestMap(payload: unknown): Record<string, true> {
   return next;
 }
 
-async function checkUrlExists(url: string): Promise<boolean> {
-  try {
-    const headResponse = await fetch(url, {
-      method: 'HEAD',
-      mode: 'cors',
-      cache: 'no-store',
-    });
+function derivePdfState(questionExists: boolean, answerExists: boolean, audioExists: boolean, hasAudio: boolean): PdfState {
+  const checks = hasAudio
+    ? [questionExists, answerExists, audioExists]
+    : [questionExists, answerExists];
 
-    return headResponse.ok;
-  } catch {
-    try {
-      const getResponse = await fetch(url, {
-        method: 'GET',
-        mode: 'cors',
-        cache: 'no-store',
-      });
+  const missingCount = checks.filter(value => !value).length;
 
-      return getResponse.ok;
-    } catch {
-      return false;
-    }
-  }
+  if (missingCount === 0) return 1;
+  if (missingCount === checks.length) return 3;
+  return 2;
 }
 
 export function PDFTableWithFilter({ items, title, viewMode, selectedCategorySubject }: PDFTableWithFilterProps) {
@@ -92,24 +75,15 @@ export function PDFTableWithFilter({ items, title, viewMode, selectedCategorySub
 
   const [selectedFilters, setSelectedFilters] = useState<Record<string, boolean>>({});
   const [manifestMap, setManifestMap] = useState<Record<string, true>>({});
-  const [manifestStatus, setManifestStatus] = useState<ManifestStatus>(PDF_MANIFEST_URL ? 'loading' : 'missing');
-  const [urlExistsMap, setUrlExistsMap] = useState<Record<string, boolean>>({});
+  const [manifestStatus, setManifestStatus] = useState<ManifestStatus>('loading');
 
   useEffect(() => {
     let cancelled = false;
 
-    if (!PDF_MANIFEST_URL) {
-      setManifestStatus('missing');
-      return;
-    }
-
-    setManifestStatus('loading');
-
     const loadManifest = async () => {
       try {
-        const response = await fetch(PDF_MANIFEST_URL, {
+        const response = await fetch(MANIFEST_URL, {
           method: 'GET',
-          mode: 'cors',
           cache: 'no-store',
         });
 
@@ -122,10 +96,11 @@ export function PDFTableWithFilter({ items, title, viewMode, selectedCategorySub
 
         setManifestMap(createManifestMap(json));
         setManifestStatus('ready');
-      } catch {
+      } catch (error) {
         if (cancelled) return;
+        console.error('Failed to load manifest.json:', error);
         setManifestMap({});
-        setManifestStatus('missing');
+        setManifestStatus('error');
       }
     };
 
@@ -173,83 +148,17 @@ export function PDFTableWithFilter({ items, title, viewMode, selectedCategorySub
     return items.filter(item => selectedFilters[item.essentialSubject] !== false);
   }, [items, filterableSubject, selectedFilters]);
 
-  const visibleAssetUrls = useMemo(() => {
-    return Array.from(
-      new Set(
-        filteredItems
-          .flatMap(item => [item.questionPdf, item.answerPdf, item.audio])
-          .map(path => resolvePublicPdfUrl(path))
-          .filter((url): url is string => Boolean(url))
-      )
-    );
-  }, [filteredItems]);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    if (manifestStatus !== 'missing') return;
-
-    const uncheckedUrls = visibleAssetUrls.filter(url => !(url in urlExistsMap));
-    if (uncheckedUrls.length === 0) return;
-
-    const verifyUrls = async () => {
-      const results = await Promise.all(
-        uncheckedUrls.map(async (url) => [url, await checkUrlExists(url)] as const)
-      );
-
-      if (cancelled) return;
-
-      setUrlExistsMap(prev => {
-        const next = { ...prev };
-        for (const [url, exists] of results) {
-          next[url] = exists;
-        }
-        return next;
-      });
-    };
-
-    void verifyUrls();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [manifestStatus, visibleAssetUrls, urlExistsMap]);
-
-  function resolveExists(pathOrName: string | undefined | null, fallback: boolean): boolean {
+  function resolveExists(pathOrName: string | undefined | null): boolean {
     const key = normalizeAssetKey(pathOrName);
     if (!key) return false;
-
-    if (manifestStatus === 'ready') {
-      return Boolean(manifestMap[key]);
-    }
-
-    const url = resolvePublicPdfUrl(pathOrName);
-    if (!url) return false;
-
-    if (url in urlExistsMap) {
-      return urlExistsMap[url];
-    }
-
-    return fallback;
-  }
-
-  function derivePdfState(questionExists: boolean, answerExists: boolean, audioExists: boolean, hasAudio: boolean): PdfState {
-    const checks = hasAudio
-      ? [questionExists, answerExists, audioExists]
-      : [questionExists, answerExists];
-
-    const missingCount = checks.filter(value => !value).length;
-
-    if (missingCount === 0) return 1;
-    if (missingCount === checks.length) return 3;
-    return 2;
+    return Boolean(manifestMap[key]);
   }
 
   function getEffectiveItem(item: EnhancedTestRecord): EnhancedTestRecord {
-    const questionExists = resolveExists(item.questionPdf, item.questionExists);
-    const answerExists = resolveExists(item.answerPdf, item.answerExists);
+    const questionExists = resolveExists(item.questionPdf);
+    const answerExists = resolveExists(item.answerPdf);
     const hasAudio = Boolean(item.audio?.trim());
-    const audioExists = hasAudio ? resolveExists(item.audio, item.audioExists) : false;
+    const audioExists = hasAudio ? resolveExists(item.audio) : false;
     const pdfState = derivePdfState(questionExists, answerExists, audioExists, hasAudio);
 
     return {
@@ -261,15 +170,20 @@ export function PDFTableWithFilter({ items, title, viewMode, selectedCategorySub
     };
   }
 
+  const effectiveFilteredItems = useMemo(
+    () => filteredItems.map(getEffectiveItem),
+    [filteredItems, manifestMap]
+  );
+
   const isSpecialYear = items.length > 0 && typeof items[0].year === 'string';
 
   const specialTests = viewMode === 'overview'
-    ? filteredItems.filter((item) => typeof item.year === 'string')
+    ? effectiveFilteredItems.filter((item) => typeof item.year === 'string')
     : [];
 
   const regularTests = viewMode === 'overview'
-    ? filteredItems.filter((item) => typeof item.year === 'number')
-    : filteredItems;
+    ? effectiveFilteredItems.filter((item) => typeof item.year === 'number')
+    : effectiveFilteredItems;
 
   const mainTests = regularTests.filter((item) => item.testType === 'main');
   const makeupTests = regularTests.filter((item) => item.testType === 'makeup');
@@ -278,6 +192,30 @@ export function PDFTableWithFilter({ items, title, viewMode, selectedCategorySub
     return (
       <div className="flex items-center justify-center h-64">
         <p className="text-gray-500">データがありません</p>
+      </div>
+    );
+  }
+
+  if (manifestStatus === 'loading') {
+    return (
+      <div className="p-4 lg:p-6 flex flex-col gap-4">
+        <h1 className="text-xl lg:text-2xl font-bold text-gray-900">{title}</h1>
+        <TableLegend />
+        <div className="p-4 bg-white border border-[var(--color-table-border)] rounded">
+          <p className="text-sm text-gray-600">manifest.json を読み込み中です…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (manifestStatus === 'error') {
+    return (
+      <div className="p-4 lg:p-6 flex flex-col gap-4">
+        <h1 className="text-xl lg:text-2xl font-bold text-gray-900">{title}</h1>
+        <TableLegend />
+        <div className="p-4 bg-red-50 border border-red-200 rounded">
+          <p className="text-sm text-red-700">manifest.json の読み込みに失敗しました。</p>
+        </div>
       </div>
     );
   }
@@ -397,76 +335,72 @@ export function PDFTableWithFilter({ items, title, viewMode, selectedCategorySub
               </tr>
             </thead>
             <tbody>
-              {tests.map((rawItem, index) => {
-                const item = getEffectiveItem(rawItem);
-
-                return (
-                  <tr
-                    key={`${item.year}-${item.subject}-${item.testType}-${index}`}
-                    className={`border-b border-[var(--color-table-border)] last:border-b-0 ${getPdfStateHoverColor(item.pdfState)} ${getPdfStateBgColor(item.pdfState, index % 2 === 0)}`}
-                  >
-                    {isOverviewMode ? (
-                      <>
-                        <td className="p-2 sm:p-3 text-xs sm:text-sm text-gray-700 border-r border-[var(--color-table-border)] break-words overflow-hidden">
-                          {typeof item.year === 'number'
-                            ? `${item.year}（${getEraDisplay(item.year)}）`
-                            : item.year}
-                        </td>
-                        <td className="p-2 sm:p-3 text-xs sm:text-sm font-medium text-gray-900 border-r border-[var(--color-table-border)] break-words overflow-hidden">
-                          {renderSubject(item)}
-                        </td>
-                      </>
-                    ) : viewMode === 'bySubject' ? (
-                      <>
-                        <td className="p-2 sm:p-3 text-xs sm:text-sm text-gray-700 border-r border-[var(--color-table-border)] break-words overflow-hidden">
-                          {typeof item.year === 'number'
-                            ? `${item.year}（${getEraDisplay(item.year)}）`
-                            : item.year}
-                        </td>
-                        <td className="p-2 sm:p-3 text-xs sm:text-sm font-medium text-gray-900 border-r border-[var(--color-table-border)] break-words overflow-hidden">
-                          {renderSubject(item)}
-                        </td>
-                      </>
-                    ) : (
+              {tests.map((item, index) => (
+                <tr
+                  key={`${item.year}-${item.subject}-${item.testType}-${index}`}
+                  className={`border-b border-[var(--color-table-border)] last:border-b-0 ${getPdfStateHoverColor(item.pdfState)} ${getPdfStateBgColor(item.pdfState, index % 2 === 0)}`}
+                >
+                  {isOverviewMode ? (
+                    <>
+                      <td className="p-2 sm:p-3 text-xs sm:text-sm text-gray-700 border-r border-[var(--color-table-border)] break-words overflow-hidden">
+                        {typeof item.year === 'number'
+                          ? `${item.year}（${getEraDisplay(item.year)}）`
+                          : item.year}
+                      </td>
                       <td className="p-2 sm:p-3 text-xs sm:text-sm font-medium text-gray-900 border-r border-[var(--color-table-border)] break-words overflow-hidden">
                         {renderSubject(item)}
                       </td>
-                    )}
-
-                    <td className="p-1.5 sm:p-2 border-r border-[var(--color-table-border)] overflow-hidden">
-                      <PDFActionGroup
-                        pdfPath={item.questionPdf}
-                        pdfState={item.pdfState}
-                        type="question"
-                        responsiveMode={responsiveMode}
-                        exists={item.questionExists}
-                      />
-                    </td>
-
-                    <td className={`p-1.5 sm:p-2 ${isListening ? 'border-r border-[var(--color-table-border)]' : ''} overflow-hidden`}>
-                      <PDFActionGroup
-                        pdfPath={item.answerPdf}
-                        pdfState={item.pdfState}
-                        type="answer"
-                        responsiveMode={responsiveMode}
-                        exists={item.answerExists}
-                      />
-                    </td>
-
-                    {isListening && (
-                      <td className="p-1.5 sm:p-2 overflow-hidden">
-                        <AudioActionGroup
-                          audioPath={item.audio}
-                          pdfState={item.pdfState}
-                          priority={item.priority}
-                          responsiveMode={responsiveMode}
-                          exists={item.audioExists}
-                        />
+                    </>
+                  ) : viewMode === 'bySubject' ? (
+                    <>
+                      <td className="p-2 sm:p-3 text-xs sm:text-sm text-gray-700 border-r border-[var(--color-table-border)] break-words overflow-hidden">
+                        {typeof item.year === 'number'
+                          ? `${item.year}（${getEraDisplay(item.year)}）`
+                          : item.year}
                       </td>
-                    )}
-                  </tr>
-                );
-              })}
+                      <td className="p-2 sm:p-3 text-xs sm:text-sm font-medium text-gray-900 border-r border-[var(--color-table-border)] break-words overflow-hidden">
+                        {renderSubject(item)}
+                      </td>
+                    </>
+                  ) : (
+                    <td className="p-2 sm:p-3 text-xs sm:text-sm font-medium text-gray-900 border-r border-[var(--color-table-border)] break-words overflow-hidden">
+                      {renderSubject(item)}
+                    </td>
+                  )}
+
+                  <td className="p-1.5 sm:p-2 border-r border-[var(--color-table-border)] overflow-hidden">
+                    <PDFActionGroup
+                      pdfPath={item.questionPdf}
+                      pdfState={item.pdfState}
+                      type="question"
+                      responsiveMode={responsiveMode}
+                      exists={item.questionExists}
+                    />
+                  </td>
+
+                  <td className={`p-1.5 sm:p-2 ${isListening ? 'border-r border-[var(--color-table-border)]' : ''} overflow-hidden`}>
+                    <PDFActionGroup
+                      pdfPath={item.answerPdf}
+                      pdfState={item.pdfState}
+                      type="answer"
+                      responsiveMode={responsiveMode}
+                      exists={item.answerExists}
+                    />
+                  </td>
+
+                  {isListening && (
+                    <td className="p-1.5 sm:p-2 overflow-hidden">
+                      <AudioActionGroup
+                        audioPath={item.audio}
+                        pdfState={item.pdfState}
+                        priority={item.priority}
+                        responsiveMode={responsiveMode}
+                        exists={item.audioExists}
+                      />
+                    </td>
+                  )}
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
@@ -551,7 +485,7 @@ export function PDFTableWithFilter({ items, title, viewMode, selectedCategorySub
         <>
           {isSpecialYear ? (
             <div>
-              {renderTable(filteredItems, '')}
+              {renderTable(effectiveFilteredItems, '')}
             </div>
           ) : (
             <>
