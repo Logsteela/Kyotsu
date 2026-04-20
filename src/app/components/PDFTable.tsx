@@ -8,7 +8,7 @@ interface PDFItem {
   id: string;
   subject: string;
   year: number;
-  type: 'main' | 'makeup'; // 本試験 or 追試験
+  type: 'main' | 'makeup';
   problemUrl: string;
   answerUrl: string;
 }
@@ -16,20 +16,13 @@ interface PDFItem {
 interface PDFTableProps {
   items: PDFItem[];
   title: string;
-  viewMode: 'byYear' | 'bySubject' | null; // 年度別か教科別か
+  viewMode: 'byYear' | 'bySubject' | null;
 }
 
 type PdfState = 1 | 2 | 3;
-type ManifestStatus = 'loading' | 'ready' | 'missing';
+type ManifestStatus = 'loading' | 'ready' | 'error';
 
-const PDF_BASE_URL = (import.meta.env.VITE_PDF_BASE_URL ?? '')
-  .trim()
-  .replace(/\/+$/, '');
-
-const PDF_MANIFEST_URL = (
-  import.meta.env.VITE_PDF_MANIFEST_URL ??
-  (PDF_BASE_URL ? `${PDF_BASE_URL}/manifest.json` : '/manifest.json')
-).trim();
+const MANIFEST_URL = '/manifest.json';
 
 function normalizeAssetKey(pathOrUrl: string | undefined | null): string | null {
   const s = (pathOrUrl ?? '').trim();
@@ -63,30 +56,6 @@ function createManifestMap(payload: unknown): Record<string, true> {
   return next;
 }
 
-async function checkUrlExists(url: string): Promise<boolean> {
-  try {
-    const headResponse = await fetch(url, {
-      method: 'HEAD',
-      mode: 'cors',
-      cache: 'no-store',
-    });
-
-    return headResponse.ok;
-  } catch {
-    try {
-      const getResponse = await fetch(url, {
-        method: 'GET',
-        mode: 'cors',
-        cache: 'no-store',
-      });
-
-      return getResponse.ok;
-    } catch {
-      return false;
-    }
-  }
-}
-
 function derivePdfState(problemExists: boolean, answerExists: boolean): PdfState {
   const missingCount = [problemExists, answerExists].filter(value => !value).length;
 
@@ -112,24 +81,15 @@ export function PDFTable({ items, title, viewMode }: PDFTableProps) {
   const makeupTests = items.filter((item) => item.type === 'makeup');
 
   const [manifestMap, setManifestMap] = useState<Record<string, true>>({});
-  const [manifestStatus, setManifestStatus] = useState<ManifestStatus>(PDF_MANIFEST_URL ? 'loading' : 'missing');
-  const [urlExistsMap, setUrlExistsMap] = useState<Record<string, boolean>>({});
+  const [manifestStatus, setManifestStatus] = useState<ManifestStatus>('loading');
 
   useEffect(() => {
     let cancelled = false;
 
-    if (!PDF_MANIFEST_URL) {
-      setManifestStatus('missing');
-      return;
-    }
-
-    setManifestStatus('loading');
-
     const loadManifest = async () => {
       try {
-        const response = await fetch(PDF_MANIFEST_URL, {
+        const response = await fetch(MANIFEST_URL, {
           method: 'GET',
-          mode: 'cors',
           cache: 'no-store',
         });
 
@@ -142,10 +102,11 @@ export function PDFTable({ items, title, viewMode }: PDFTableProps) {
 
         setManifestMap(createManifestMap(json));
         setManifestStatus('ready');
-      } catch {
+      } catch (error) {
         if (cancelled) return;
+        console.error('Failed to load manifest.json:', error);
         setManifestMap({});
-        setManifestStatus('missing');
+        setManifestStatus('error');
       }
     };
 
@@ -156,64 +117,23 @@ export function PDFTable({ items, title, viewMode }: PDFTableProps) {
     };
   }, []);
 
-  const visibleAssetUrls = useMemo(() => {
-    return Array.from(
-      new Set(
-        items
-          .flatMap(item => [item.problemUrl, item.answerUrl])
-          .filter((url): url is string => Boolean(url?.trim()))
-      )
-    );
-  }, [items]);
+  const effectiveItems = useMemo(() => {
+    return items.map((item) => {
+      const problemExists = Boolean(manifestMap[normalizeAssetKey(item.problemUrl) ?? '']);
+      const answerExists = Boolean(manifestMap[normalizeAssetKey(item.answerUrl) ?? '']);
+      const pdfState = derivePdfState(problemExists, answerExists);
 
-  useEffect(() => {
-    let cancelled = false;
+      return {
+        ...item,
+        problemExists,
+        answerExists,
+        pdfState,
+      };
+    });
+  }, [items, manifestMap]);
 
-    if (manifestStatus !== 'missing') return;
-
-    const uncheckedUrls = visibleAssetUrls.filter(url => !(url in urlExistsMap));
-    if (uncheckedUrls.length === 0) return;
-
-    const verifyUrls = async () => {
-      const results = await Promise.all(
-        uncheckedUrls.map(async (url) => [url, await checkUrlExists(url)] as const)
-      );
-
-      if (cancelled) return;
-
-      setUrlExistsMap(prev => {
-        const next = { ...prev };
-        for (const [url, exists] of results) {
-          next[url] = exists;
-        }
-        return next;
-      });
-    };
-
-    void verifyUrls();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [manifestStatus, visibleAssetUrls, urlExistsMap]);
-
-  function resolveExists(url: string | undefined | null): boolean {
-    const key = normalizeAssetKey(url);
-    if (!key) return false;
-
-    if (manifestStatus === 'ready') {
-      return Boolean(manifestMap[key]);
-    }
-
-    const normalizedUrl = (url ?? '').trim();
-    if (!normalizedUrl) return false;
-
-    if (normalizedUrl in urlExistsMap) {
-      return urlExistsMap[normalizedUrl];
-    }
-
-    return true;
-  }
+  const effectiveMainTests = effectiveItems.filter((item) => item.type === 'main');
+  const effectiveMakeupTests = effectiveItems.filter((item) => item.type === 'makeup');
 
   function getRowBgColor(pdfState: PdfState, isEven: boolean): string {
     if (pdfState === 3) return 'bg-red-200';
@@ -241,11 +161,37 @@ export function PDFTable({ items, title, viewMode }: PDFTableProps) {
     );
   }
 
+  if (manifestStatus === 'loading') {
+    return (
+      <div className="p-4 lg:p-6">
+        <h1 className="text-xl lg:text-2xl font-bold mb-4 text-gray-900">{title}</h1>
+        <div className="p-4 bg-white border rounded">
+          <p className="text-sm text-gray-600">manifest.json を読み込み中です…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (manifestStatus === 'error') {
+    return (
+      <div className="p-4 lg:p-6">
+        <h1 className="text-xl lg:text-2xl font-bold mb-4 text-gray-900">{title}</h1>
+        <div className="p-4 bg-red-50 border border-red-200 rounded">
+          <p className="text-sm text-red-700">manifest.json の読み込みに失敗しました。</p>
+        </div>
+      </div>
+    );
+  }
+
   const scrollToMakeup = () => {
     document.getElementById('makeup-section')?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const renderTable = (tests: PDFItem[], tableTitle: string, id?: string) => (
+  const renderTable = (
+    tests: Array<PDFItem & { problemExists: boolean; answerExists: boolean; pdfState: PdfState }>,
+    tableTitle: string,
+    id?: string
+  ) => (
     <div id={id} className="mb-8">
       <h2 className="text-lg font-semibold mb-3 text-gray-800 lg:sticky lg:top-0 bg-gray-100 py-2 z-10">
         {tableTitle}
@@ -261,99 +207,93 @@ export function PDFTable({ items, title, viewMode }: PDFTableProps) {
             </tr>
           </thead>
           <tbody>
-            {tests.map((item, index) => {
-              const problemExists = resolveExists(item.problemUrl);
-              const answerExists = resolveExists(item.answerUrl);
-              const pdfState = derivePdfState(problemExists, answerExists);
-
-              return (
-                <tr
-                  key={item.id}
-                  className={`border-b last:border-b-0 ${getRowHoverColor(pdfState)} ${getRowBgColor(pdfState, index % 2 === 0)}`}
-                >
-                  <td className="p-2 sm:p-3 border-r">
-                    <div className="text-xs sm:text-sm break-words">
-                      {viewMode === 'byYear' ? (
-                        <span className="text-gray-700">
-                          {item.year}年度（{getEraDisplay(item.year)}）
-                        </span>
-                      ) : (
-                        <span className="font-medium text-gray-900">
-                          {item.year}年度（{getEraDisplay(item.year)}）
-                        </span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="p-2 sm:p-3 border-r">
-                    <div className="text-xs sm:text-sm break-words">
-                      {viewMode === 'byYear' ? (
-                        <span className="font-medium text-gray-900">{getDisplaySubject(item.subject)}</span>
-                      ) : (
-                        <span className="text-gray-700">{getDisplaySubject(item.subject)}</span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="p-2 sm:p-3 border-r">
-                    <div className="flex flex-row gap-1 justify-center items-stretch">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className={getActionButtonClass(problemExists)}
-                        disabled={!problemExists}
-                        onClick={() => openInNewTab(item.problemUrl)}
-                      >
-                        <ExternalLink className="w-3 h-3 sm:mr-1" />
-                        <span className="hidden sm:inline">閲覧</span>
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className={getActionButtonClass(problemExists)}
-                        disabled={!problemExists}
-                        onClick={() => {
-                          downloadFile(
-                            item.problemUrl,
-                            `${item.year}_${getSubjectForFilename(item.subject)}_${item.type}_問題.pdf`
-                          );
-                        }}
-                      >
-                        <Download className="w-3 h-3 sm:mr-1" />
-                        <span className="hidden sm:inline">DL</span>
-                      </Button>
-                    </div>
-                  </td>
-                  <td className="p-2 sm:p-3">
-                    <div className="flex flex-row gap-1 justify-center items-stretch">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className={getActionButtonClass(answerExists)}
-                        disabled={!answerExists}
-                        onClick={() => openInNewTab(item.answerUrl)}
-                      >
-                        <ExternalLink className="w-3 h-3 sm:mr-1" />
-                        <span className="hidden sm:inline">閲覧</span>
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className={getActionButtonClass(answerExists)}
-                        disabled={!answerExists}
-                        onClick={() => {
-                          downloadFile(
-                            item.answerUrl,
-                            `${item.year}_${getSubjectForFilename(item.subject)}_${item.type}_解答.pdf`
-                          );
-                        }}
-                      >
-                        <Download className="w-3 h-3 sm:mr-1" />
-                        <span className="hidden sm:inline">DL</span>
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
+            {tests.map((item, index) => (
+              <tr
+                key={item.id}
+                className={`border-b last:border-b-0 ${getRowHoverColor(item.pdfState)} ${getRowBgColor(item.pdfState, index % 2 === 0)}`}
+              >
+                <td className="p-2 sm:p-3 border-r">
+                  <div className="text-xs sm:text-sm break-words">
+                    {viewMode === 'byYear' ? (
+                      <span className="text-gray-700">
+                        {item.year}年度（{getEraDisplay(item.year)}）
+                      </span>
+                    ) : (
+                      <span className="font-medium text-gray-900">
+                        {item.year}年度（{getEraDisplay(item.year)}）
+                      </span>
+                    )}
+                  </div>
+                </td>
+                <td className="p-2 sm:p-3 border-r">
+                  <div className="text-xs sm:text-sm break-words">
+                    {viewMode === 'byYear' ? (
+                      <span className="font-medium text-gray-900">{getDisplaySubject(item.subject)}</span>
+                    ) : (
+                      <span className="text-gray-700">{getDisplaySubject(item.subject)}</span>
+                    )}
+                  </div>
+                </td>
+                <td className="p-2 sm:p-3 border-r">
+                  <div className="flex flex-row gap-1 justify-center items-stretch">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className={getActionButtonClass(item.problemExists)}
+                      disabled={!item.problemExists}
+                      onClick={() => openInNewTab(item.problemUrl)}
+                    >
+                      <ExternalLink className="w-3 h-3 sm:mr-1" />
+                      <span className="hidden sm:inline">閲覧</span>
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className={getActionButtonClass(item.problemExists)}
+                      disabled={!item.problemExists}
+                      onClick={() => {
+                        downloadFile(
+                          item.problemUrl,
+                          `${item.year}_${getSubjectForFilename(item.subject)}_${item.type}_問題.pdf`
+                        );
+                      }}
+                    >
+                      <Download className="w-3 h-3 sm:mr-1" />
+                      <span className="hidden sm:inline">DL</span>
+                    </Button>
+                  </div>
+                </td>
+                <td className="p-2 sm:p-3">
+                  <div className="flex flex-row gap-1 justify-center items-stretch">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className={getActionButtonClass(item.answerExists)}
+                      disabled={!item.answerExists}
+                      onClick={() => openInNewTab(item.answerUrl)}
+                    >
+                      <ExternalLink className="w-3 h-3 sm:mr-1" />
+                      <span className="hidden sm:inline">閲覧</span>
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className={getActionButtonClass(item.answerExists)}
+                      disabled={!item.answerExists}
+                      onClick={() => {
+                        downloadFile(
+                          item.answerUrl,
+                          `${item.year}_${getSubjectForFilename(item.subject)}_${item.type}_解答.pdf`
+                        );
+                      }}
+                    >
+                      <Download className="w-3 h-3 sm:mr-1" />
+                      <span className="hidden sm:inline">DL</span>
+                    </Button>
+                  </div>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
@@ -377,16 +317,16 @@ export function PDFTable({ items, title, viewMode }: PDFTableProps) {
 
       <div className="hidden lg:grid lg:grid-cols-2 lg:gap-6">
         <div>
-          {renderTable(mainTests, '本試験')}
+          {renderTable(effectiveMainTests, '本試験')}
         </div>
         <div>
-          {renderTable(makeupTests, '追試験')}
+          {renderTable(effectiveMakeupTests, '追試験')}
         </div>
       </div>
 
       <div className="lg:hidden">
-        {renderTable(mainTests, '本試験')}
-        {renderTable(makeupTests, '追試験', 'makeup-section')}
+        {renderTable(effectiveMainTests, '本試験')}
+        {renderTable(effectiveMakeupTests, '追試験', 'makeup-section')}
       </div>
     </div>
   );
