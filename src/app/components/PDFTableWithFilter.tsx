@@ -202,7 +202,7 @@ export function PDFTableWithFilter({ items, title, viewMode, selectedCategorySub
         <h1 className="text-xl lg:text-2xl font-bold text-gray-900">{title}</h1>
         <TableLegend />
         <div className="p-4 bg-white border border-[var(--color-table-border)] rounded">
-          <p className="text-sm text-gray-600">manifest.json を読み込み中です…</p>
+          <p className="text-sm text-gray-600">Loading…</p>
         </div>
       </div>
     );
@@ -214,7 +214,7 @@ export function PDFTableWithFilter({ items, title, viewMode, selectedCategorySub
         <h1 className="text-xl lg:text-2xl font-bold text-gray-900">{title}</h1>
         <TableLegend />
         <div className="p-4 bg-red-50 border border-red-200 rounded">
-          <p className="text-sm text-red-700">manifest.json の読み込みに失敗しました。</p>
+          <p className="text-sm text-red-700">manifest.json の読み込みに失敗しました。再読み込みしてください。</p>
         </div>
       </div>
     );
