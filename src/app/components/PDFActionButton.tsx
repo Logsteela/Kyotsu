@@ -27,7 +27,6 @@ const SITE_ORIGIN = 'https://kyotsutest.vercel.app';
 const ACTION_CONFIG: Record<ActionType, { icon: LucideIcon; label: string }> = {
   view: { icon: ExternalLink, label: '閲覧' },
   download: { icon: Download, label: 'DL' },
-
   audioView: { icon: Volume2, label: '再生' },
   audioDownload: { icon: Download, label: 'DL' },
 };
@@ -55,9 +54,23 @@ const LAYOUT_CLASSES: Record<ResponsiveMode, string> = {
   'special-no-audio': 'flex-col min-[1024px]:flex-row',
 };
 
+function isGustMode(): boolean {
+  if (typeof window === 'undefined') return false;
+
+  const params = new URLSearchParams(window.location.search);
+
+  return (
+    params.has('o') ||
+    params.has('a') ||
+    params.has('y') ||
+    params.has('s') ||
+    params.has('t') ||
+    params.has('p')
+  );
+}
+
 function toAbsoluteUrl(url: string): string {
   if (/^https?:\/\//i.test(url)) return url;
-
   return `${SITE_ORIGIN}${url.startsWith('/') ? '' : '/'}${url}`;
 }
 
@@ -104,7 +117,29 @@ export function PDFActionButton({
     );
   }
 
+  const gust = isGustMode();
   const isDownload = type === 'download' || type === 'audioDownload';
+
+  if (gust) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={config.label}
+        title={config.label}
+        style={{
+          userSelect: 'none',
+          WebkitUserSelect: 'none',
+          WebkitTouchCallout: 'default',
+          touchAction: 'manipulation',
+        }}
+        className={`inline-flex items-center justify-center w-7 h-7 rounded border border-gray-300 bg-white text-gray-800 no-underline ${className}`}
+      >
+        <Icon className="w-4 h-4 pointer-events-none" />
+      </a>
+    );
+  }
 
   return (
     <Button
