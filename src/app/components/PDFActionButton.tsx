@@ -1,16 +1,9 @@
-import { useState } from 'react';
-import {
-  Download,
-  ExternalLink,
-  Volume2,
-  Clipboard,
-  Check,
-  LucideIcon,
-} from 'lucide-react';
+import { Download, ExternalLink, Volume2, LucideIcon } from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
 import { resolvePublicPdfUrl } from '@/app/data/testDatabase';
+import { GustUrlField, isGustMode, toAbsoluteUrl } from '@/app/components/GustUrlField';
 
-type ActionType = 'view' | 'download' | 'audioView' | 'audioDownload' | 'copy';
+type ActionType = 'view' | 'download' | 'audioView' | 'audioDownload';
 
 type ResponsiveMode =
   | 'year-with-audio'
@@ -30,14 +23,11 @@ interface PDFActionButtonProps {
   responsiveMode?: ResponsiveMode;
 }
 
-const SITE_ORIGIN = 'https://kyotsutest.vercel.app';
-
 const ACTION_CONFIG: Record<ActionType, { icon: LucideIcon; label: string }> = {
   view: { icon: ExternalLink, label: '閲覧' },
   download: { icon: Download, label: 'DL' },
   audioView: { icon: Volume2, label: '再生' },
   audioDownload: { icon: Download, label: 'DL' },
-  copy: { icon: Clipboard, label: 'コピー' },
 };
 
 const RESPONSIVE_CLASSES: Record<ResponsiveMode, string> = {
@@ -63,33 +53,6 @@ const LAYOUT_CLASSES: Record<ResponsiveMode, string> = {
   'special-no-audio': 'flex-col min-[1024px]:flex-row',
 };
 
-function isGustMode(): boolean {
-  if (typeof window === 'undefined') return false;
-
-  const kyotsuWindow = window as Window & {
-    __KYOTSU_GUST_MODE__?: boolean;
-  };
-
-  if (kyotsuWindow.__KYOTSU_GUST_MODE__) return true;
-  if (document.documentElement.dataset.gustMode === '1') return true;
-
-  const params = new URLSearchParams(window.location.search);
-
-  return (
-    params.has('o') ||
-    params.has('a') ||
-    params.has('y') ||
-    params.has('s') ||
-    params.has('t') ||
-    params.has('p')
-  );
-}
-
-function toAbsoluteUrl(url: string): string {
-  if (/^https?:\/\//i.test(url)) return url;
-  return `${SITE_ORIGIN}${url.startsWith('/') ? '' : '/'}${url}`;
-}
-
 function getDownloadName(pathOrUrl: string | undefined | null): string | undefined {
   const raw = (pathOrUrl ?? '').trim();
   if (!raw) return undefined;
@@ -104,38 +67,6 @@ function getDownloadName(pathOrUrl: string | undefined | null): string | undefin
   return fileName ? decodeURIComponent(fileName) : undefined;
 }
 
-async function copyTextToClipboard(text: string): Promise<boolean> {
-  try {
-    if (navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(text);
-      return true;
-    }
-  } catch {
-    // fallbackへ
-  }
-
-  try {
-    const textarea = document.createElement('textarea');
-    textarea.value = text;
-    textarea.setAttribute('readonly', 'readonly');
-    textarea.style.position = 'fixed';
-    textarea.style.left = '-9999px';
-    textarea.style.top = '0';
-    textarea.style.opacity = '0';
-
-    document.body.appendChild(textarea);
-    textarea.focus();
-    textarea.select();
-
-    const ok = document.execCommand('copy');
-    document.body.removeChild(textarea);
-
-    return ok;
-  } catch {
-    return false;
-  }
-}
-
 export function PDFActionButton({
   type,
   disabled = false,
@@ -144,23 +75,12 @@ export function PDFActionButton({
   className = '',
   responsiveMode = 'year-no-audio',
 }: PDFActionButtonProps) {
-  const [copied, setCopied] = useState(false);
-
-  const gust = isGustMode();
-  const isDownload = type === 'download' || type === 'audioDownload';
-
-  const normalConfig = ACTION_CONFIG[type];
-  const gustIcon = copied ? Check : Clipboard;
-  const GustIcon = gustIcon;
-
-  const Icon = normalConfig.icon;
+  const config = ACTION_CONFIG[type];
+  const Icon = config.icon;
   const textClass = RESPONSIVE_CLASSES[responsiveMode];
 
   const buttonClass =
     `text-[10px] md:text-xs px-1 md:px-2 py-1 h-auto min-w-0 whitespace-nowrap border-gray-300 hover:bg-gray-100 ${className}`;
-
-  const gustButtonClass =
-    `w-7 h-7 p-0 min-w-0 border-gray-300 hover:bg-gray-100 ${className}`;
 
   if (disabled || !href) {
     return (
@@ -168,47 +88,15 @@ export function PDFActionButton({
         disabled
         size="sm"
         variant="outline"
-        className={gust ? gustButtonClass : buttonClass}
-        aria-label={gust ? 'コピー不可' : normalConfig.label}
-        title={gust ? 'コピー不可' : normalConfig.label}
+        className={buttonClass}
       >
-        {gust ? (
-          <Clipboard className="w-4 h-4 flex-shrink-0" />
-        ) : (
-          <>
-            <Icon className="w-3 h-3 md:mr-1 flex-shrink-0" />
-            <span className={textClass}>{normalConfig.label}</span>
-          </>
-        )}
+        <Icon className="w-3 h-3 md:mr-1 flex-shrink-0" />
+        <span className={textClass}>{config.label}</span>
       </Button>
     );
   }
 
-  if (gust || type === 'copy') {
-    return (
-      <Button
-        type="button"
-        size="sm"
-        variant="outline"
-        className={gustButtonClass}
-        aria-label={copied ? 'コピー済み' : 'URLをコピー'}
-        title={copied ? 'コピー済み' : 'URLをコピー'}
-        onClick={async () => {
-          const ok = await copyTextToClipboard(href);
-
-          if (!ok) {
-            window.prompt('このURLをコピーしてください', href);
-            return;
-          }
-
-          setCopied(true);
-          window.setTimeout(() => setCopied(false), 1200);
-        }}
-      >
-        <GustIcon className="w-4 h-4 flex-shrink-0" />
-      </Button>
-    );
-  }
+  const isDownload = type === 'download' || type === 'audioDownload';
 
   return (
     <Button
@@ -224,7 +112,7 @@ export function PDFActionButton({
         download={isDownload ? downloadName : undefined}
       >
         <Icon className="w-3 h-3 md:mr-1 flex-shrink-0" />
-        <span className={textClass}>{normalConfig.label}</span>
+        <span className={textClass}>{config.label}</span>
       </a>
     </Button>
   );
@@ -241,7 +129,7 @@ interface PDFActionGroupProps {
 export function PDFActionGroup({
   pdfPath,
   pdfState,
-  type: _type,
+  type,
   responsiveMode = 'year-no-audio',
   exists = true,
 }: PDFActionGroupProps) {
@@ -254,19 +142,18 @@ export function PDFActionGroup({
   const downloadName = getDownloadName(pdfPath);
 
   const layoutClass = LAYOUT_CLASSES[responsiveMode];
-  const gust = isGustMode();
 
-  if (gust) {
+  if (isGustMode()) {
+    if (disabled || !href) {
+      return <div className="text-center text-gray-400 text-xs">-</div>;
+    }
+
     return (
-      <div className={`flex gap-0.5 md:gap-1 justify-center items-stretch ${layoutClass}`}>
-        <PDFActionButton
-          type="copy"
-          disabled={disabled}
-          href={href}
-          downloadName={downloadName}
-          responsiveMode={responsiveMode}
-        />
-      </div>
+      <GustUrlField
+        url={href}
+        label={type === 'question' ? '問題URL' : '解答URL'}
+        compact
+      />
     );
   }
 
@@ -316,19 +203,17 @@ export function AudioActionGroup({
     return <div className="text-center text-gray-400 text-xs">-</div>;
   }
 
-  const gust = isGustMode();
+  if (isGustMode()) {
+    if (disabled || !href) {
+      return <div className="text-center text-gray-400 text-xs">-</div>;
+    }
 
-  if (gust) {
     return (
-      <div className={`flex gap-0.5 md:gap-1 justify-center items-stretch ${LAYOUT_CLASSES[responsiveMode]}`}>
-        <PDFActionButton
-          type="copy"
-          disabled={disabled}
-          href={href}
-          downloadName={downloadName}
-          responsiveMode={responsiveMode}
-        />
-      </div>
+      <GustUrlField
+        url={href}
+        label="音声URL"
+        compact
+      />
     );
   }
 
