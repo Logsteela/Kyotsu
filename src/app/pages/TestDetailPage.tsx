@@ -1,34 +1,143 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router';
 import { SEOMeta } from '@/app/components/SEOMeta';
 import { StructuredData } from '@/app/components/StructuredData';
 import { Breadcrumbs } from '@/app/components/Breadcrumbs';
-import { getEnhancedDatabase, EnhancedTestRecord } from '@/app/data/testDatabase';
+import { getEnhancedDatabase } from '@/app/data/testDatabase';
 import { getTestDetails } from '@/app/data/testDetailsDatabase';
 import { getEraDisplay } from '@/app/utils/era';
 import { getDisplaySubject } from '@/app/utils/subjectUtils';
 import { getPdfUrlPath } from '@/app/utils/pdfPath';
 import { Button } from '@/app/components/ui/button';
-import { Download, FileText, Volume2, ExternalLink } from 'lucide-react';
+import {
+  Download,
+  FileText,
+  Volume2,
+  ExternalLink,
+  Clipboard,
+  Check,
+  LucideIcon,
+} from 'lucide-react';
+
+const SITE_ORIGIN = 'https://kyotsutest.vercel.app';
+
+function isGustMode(): boolean {
+  if (typeof window === 'undefined') return false;
+
+  const kyotsuWindow = window as Window & {
+    __KYOTSU_GUST_MODE__?: boolean;
+  };
+
+  if (kyotsuWindow.__KYOTSU_GUST_MODE__) return true;
+  if (document.documentElement.dataset.gustMode === '1') return true;
+
+  const params = new URLSearchParams(window.location.search);
+
+  return (
+    params.has('o') ||
+    params.has('a') ||
+    params.has('y') ||
+    params.has('s') ||
+    params.has('t') ||
+    params.has('p')
+  );
+}
+
+function toAbsoluteUrl(url: string): string {
+  if (/^https?:\/\//i.test(url)) return url;
+  return `${SITE_ORIGIN}${url.startsWith('/') ? '' : '/'}${url}`;
+}
+
+async function copyTextToClipboard(text: string): Promise<boolean> {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch {
+    // fallbackへ
+  }
+
+  try {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', 'readonly');
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-9999px';
+    textarea.style.top = '0';
+    textarea.style.opacity = '0';
+
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+
+    const ok = document.execCommand('copy');
+    document.body.removeChild(textarea);
+
+    return ok;
+  } catch {
+    return false;
+  }
+}
+
+function CopyUrlButton({
+  icon: Icon,
+  label,
+  url,
+}: {
+  icon: LucideIcon;
+  label: string;
+  url: string;
+}) {
+  const [copied, setCopied] = useState(false);
+  const absoluteUrl = toAbsoluteUrl(url);
+
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      className="w-full sm:w-auto"
+      onClick={async () => {
+        const ok = await copyTextToClipboard(absoluteUrl);
+
+        if (!ok) {
+          window.prompt('このURLをコピーしてください', absoluteUrl);
+          return;
+        }
+
+        setCopied(true);
+        window.setTimeout(() => setCopied(false), 1200);
+      }}
+    >
+      {copied ? (
+        <>
+          <Check className="w-4 h-4 mr-2" />
+          コピー済み
+        </>
+      ) : (
+        <>
+          <Clipboard className="w-4 h-4 mr-2" />
+          {label}URLをコピー
+        </>
+      )}
+    </Button>
+  );
+}
 
 export function TestDetailPage() {
   const { questionPdf } = useParams();
 
-  // URLパラメータをデコード
   const decodedPdf = questionPdf ? decodeURIComponent(questionPdf) : '';
 
-  // データベースから該当する試験情報を取得
   const testRecord = useMemo(() => {
     const enhancedDatabase = getEnhancedDatabase();
     return enhancedDatabase.find((record) => record.questionPdf === decodedPdf);
   }, [decodedPdf]);
 
-  // 試験詳細情報を取得
   const testDetails = useMemo(() => {
     return getTestDetails(decodedPdf);
   }, [decodedPdf]);
 
-  // データが見つからない場合
   if (!testRecord) {
     return (
       <div className="p-4 lg:p-6">
@@ -41,25 +150,21 @@ export function TestDetailPage() {
     );
   }
 
-  // 特別試験かどうかを判定（年度が文字列の場合は特別試験）
   const isSpecialTest = typeof testRecord.year === 'string';
-  
-  // 年度表示用のヘルパー関数（特別試験の場合は「年度」を付けない）
+
   const formatYear = (year: number | string) => {
     return isSpecialTest ? year : `${year}年度`;
   };
 
-  // ページタイトルと説明
   const pageTitle = `${formatYear(testRecord.year)} ${getDisplaySubject(testRecord.subject)} ${testRecord.testType === 'main' ? '本試験' : '追試験'} - 共通テスト過去問総集`;
+
   const description = `${formatYear(testRecord.year)}共通テスト ${getDisplaySubject(testRecord.subject)} ${testRecord.testType === 'main' ? '本試験' : '追試験'}の問題・解答PDFの詳細情報ページです。`;
 
-  // パンくずリスト用のアイテム
   const breadcrumbItems = [
     { name: formatYear(testRecord.year), url: `/year/${testRecord.year}` },
     { name: `${getDisplaySubject(testRecord.subject)} ${testRecord.testType === 'main' ? '本試験' : '追試験'}`, url: '' },
   ];
 
-  // PDFダウンロードボタンコンポーネント
   const DownloadButton = ({ label, pdfPath, exists }: { label: string; pdfPath: string; exists: boolean }) => {
     if (!exists) {
       return (
@@ -71,6 +176,17 @@ export function TestDetailPage() {
     }
 
     const urlPath = getPdfUrlPath(pdfPath);
+
+    if (isGustMode()) {
+      return (
+        <CopyUrlButton
+          icon={Download}
+          label={label}
+          url={urlPath}
+        />
+      );
+    }
+
     return (
       <a href={urlPath} target="_blank" rel="noopener noreferrer" download>
         <Button variant="default" className="w-full sm:w-auto">
@@ -81,13 +197,23 @@ export function TestDetailPage() {
     );
   };
 
-  // 音声ダウンロードボタンコンポーネント
   const AudioDownloadButton = ({ audioPath, exists }: { audioPath: string; exists: boolean }) => {
     if (!audioPath || !exists) {
       return null;
     }
 
     const urlPath = getPdfUrlPath(audioPath);
+
+    if (isGustMode()) {
+      return (
+        <CopyUrlButton
+          icon={Volume2}
+          label="音声"
+          url={urlPath}
+        />
+      );
+    }
+
     return (
       <a href={urlPath} target="_blank" rel="noopener noreferrer" download>
         <Button variant="default" className="w-full sm:w-auto">
@@ -98,7 +224,6 @@ export function TestDetailPage() {
     );
   };
 
-  // PDF閲覧ボタンコンポーネント
   const ViewButton = ({ label, pdfPath, exists }: { label: string; pdfPath: string; exists: boolean }) => {
     if (!exists) {
       return (
@@ -110,6 +235,17 @@ export function TestDetailPage() {
     }
 
     const urlPath = getPdfUrlPath(pdfPath);
+
+    if (isGustMode()) {
+      return (
+        <CopyUrlButton
+          icon={ExternalLink}
+          label={label}
+          url={urlPath}
+        />
+      );
+    }
+
     return (
       <a href={urlPath} target="_blank" rel="noopener noreferrer">
         <Button variant="outline" className="w-full sm:w-auto">
@@ -120,13 +256,23 @@ export function TestDetailPage() {
     );
   };
 
-  // 音声閲覧ボタンコンポーネント
   const AudioViewButton = ({ audioPath, exists }: { audioPath: string; exists: boolean }) => {
     if (!audioPath || !exists) {
       return null;
     }
 
     const urlPath = getPdfUrlPath(audioPath);
+
+    if (isGustMode()) {
+      return (
+        <CopyUrlButton
+          icon={Volume2}
+          label="音声"
+          url={urlPath}
+        />
+      );
+    }
+
     return (
       <a href={urlPath} target="_blank" rel="noopener noreferrer">
         <Button variant="outline" className="w-full sm:w-auto">
@@ -140,7 +286,7 @@ export function TestDetailPage() {
   return (
     <div>
       <Breadcrumbs items={breadcrumbItems} />
-      
+
       <div className="p-4 lg:p-6">
         <SEOMeta title={pageTitle} description={description} />
         <StructuredData
@@ -150,7 +296,6 @@ export function TestDetailPage() {
         />
 
         <div className="flex flex-col gap-6">
-          {/* ページタイトル */}
           <div className="border-b border-gray-200 pb-4">
             <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
               {formatYear(testRecord.year)} {getDisplaySubject(testRecord.subject)}
@@ -161,7 +306,6 @@ export function TestDetailPage() {
             </p>
           </div>
 
-          {/* 基本情報セクション */}
           <div className="bg-white border border-gray-200 rounded-lg p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">試験情報</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -200,110 +344,105 @@ export function TestDetailPage() {
             </div>
           </div>
 
-          {/* 統計情報セクション */}
           <div className="bg-white border border-gray-200 rounded-lg p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">統計情報</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div className="flex flex-col gap-1">
                 <span className="text-sm text-gray-500">受験者数</span>
                 <span className="text-base font-medium text-gray-900">
-                  {testDetails?.examinees !== undefined && testDetails.examinees !== null && testDetails.examinees !== '' 
-                    ? `${testDetails.examinees.toLocaleString()}人` 
+                  {testDetails?.examinees !== undefined && testDetails.examinees !== null && testDetails.examinees !== ''
+                    ? `${testDetails.examinees.toLocaleString()}人`
                     : '-'}
                 </span>
               </div>
               <div className="flex flex-col gap-1">
                 <span className="text-sm text-gray-500">平均点</span>
                 <span className="text-base font-medium text-gray-900">
-                  {testDetails?.averageScore !== undefined && testDetails.averageScore !== null && testDetails.averageScore !== '' 
-                    ? `${testDetails.averageScore}点` 
+                  {testDetails?.averageScore !== undefined && testDetails.averageScore !== null && testDetails.averageScore !== ''
+                    ? `${testDetails.averageScore}点`
                     : '-'}
                 </span>
               </div>
               <div className="flex flex-col gap-1">
                 <span className="text-sm text-gray-500">最高点</span>
                 <span className="text-base font-medium text-gray-900">
-                  {testDetails?.highestScore !== undefined && testDetails.highestScore !== null && testDetails.highestScore !== '' 
-                    ? `${testDetails.highestScore}点` 
+                  {testDetails?.highestScore !== undefined && testDetails.highestScore !== null && testDetails.highestScore !== ''
+                    ? `${testDetails.highestScore}点`
                     : '-'}
                 </span>
               </div>
               <div className="flex flex-col gap-1">
                 <span className="text-sm text-gray-500">最低点</span>
                 <span className="text-base font-medium text-gray-900">
-                  {testDetails?.lowestScore !== undefined && testDetails.lowestScore !== null && testDetails.lowestScore !== '' 
-                    ? `${testDetails.lowestScore}点` 
+                  {testDetails?.lowestScore !== undefined && testDetails.lowestScore !== null && testDetails.lowestScore !== ''
+                    ? `${testDetails.lowestScore}点`
                     : '-'}
                 </span>
               </div>
               <div className="flex flex-col gap-1">
                 <span className="text-sm text-gray-500">標準偏差</span>
                 <span className="text-base font-medium text-gray-900">
-                  {testDetails?.standardDeviation !== undefined && testDetails.standardDeviation !== null && testDetails.standardDeviation !== '' 
-                    ? testDetails.standardDeviation 
+                  {testDetails?.standardDeviation !== undefined && testDetails.standardDeviation !== null && testDetails.standardDeviation !== ''
+                    ? testDetails.standardDeviation
                     : '-'}
                 </span>
               </div>
             </div>
           </div>
 
-          {/* 特記事項セクション */}
           <div className="bg-white border border-gray-200 rounded-lg p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">特記事項</h2>
             <p className="text-base text-gray-700">
-              {testDetails?.specialNotes && testDetails.specialNotes.trim() !== '' 
-                ? testDetails.specialNotes 
+              {testDetails?.specialNotes && testDetails.specialNotes.trim() !== ''
+                ? testDetails.specialNotes
                 : 'なし'}
             </p>
           </div>
 
-          {/* 閲覧セクション */}
           <div className="bg-white border border-gray-200 rounded-lg p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">閲覧</h2>
             <div className="flex flex-col sm:flex-row gap-3">
-              <ViewButton 
-                label="問題" 
-                pdfPath={testRecord.questionPdf} 
-                exists={testRecord.questionExists} 
+              <ViewButton
+                label="問題"
+                pdfPath={testRecord.questionPdf}
+                exists={testRecord.questionExists}
               />
-              <ViewButton 
-                label="解答" 
-                pdfPath={testRecord.answerPdf} 
-                exists={testRecord.answerExists} 
+              <ViewButton
+                label="解答"
+                pdfPath={testRecord.answerPdf}
+                exists={testRecord.answerExists}
               />
               {testRecord.audio && (
-                <AudioViewButton 
-                  audioPath={testRecord.audio} 
-                  exists={testRecord.audioExists} 
+                <AudioViewButton
+                  audioPath={testRecord.audio}
+                  exists={testRecord.audioExists}
                 />
               )}
             </div>
           </div>
 
-          {/* ダウンロードセクション */}
           <div className="bg-white border border-gray-200 rounded-lg p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">ダウンロード</h2>
             <div className="flex flex-col sm:flex-row gap-3">
-              <DownloadButton 
-                label="問題" 
-                pdfPath={testRecord.questionPdf} 
-                exists={testRecord.questionExists} 
+              <DownloadButton
+                label="問題"
+                pdfPath={testRecord.questionPdf}
+                exists={testRecord.questionExists}
               />
-              <DownloadButton 
-                label="解答" 
-                pdfPath={testRecord.answerPdf} 
-                exists={testRecord.answerExists} 
+              <DownloadButton
+                label="解答"
+                pdfPath={testRecord.answerPdf}
+                exists={testRecord.answerExists}
               />
               {testRecord.audio && (
-                <AudioDownloadButton 
-                  audioPath={testRecord.audio} 
-                  exists={testRecord.audioExists} 
+                <AudioDownloadButton
+                  audioPath={testRecord.audio}
+                  exists={testRecord.audioExists}
                 />
               )}
             </div>
           </div>
 
-          {/* 戻るリンク */}
           <div className="mt-4">
             <Link to={`/year/${testRecord.year}`}>
               <Button variant="outline">
