@@ -149,16 +149,18 @@ export function PDFActionButton({
   const gust = isGustMode();
   const isDownload = type === 'download' || type === 'audioDownload';
 
-  const actualType: ActionType = gust ? 'copy' : type;
-  const config = copied
-    ? { icon: Check, label: '済' }
-    : ACTION_CONFIG[actualType];
+  const normalConfig = ACTION_CONFIG[type];
+  const gustIcon = copied ? Check : Clipboard;
+  const GustIcon = gustIcon;
 
-  const Icon = config.icon;
+  const Icon = normalConfig.icon;
   const textClass = RESPONSIVE_CLASSES[responsiveMode];
 
   const buttonClass =
     `text-[10px] md:text-xs px-1 md:px-2 py-1 h-auto min-w-0 whitespace-nowrap border-gray-300 hover:bg-gray-100 ${className}`;
+
+  const gustButtonClass =
+    `w-7 h-7 p-0 min-w-0 border-gray-300 hover:bg-gray-100 ${className}`;
 
   if (disabled || !href) {
     return (
@@ -166,10 +168,18 @@ export function PDFActionButton({
         disabled
         size="sm"
         variant="outline"
-        className={buttonClass}
+        className={gust ? gustButtonClass : buttonClass}
+        aria-label={gust ? 'コピー不可' : normalConfig.label}
+        title={gust ? 'コピー不可' : normalConfig.label}
       >
-        <Icon className="w-3 h-3 md:mr-1 flex-shrink-0" />
-        <span className={textClass}>{config.label}</span>
+        {gust ? (
+          <Clipboard className="w-4 h-4 flex-shrink-0" />
+        ) : (
+          <>
+            <Icon className="w-3 h-3 md:mr-1 flex-shrink-0" />
+            <span className={textClass}>{normalConfig.label}</span>
+          </>
+        )}
       </Button>
     );
   }
@@ -180,7 +190,9 @@ export function PDFActionButton({
         type="button"
         size="sm"
         variant="outline"
-        className={buttonClass}
+        className={gustButtonClass}
+        aria-label={copied ? 'コピー済み' : 'URLをコピー'}
+        title={copied ? 'コピー済み' : 'URLをコピー'}
         onClick={async () => {
           const ok = await copyTextToClipboard(href);
 
@@ -193,8 +205,7 @@ export function PDFActionButton({
           window.setTimeout(() => setCopied(false), 1200);
         }}
       >
-        <Icon className="w-3 h-3 md:mr-1 flex-shrink-0" />
-        <span className={textClass}>{config.label}</span>
+        <GustIcon className="w-4 h-4 flex-shrink-0" />
       </Button>
     );
   }
@@ -213,7 +224,7 @@ export function PDFActionButton({
         download={isDownload ? downloadName : undefined}
       >
         <Icon className="w-3 h-3 md:mr-1 flex-shrink-0" />
-        <span className={textClass}>{config.label}</span>
+        <span className={textClass}>{normalConfig.label}</span>
       </a>
     </Button>
   );
