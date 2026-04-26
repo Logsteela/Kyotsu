@@ -3,6 +3,7 @@ import { Button } from '@/app/components/ui/button';
 import { resolvePublicPdfUrl } from '@/app/data/testDatabase';
 
 type ActionType = 'view' | 'download' | 'audioView' | 'audioDownload';
+
 type ResponsiveMode =
   | 'year-with-audio'
   | 'year-no-audio'
@@ -15,21 +16,22 @@ type ResponsiveMode =
 interface PDFActionButtonProps {
   type: ActionType;
   disabled?: boolean;
-  onClick: () => void;
+  href?: string;
+  downloadName?: string;
   className?: string;
   responsiveMode?: ResponsiveMode;
 }
+
+const SITE_ORIGIN = 'https://kyotsutest.vercel.app';
 
 const ACTION_CONFIG: Record<ActionType, { icon: LucideIcon; label: string }> = {
   view: { icon: ExternalLink, label: '閲覧' },
   download: { icon: Download, label: 'DL' },
 
-  // 音声
-  audioView: { icon: Volume2, label: '再生' },      // 新規タブで開く
-  audioDownload: { icon: Download, label: 'DL' },   // DL
+  audioView: { icon: Volume2, label: '再生' },
+  audioDownload: { icon: Download, label: 'DL' },
 };
 
-// レスポンシブモードに応じたテキスト表示
 const RESPONSIVE_CLASSES: Record<ResponsiveMode, string> = {
   'year-with-audio': 'hidden min-[421px]:inline ml-0.5',
   'year-no-audio': 'hidden min-[201px]:inline ml-0.5',
@@ -40,7 +42,6 @@ const RESPONSIVE_CLASSES: Record<ResponsiveMode, string> = {
   'special-no-audio': 'hidden min-[201px]:inline ml-0.5',
 };
 
-// レイアウト制御
 const LAYOUT_CLASSES: Record<ResponsiveMode, string> = {
   'year-with-audio':
     'flex-col min-[701px]:flex-row min-[1024px]:flex-col min-[1471px]:flex-row',
@@ -54,10 +55,31 @@ const LAYOUT_CLASSES: Record<ResponsiveMode, string> = {
   'special-no-audio': 'flex-col min-[1024px]:flex-row',
 };
 
+function toAbsoluteUrl(url: string): string {
+  if (/^https?:\/\//i.test(url)) return url;
+
+  return `${SITE_ORIGIN}${url.startsWith('/') ? '' : '/'}${url}`;
+}
+
+function getDownloadName(pathOrUrl: string | undefined | null): string | undefined {
+  const raw = (pathOrUrl ?? '').trim();
+  if (!raw) return undefined;
+
+  const withoutOrigin = raw.replace(/^https?:\/\/[^/]+\//, '');
+  const normalized = withoutOrigin
+    .replace(/^\/+/, '')
+    .replace(/^pdfs\//, '');
+
+  const fileName = normalized.split('/').pop();
+
+  return fileName ? decodeURIComponent(fileName) : undefined;
+}
+
 export function PDFActionButton({
   type,
   disabled = false,
-  onClick,
+  href,
+  downloadName,
   className = '',
   responsiveMode = 'year-no-audio',
 }: PDFActionButtonProps) {
@@ -65,16 +87,41 @@ export function PDFActionButton({
   const Icon = config.icon;
   const textClass = RESPONSIVE_CLASSES[responsiveMode];
 
+  const buttonClass =
+    `text-[10px] md:text-xs px-1 md:px-2 py-1 h-auto min-w-0 whitespace-nowrap border-gray-300 hover:bg-gray-100 ${className}`;
+
+  if (disabled || !href) {
+    return (
+      <Button
+        disabled
+        size="sm"
+        variant="outline"
+        className={buttonClass}
+      >
+        <Icon className="w-3 h-3 md:mr-1 flex-shrink-0" />
+        <span className={textClass}>{config.label}</span>
+      </Button>
+    );
+  }
+
+  const isDownload = type === 'download' || type === 'audioDownload';
+
   return (
     <Button
-      disabled={disabled}
+      asChild
       size="sm"
       variant="outline"
-      className={`text-[10px] md:text-xs px-1 md:px-2 py-1 h-auto min-w-0 whitespace-nowrap border-gray-300 hover:bg-gray-100 ${className}`}
-      onClick={onClick}
+      className={buttonClass}
     >
-      <Icon className="w-3 h-3 md:mr-1 flex-shrink-0" />
-      <span className={textClass}>{config.label}</span>
+      <a
+        href={href}
+        target={isDownload ? undefined : '_blank'}
+        rel={isDownload ? undefined : 'noopener noreferrer'}
+        download={isDownload ? downloadName : undefined}
+      >
+        <Icon className="w-3 h-3 md:mr-1 flex-shrink-0" />
+        <span className={textClass}>{config.label}</span>
+      </a>
     </Button>
   );
 }
@@ -90,7 +137,7 @@ interface PDFActionGroupProps {
 export function PDFActionGroup({
   pdfPath,
   pdfState,
-  type,
+  type: _type,
   responsiveMode = 'year-no-audio',
   exists = true,
 }: PDFActionGroupProps) {
@@ -98,7 +145,9 @@ export function PDFActionGroup({
   const isMissingThisFile = !pdfPath || !exists;
 
   const resolvedUrl = resolvePublicPdfUrl(pdfPath);
-  const disabled = isCompletelyMissing || isMissingThisFile || !resolvedUrl;
+  const href = resolvedUrl ? toAbsoluteUrl(resolvedUrl) : undefined;
+  const disabled = isCompletelyMissing || isMissingThisFile || !href;
+  const downloadName = getDownloadName(pdfPath);
 
   const layoutClass = LAYOUT_CLASSES[responsiveMode];
 
@@ -107,19 +156,15 @@ export function PDFActionGroup({
       <PDFActionButton
         type="view"
         disabled={disabled}
-        onClick={() => {
-          if (!resolvedUrl) return;
-          window.open(resolvedUrl, '_blank');
-        }}
+        href={href}
         responsiveMode={responsiveMode}
       />
+
       <PDFActionButton
         type="download"
         disabled={disabled}
-        onClick={() => {
-          if (!resolvedUrl) return;
-          window.open(resolvedUrl, '_blank');
-        }}
+        href={href}
+        downloadName={downloadName}
         responsiveMode={responsiveMode}
       />
     </div>
@@ -136,40 +181,36 @@ interface AudioActionGroupProps {
 
 export function AudioActionGroup({
   audioPath,
-  pdfState,
-  priority,
+  pdfState: _pdfState,
+  priority: _priority,
   responsiveMode = 'year-with-audio',
   exists = true,
 }: AudioActionGroupProps) {
   const isMissingThisFile = !audioPath || !exists;
 
   const resolvedUrl = resolvePublicPdfUrl(audioPath);
-  // 音声ファイルは問題・解答のpdfStateに関係なく、音声ファイル自体の存在だけで判定
-  const disabled = isMissingThisFile || !resolvedUrl;
+  const href = resolvedUrl ? toAbsoluteUrl(resolvedUrl) : undefined;
+  const disabled = isMissingThisFile || !href;
+  const downloadName = getDownloadName(audioPath);
 
   if (!audioPath || !exists) {
     return <div className="text-center text-gray-400 text-xs">-</div>;
   }
 
-  // 音声も2ボタンにする
   return (
     <div className={`flex gap-0.5 md:gap-1 justify-center items-stretch ${LAYOUT_CLASSES[responsiveMode]}`}>
       <PDFActionButton
         type="audioView"
         disabled={disabled}
-        onClick={() => {
-          if (!resolvedUrl) return;
-          window.open(resolvedUrl, '_blank'); // 新規タブで開く（=再生）
-        }}
+        href={href}
         responsiveMode={responsiveMode}
       />
+
       <PDFActionButton
         type="audioDownload"
         disabled={disabled}
-        onClick={() => {
-          if (!resolvedUrl) return;
-          window.open(resolvedUrl, '_blank');
-        }}
+        href={href}
+        downloadName={downloadName}
         responsiveMode={responsiveMode}
       />
     </div>
