@@ -50,7 +50,6 @@ function getShortQueryRoutePath(): string | null {
 
   const params = new URLSearchParams(window.location.search);
 
-  // 最短系
   // /?o
   if (params.has('o')) return '/overview';
 
@@ -77,7 +76,6 @@ function getQueryRoutePath(): string | null {
 
   const params = new URLSearchParams(window.location.search);
 
-  // 旧GUST用も残す
   // /?p=/overview
   return normalizeInternalPath(params.get('p'));
 }
@@ -95,6 +93,13 @@ function getHashRoutePath(): string | null {
 const shortQueryRoutePath = getShortQueryRoutePath();
 const queryRoutePath = getQueryRoutePath();
 const hashRoutePath = getHashRoutePath();
+
+const isCompactMode = Boolean(shortQueryRoutePath || queryRoutePath || hashRoutePath);
+
+if (typeof window !== 'undefined' && isCompactMode) {
+  (window as Window & { __KYOTSU_GUST_MODE__?: boolean }).__KYOTSU_GUST_MODE__ = true;
+  document.documentElement.dataset.gustMode = '1';
+}
 
 export const router = shortQueryRoutePath
   ? createMemoryRouter(routes, {
