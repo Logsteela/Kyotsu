@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Download, ExternalLink, ChevronDown } from 'lucide-react';
+import { Download, ExternalLink, ChevronDown, LucideIcon } from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
 import { getEraDisplay } from '@/app/utils/era';
 import { getDisplaySubject, getSubjectForFilename } from '@/app/utils/subjectUtils';
@@ -22,6 +22,8 @@ interface PDFTableProps {
 
 type PdfState = 1 | 2 | 3;
 type ManifestMap = Record<string, true>;
+
+const SITE_ORIGIN = 'https://kyotsutest.vercel.app';
 
 function normalizeAssetKey(pathOrUrl: string | undefined | null): string | null {
   const s = (pathOrUrl ?? '').trim();
@@ -65,6 +67,33 @@ function derivePdfState(problemExists: boolean, answerExists: boolean): PdfState
   return 2;
 }
 
+function isGustMode(): boolean {
+  if (typeof window === 'undefined') return false;
+
+  const kyotsuWindow = window as Window & {
+    __KYOTSU_GUST_MODE__?: boolean;
+  };
+
+  if (kyotsuWindow.__KYOTSU_GUST_MODE__) return true;
+  if (document.documentElement.dataset.gustMode === '1') return true;
+
+  const params = new URLSearchParams(window.location.search);
+
+  return (
+    params.has('o') ||
+    params.has('a') ||
+    params.has('y') ||
+    params.has('s') ||
+    params.has('t') ||
+    params.has('p')
+  );
+}
+
+function toAbsoluteUrl(url: string): string {
+  if (/^https?:\/\//i.test(url)) return url;
+  return `${SITE_ORIGIN}${url.startsWith('/') ? '' : '/'}${url}`;
+}
+
 function openInNewTab(url: string) {
   window.open(url, '_blank', 'noopener,noreferrer');
 }
@@ -75,6 +104,91 @@ function downloadFile(url: string, downloadName: string) {
   link.download = downloadName;
   link.rel = 'noopener noreferrer';
   link.click();
+}
+
+function ActionLink({
+  icon: Icon,
+  label,
+  href,
+  exists,
+  downloadName,
+  isDownload = false,
+}: {
+  icon: LucideIcon;
+  label: string;
+  href: string;
+  exists: boolean;
+  downloadName?: string;
+  isDownload?: boolean;
+}) {
+  const gust = isGustMode();
+  const absoluteHref = toAbsoluteUrl(href);
+
+  if (!exists) {
+    return (
+      <Button
+        size="sm"
+        variant="outline"
+        disabled
+        className="text-xs px-1.5 sm:px-2 py-1 h-auto min-w-0 opacity-50 cursor-not-allowed"
+      >
+        <Icon className="w-3 h-3 sm:mr-1" />
+        <span className="hidden sm:inline">{label}</span>
+      </Button>
+    );
+  }
+
+  if (gust) {
+    return (
+      <a
+        href={absoluteHref}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={label}
+        title={label}
+        style={{
+          userSelect: 'none',
+          WebkitUserSelect: 'none',
+          WebkitTouchCallout: 'default',
+          touchAction: 'manipulation',
+        }}
+        className="inline-flex items-center justify-center w-7 h-7 rounded border border-gray-300 bg-white text-gray-800 no-underline"
+      >
+        <Icon className="w-4 h-4 pointer-events-none" />
+      </a>
+    );
+  }
+
+  return (
+    <Button
+      asChild
+      size="sm"
+      variant="outline"
+      className="text-xs px-1.5 sm:px-2 py-1 h-auto min-w-0"
+    >
+      <a
+        href={absoluteHref}
+        target={isDownload ? undefined : '_blank'}
+        rel={isDownload ? undefined : 'noopener noreferrer'}
+        download={isDownload ? downloadName : undefined}
+        onClick={(event) => {
+          event.preventDefault();
+
+          if (isDownload) {
+            downloadFile(
+              absoluteHref,
+              downloadName ?? absoluteHref.split('/').pop() ?? 'download',
+            );
+          } else {
+            openInNewTab(absoluteHref);
+          }
+        }}
+      >
+        <Icon className="w-3 h-3 sm:mr-1" />
+        <span className="hidden sm:inline">{label}</span>
+      </a>
+    </Button>
+  );
 }
 
 export function PDFTable({ items, title, viewMode }: PDFTableProps) {
@@ -93,7 +207,7 @@ export function PDFTable({ items, title, viewMode }: PDFTableProps) {
         pdfState,
       };
     });
-  }, [items]);
+  }, [items, manifestMap]);
 
   const effectiveMainTests = effectiveItems.filter((item) => item.type === 'main');
   const effectiveMakeupTests = effectiveItems.filter((item) => item.type === 'makeup');
@@ -108,12 +222,6 @@ export function PDFTable({ items, title, viewMode }: PDFTableProps) {
     if (pdfState === 3) return 'hover:bg-red-300';
     if (pdfState === 2) return 'hover:bg-yellow-200';
     return 'hover:bg-gray-100';
-  }
-
-  function getActionButtonClass(exists: boolean): string {
-    return exists
-      ? 'text-xs px-1.5 sm:px-2 py-1 h-auto min-w-0'
-      : 'text-xs px-1.5 sm:px-2 py-1 h-auto min-w-0 opacity-50 cursor-not-allowed';
   }
 
   if (items.length === 0) {
@@ -137,6 +245,7 @@ export function PDFTable({ items, title, viewMode }: PDFTableProps) {
       <h2 className="text-lg font-semibold mb-3 text-gray-800 lg:sticky lg:top-0 bg-gray-100 py-2 z-10">
         {tableTitle}
       </h2>
+
       <div className="bg-white border rounded overflow-hidden">
         <table className="w-full table-fixed">
           <thead className="bg-gray-50 border-b">
@@ -155,103 +264,90 @@ export function PDFTable({ items, title, viewMode }: PDFTableProps) {
               </th>
             </tr>
           </thead>
+
           <tbody>
-            {tests.map((item, index) => (
-              <tr
-                key={item.id}
-                className={`border-b last:border-b-0 ${getRowHoverColor(item.pdfState)} ${getRowBgColor(item.pdfState, index % 2 === 0)}`}
-              >
-                <td className="p-2 sm:p-3 border-r">
-                  <div className="text-xs sm:text-sm break-words">
-                    {viewMode === 'byYear' ? (
-                      <span className="text-gray-700">
-                        {item.year}年度（{getEraDisplay(item.year)}）
-                      </span>
-                    ) : (
-                      <span className="font-medium text-gray-900">
-                        {item.year}年度（{getEraDisplay(item.year)}）
-                      </span>
-                    )}
-                  </div>
-                </td>
+            {tests.map((item, index) => {
+              const problemDownloadName =
+                `${item.year}_${getSubjectForFilename(item.subject)}_${item.type}_問題.pdf`;
 
-                <td className="p-2 sm:p-3 border-r">
-                  <div className="text-xs sm:text-sm break-words">
-                    {viewMode === 'byYear' ? (
-                      <span className="font-medium text-gray-900">
-                        {getDisplaySubject(item.subject)}
-                      </span>
-                    ) : (
-                      <span className="text-gray-700">
-                        {getDisplaySubject(item.subject)}
-                      </span>
-                    )}
-                  </div>
-                </td>
+              const answerDownloadName =
+                `${item.year}_${getSubjectForFilename(item.subject)}_${item.type}_解答.pdf`;
 
-                <td className="p-2 sm:p-3 border-r">
-                  <div className="flex flex-row gap-1 justify-center items-stretch">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className={getActionButtonClass(item.problemExists)}
-                      disabled={!item.problemExists}
-                      onClick={() => openInNewTab(item.problemUrl)}
-                    >
-                      <ExternalLink className="w-3 h-3 sm:mr-1" />
-                      <span className="hidden sm:inline">閲覧</span>
-                    </Button>
+              return (
+                <tr
+                  key={item.id}
+                  className={`border-b last:border-b-0 ${getRowHoverColor(item.pdfState)} ${getRowBgColor(item.pdfState, index % 2 === 0)}`}
+                >
+                  <td className="p-2 sm:p-3 border-r">
+                    <div className="text-xs sm:text-sm break-words">
+                      {viewMode === 'byYear' ? (
+                        <span className="text-gray-700">
+                          {item.year}年度（{getEraDisplay(item.year)}）
+                        </span>
+                      ) : (
+                        <span className="font-medium text-gray-900">
+                          {item.year}年度（{getEraDisplay(item.year)}）
+                        </span>
+                      )}
+                    </div>
+                  </td>
 
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className={getActionButtonClass(item.problemExists)}
-                      disabled={!item.problemExists}
-                      onClick={() => {
-                        downloadFile(
-                          item.problemUrl,
-                          `${item.year}_${getSubjectForFilename(item.subject)}_${item.type}_問題.pdf`,
-                        );
-                      }}
-                    >
-                      <Download className="w-3 h-3 sm:mr-1" />
-                      <span className="hidden sm:inline">DL</span>
-                    </Button>
-                  </div>
-                </td>
+                  <td className="p-2 sm:p-3 border-r">
+                    <div className="text-xs sm:text-sm break-words">
+                      {viewMode === 'byYear' ? (
+                        <span className="font-medium text-gray-900">
+                          {getDisplaySubject(item.subject)}
+                        </span>
+                      ) : (
+                        <span className="text-gray-700">
+                          {getDisplaySubject(item.subject)}
+                        </span>
+                      )}
+                    </div>
+                  </td>
 
-                <td className="p-2 sm:p-3">
-                  <div className="flex flex-row gap-1 justify-center items-stretch">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className={getActionButtonClass(item.answerExists)}
-                      disabled={!item.answerExists}
-                      onClick={() => openInNewTab(item.answerUrl)}
-                    >
-                      <ExternalLink className="w-3 h-3 sm:mr-1" />
-                      <span className="hidden sm:inline">閲覧</span>
-                    </Button>
+                  <td className="p-2 sm:p-3 border-r">
+                    <div className="flex flex-row gap-1 justify-center items-stretch">
+                      <ActionLink
+                        icon={ExternalLink}
+                        label="閲覧"
+                        href={item.problemUrl}
+                        exists={item.problemExists}
+                      />
 
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className={getActionButtonClass(item.answerExists)}
-                      disabled={!item.answerExists}
-                      onClick={() => {
-                        downloadFile(
-                          item.answerUrl,
-                          `${item.year}_${getSubjectForFilename(item.subject)}_${item.type}_解答.pdf`,
-                        );
-                      }}
-                    >
-                      <Download className="w-3 h-3 sm:mr-1" />
-                      <span className="hidden sm:inline">DL</span>
-                    </Button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                      <ActionLink
+                        icon={Download}
+                        label="DL"
+                        href={item.problemUrl}
+                        exists={item.problemExists}
+                        downloadName={problemDownloadName}
+                        isDownload
+                      />
+                    </div>
+                  </td>
+
+                  <td className="p-2 sm:p-3">
+                    <div className="flex flex-row gap-1 justify-center items-stretch">
+                      <ActionLink
+                        icon={ExternalLink}
+                        label="閲覧"
+                        href={item.answerUrl}
+                        exists={item.answerExists}
+                      />
+
+                      <ActionLink
+                        icon={Download}
+                        label="DL"
+                        href={item.answerUrl}
+                        exists={item.answerExists}
+                        downloadName={answerDownloadName}
+                        isDownload
+                      />
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
