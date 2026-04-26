@@ -1,4 +1,9 @@
-import { createBrowserRouter } from 'react-router';
+import {
+  createBrowserRouter,
+  createHashRouter,
+  type RouteObject,
+} from 'react-router';
+
 import { Root } from '@/app/pages/Root';
 import { HomePage } from '@/app/pages/HomePage';
 import { OverviewPage } from '@/app/pages/OverviewPage';
@@ -8,12 +13,12 @@ import { TestDetailPage } from '@/app/pages/TestDetailPage';
 import { ArchivesPage } from '@/app/components/ArchivesPage';
 import { NotFoundPage } from '@/app/pages/NotFoundPage';
 
-export const router = createBrowserRouter([
+const routes: RouteObject[] = [
   {
-    path: '/',
     Component: Root,
     children: [
       { index: true, Component: HomePage },
+      { path: '/', Component: HomePage },
       { path: 'overview', Component: OverviewPage },
       { path: 'year/:year', Component: YearPage },
       { path: 'subject/:subject', Component: SubjectPage },
@@ -22,4 +27,42 @@ export const router = createBrowserRouter([
       { path: '*', Component: NotFoundPage },
     ],
   },
-]);
+];
+
+function isGustBrowser() {
+  if (typeof window === 'undefined') return false;
+
+  const ua = window.navigator.userAgent || '';
+  const appVersion = window.navigator.appVersion || '';
+
+  return /gust/i.test(ua) || /gust/i.test(appVersion);
+}
+
+function shouldUseHashRouter() {
+  if (typeof window === 'undefined') return false;
+
+  return (
+    isGustBrowser() ||
+    window.location.hash.startsWith('#/') ||
+    new URLSearchParams(window.location.search).get('router') === 'hash'
+  );
+}
+
+function normalizeHashUrlForGust() {
+  if (typeof window === 'undefined') return;
+
+  if (!shouldUseHashRouter()) return;
+  if (window.location.hash.startsWith('#/')) return;
+
+  const { pathname, search } = window.location;
+
+  if (pathname !== '/') {
+    window.history.replaceState(null, '', `/#${pathname}${search}`);
+  }
+}
+
+normalizeHashUrlForGust();
+
+export const router = shouldUseHashRouter()
+  ? createHashRouter(routes)
+  : createBrowserRouter(routes);
