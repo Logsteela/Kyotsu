@@ -24,6 +24,8 @@ interface PDFTableWithFilterProps {
 type PdfState = 1 | 2 | 3;
 type ManifestMap = Record<string, true>;
 
+const SITE_ORIGIN = 'https://kyotsutest.vercel.app';
+
 function normalizeAssetKey(pathOrUrl: string | undefined | null): string | null {
   const s = (pathOrUrl ?? '').trim();
   if (!s) return null;
@@ -73,6 +75,32 @@ function derivePdfState(
   if (missingCount === 0) return 1;
   if (missingCount === checks.length) return 3;
   return 2;
+}
+
+function isGustMode(): boolean {
+  if (typeof window === 'undefined') return false;
+
+  const kyotsuWindow = window as Window & {
+    __KYOTSU_GUST_MODE__?: boolean;
+  };
+
+  if (kyotsuWindow.__KYOTSU_GUST_MODE__) return true;
+  if (document.documentElement.dataset.gustMode === '1') return true;
+
+  const params = new URLSearchParams(window.location.search);
+
+  return (
+    params.has('o') ||
+    params.has('a') ||
+    params.has('y') ||
+    params.has('s') ||
+    params.has('t') ||
+    params.has('p')
+  );
+}
+
+function getGustTestUrl(questionPdf: string): string {
+  return `${SITE_ORIGIN}/?t=${encodeURIComponent(questionPdf)}`;
 }
 
 export function PDFTableWithFilter({
@@ -202,6 +230,29 @@ export function PDFTableWithFilter({
   };
 
   const renderSubject = (item: EnhancedTestRecord) => {
+    const label = getDisplaySubject(item.subject);
+
+    if (isGustMode()) {
+      const gustDetailUrl = getGustTestUrl(item.questionPdf);
+
+      return (
+        <a
+          href={gustDetailUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-bold underline decoration-1 underline-offset-2 text-black hover:text-gray-600 transition-colors"
+          style={{
+            userSelect: 'none',
+            WebkitUserSelect: 'none',
+            WebkitTouchCallout: 'default',
+            touchAction: 'manipulation',
+          }}
+        >
+          {label}
+        </a>
+      );
+    }
+
     const detailPageUrl = `/test/${encodeURIComponent(item.questionPdf)}`;
 
     return (
@@ -209,7 +260,7 @@ export function PDFTableWithFilter({
         to={detailPageUrl}
         className="font-bold underline decoration-1 underline-offset-2 text-black hover:text-gray-600 transition-colors"
       >
-        {getDisplaySubject(item.subject)}
+        {label}
       </Link>
     );
   };
@@ -248,6 +299,7 @@ export function PDFTableWithFilter({
             {tableTitle}
           </h2>
         )}
+
         <div className="bg-white border border-[var(--color-table-border)] rounded">
           <table className="w-full table-fixed">
             <thead className="bg-[var(--color-table-header-bg)] border-b border-[var(--color-table-border)]">
@@ -275,6 +327,7 @@ export function PDFTableWithFilter({
                     教科
                   </th>
                 )}
+
                 <th className={`text-center p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 ${
                   isListening
                     ? (isOverviewMode || viewMode === 'bySubject' ? 'w-[23.33%] md:w-[21.33%]' : 'w-[26.67%] md:w-[26%]')
@@ -282,6 +335,7 @@ export function PDFTableWithFilter({
                 } border-r border-[var(--color-table-border)]`}>
                   問題
                 </th>
+
                 <th className={`text-center p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 ${
                   isListening
                     ? (isOverviewMode || viewMode === 'bySubject' ? 'w-[23.33%] md:w-[21.33%] border-r border-[var(--color-table-border)]' : 'w-[26.67%] md:w-[26%] border-r border-[var(--color-table-border)]')
@@ -289,6 +343,7 @@ export function PDFTableWithFilter({
                 }`}>
                   解答
                 </th>
+
                 {isListening && (
                   <th className={`text-center p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 ${
                     isOverviewMode || viewMode === 'bySubject' ? 'w-[23.33%] md:w-[21.33%]' : 'w-[26.67%] md:w-[26%]'
@@ -298,6 +353,7 @@ export function PDFTableWithFilter({
                 )}
               </tr>
             </thead>
+
             <tbody>
               {tests.map((item, index) => (
                 <tr
@@ -381,6 +437,7 @@ export function PDFTableWithFilter({
       {filterableSubject && Object.keys(selectedFilters).length > 0 && (
         <div className="p-4 bg-white border border-[var(--color-table-border)] rounded flex flex-col gap-3">
           <h3 className="text-sm font-semibold text-gray-700">科目でフィルタリング</h3>
+
           {filterableSubject === 'その他' ? (
             <>
               {(() => {
@@ -422,6 +479,7 @@ export function PDFTableWithFilter({
               ))}
             </div>
           )}
+
           <p className="text-xs text-gray-500">クリックして表示/非表示を切り替え</p>
         </div>
       )}
