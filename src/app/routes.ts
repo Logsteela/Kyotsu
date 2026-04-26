@@ -12,33 +12,29 @@ import { YearPage } from '@/app/pages/YearPage';
 import { SubjectPage } from '@/app/pages/SubjectPage';
 import { TestDetailPage } from '@/app/pages/TestDetailPage';
 import { ArchivesPage } from '@/app/components/ArchivesPage';
-import { NotFoundPage } from '@/app/pages/NotFoundPage';
-
-const appChildren: RouteObject[] = [
-  { index: true, Component: HomePage },
-  { path: '/', Component: HomePage },
-  { path: 'overview', Component: OverviewPage },
-  { path: 'year/:year', Component: YearPage },
-  { path: 'subject/:subject', Component: SubjectPage },
-  { path: 'test/:questionPdf', Component: TestDetailPage },
-  { path: 'archives', Component: ArchivesPage },
-  { path: '*', Component: NotFoundPage },
-];
 
 const routes: RouteObject[] = [
   {
-    path: '/',
+    // path を付けない layout route にする。
+    // これで GUST が pathname を変な形にしても、親 route は必ず入る。
     Component: Root,
-    ErrorBoundary: HomePage,
-    children: appChildren,
-  },
 
-  // GUST Browser などのプロキシが window.location.pathname を
-  // 変な値にしても、React Router のデフォルト404に落とさないための保険。
-  {
-    path: '*',
-    Component: HomePage,
+    // React Router の英語デフォルトエラー画面を出さない保険。
     ErrorBoundary: HomePage,
+
+    children: [
+      { index: true, Component: HomePage },
+      { path: '/', Component: HomePage },
+
+      { path: 'overview', Component: OverviewPage },
+      { path: 'year/:year', Component: YearPage },
+      { path: 'subject/:subject', Component: SubjectPage },
+      { path: 'test/:questionPdf', Component: TestDetailPage },
+      { path: 'archives', Component: ArchivesPage },
+
+      // GUST が /proxy/... など変な pathname を渡してきてもトップを表示する
+      { path: '*', Component: HomePage },
+    ],
   },
 ];
 
@@ -48,6 +44,7 @@ function normalizeInternalPath(value: string | null): string | null {
   const trimmed = value.trim();
   if (!trimmed) return null;
 
+  // full URL が渡された場合でも path 部分だけにする
   const withoutOrigin = trimmed.replace(/^https?:\/\/[^/]+/i, '');
 
   if (!withoutOrigin) return '/';
@@ -59,9 +56,10 @@ function getQueryRoutePath(): string | null {
   if (typeof window === 'undefined') return null;
 
   const params = new URLSearchParams(window.location.search);
-  const p = params.get('p');
 
-  return normalizeInternalPath(p);
+  // GUST 用:
+  // https://kyotsutest.vercel.app/?p=/year/2026
+  return normalizeInternalPath(params.get('p'));
 }
 
 function getHashRoutePath(): string | null {
@@ -74,20 +72,6 @@ function getHashRoutePath(): string | null {
   return normalizeInternalPath(hash.slice(1));
 }
 
-function getSafeCurrentPath(): string {
-  if (typeof window === 'undefined') return '/';
-
-  const { pathname, search } = window.location;
-
-  if (!pathname || pathname === '/') {
-    return '/';
-  }
-
-  // GUST やプロキシ環境では search/hash が壊れることがあるので、
-  // ここでは pathname を優先して渡す。
-  return `${pathname}${search}`;
-}
-
 const queryRoutePath = getQueryRoutePath();
 const hashRoutePath = getHashRoutePath();
 
@@ -97,13 +81,4 @@ export const router = queryRoutePath
     })
   : hashRoutePath
     ? createHashRouter(routes)
-    : createBrowserRouter(routes, {
-        window:
-          typeof window === 'undefined'
-            ? undefined
-            : {
-                ...window,
-                location: window.location,
-                history: window.history,
-              },
-      });
+    : createBrowserRouter(routes);
