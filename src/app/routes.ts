@@ -14,19 +14,31 @@ import { TestDetailPage } from '@/app/pages/TestDetailPage';
 import { ArchivesPage } from '@/app/components/ArchivesPage';
 import { NotFoundPage } from '@/app/pages/NotFoundPage';
 
+const appChildren: RouteObject[] = [
+  { index: true, Component: HomePage },
+  { path: '/', Component: HomePage },
+  { path: 'overview', Component: OverviewPage },
+  { path: 'year/:year', Component: YearPage },
+  { path: 'subject/:subject', Component: SubjectPage },
+  { path: 'test/:questionPdf', Component: TestDetailPage },
+  { path: 'archives', Component: ArchivesPage },
+  { path: '*', Component: NotFoundPage },
+];
+
 const routes: RouteObject[] = [
   {
+    path: '/',
     Component: Root,
-    children: [
-      { index: true, Component: HomePage },
-      { path: '/', Component: HomePage },
-      { path: 'overview', Component: OverviewPage },
-      { path: 'year/:year', Component: YearPage },
-      { path: 'subject/:subject', Component: SubjectPage },
-      { path: 'test/:questionPdf', Component: TestDetailPage },
-      { path: 'archives', Component: ArchivesPage },
-      { path: '*', Component: NotFoundPage },
-    ],
+    ErrorBoundary: HomePage,
+    children: appChildren,
+  },
+
+  // GUST Browser などのプロキシが window.location.pathname を
+  // 変な値にしても、React Router のデフォルト404に落とさないための保険。
+  {
+    path: '*',
+    Component: HomePage,
+    ErrorBoundary: HomePage,
   },
 ];
 
@@ -36,7 +48,6 @@ function normalizeInternalPath(value: string | null): string | null {
   const trimmed = value.trim();
   if (!trimmed) return null;
 
-  // 万一 full URL が渡された場合でも path 部分だけにする
   const withoutOrigin = trimmed.replace(/^https?:\/\/[^/]+/i, '');
 
   if (!withoutOrigin) return '/';
@@ -63,26 +74,18 @@ function getHashRoutePath(): string | null {
   return normalizeInternalPath(hash.slice(1));
 }
 
-function getCurrentPath(): string {
+function getSafeCurrentPath(): string {
   if (typeof window === 'undefined') return '/';
 
   const { pathname, search } = window.location;
 
-  // ?p= は内部ルーティング用なので、現在パスとしては使わない
   if (!pathname || pathname === '/') {
     return '/';
   }
 
+  // GUST やプロキシ環境では search/hash が壊れることがあるので、
+  // ここでは pathname を優先して渡す。
   return `${pathname}${search}`;
-}
-
-function isGustBrowser(): boolean {
-  if (typeof window === 'undefined') return false;
-
-  const ua = window.navigator.userAgent || '';
-  const appVersion = window.navigator.appVersion || '';
-
-  return /gust/i.test(ua) || /gust/i.test(appVersion);
 }
 
 const queryRoutePath = getQueryRoutePath();
@@ -92,10 +95,15 @@ export const router = queryRoutePath
   ? createMemoryRouter(routes, {
       initialEntries: [queryRoutePath],
     })
-  : isGustBrowser()
-    ? createMemoryRouter(routes, {
-        initialEntries: [hashRoutePath ?? getCurrentPath()],
-      })
-    : hashRoutePath
-      ? createHashRouter(routes)
-      : createBrowserRouter(routes);
+  : hashRoutePath
+    ? createHashRouter(routes)
+    : createBrowserRouter(routes, {
+        window:
+          typeof window === 'undefined'
+            ? undefined
+            : {
+                ...window,
+                location: window.location,
+                history: window.history,
+              },
+      });
