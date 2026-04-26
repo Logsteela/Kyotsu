@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Download, ExternalLink, ChevronDown } from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
 import { getEraDisplay } from '@/app/utils/era';
 import { getDisplaySubject, getSubjectForFilename } from '@/app/utils/subjectUtils';
+import pdfManifest from '@/app/data/pdfManifest.json';
 
 interface PDFItem {
   id: string;
@@ -20,9 +21,7 @@ interface PDFTableProps {
 }
 
 type PdfState = 1 | 2 | 3;
-type ManifestStatus = 'loading' | 'ready' | 'error';
-
-const MANIFEST_URL = '/manifest.json';
+type ManifestMap = Record<string, true>;
 
 function normalizeAssetKey(pathOrUrl: string | undefined | null): string | null {
   const s = (pathOrUrl ?? '').trim();
@@ -36,7 +35,7 @@ function normalizeAssetKey(pathOrUrl: string | undefined | null): string | null 
   return normalized || null;
 }
 
-function createManifestMap(payload: unknown): Record<string, true> {
+function createManifestMap(payload: unknown): ManifestMap {
   const entries = Array.isArray(payload)
     ? payload
     : payload && typeof payload === 'object' && Array.isArray((payload as { files?: unknown }).files)
@@ -45,7 +44,7 @@ function createManifestMap(payload: unknown): Record<string, true> {
         ? (payload as { keys: unknown[] }).keys
         : [];
 
-  const next: Record<string, true> = {};
+  const next: ManifestMap = {};
 
   for (const entry of entries) {
     if (typeof entry !== 'string') continue;
@@ -55,6 +54,8 @@ function createManifestMap(payload: unknown): Record<string, true> {
 
   return next;
 }
+
+const BUNDLED_MANIFEST_MAP: ManifestMap = createManifestMap(pdfManifest);
 
 function derivePdfState(problemExists: boolean, answerExists: boolean): PdfState {
   const missingCount = [problemExists, answerExists].filter(value => !value).length;
@@ -77,45 +78,7 @@ function downloadFile(url: string, downloadName: string) {
 }
 
 export function PDFTable({ items, title, viewMode }: PDFTableProps) {
-  const mainTests = items.filter((item) => item.type === 'main');
-  const makeupTests = items.filter((item) => item.type === 'makeup');
-
-  const [manifestMap, setManifestMap] = useState<Record<string, true>>({});
-  const [manifestStatus, setManifestStatus] = useState<ManifestStatus>('loading');
-
-  useEffect(() => {
-    let cancelled = false;
-
-    const loadManifest = async () => {
-      try {
-        const response = await fetch(MANIFEST_URL, {
-          method: 'GET',
-          cache: 'no-store',
-        });
-
-        if (!response.ok) {
-          throw new Error(`manifest fetch failed: ${response.status}`);
-        }
-
-        const json = await response.json();
-        if (cancelled) return;
-
-        setManifestMap(createManifestMap(json));
-        setManifestStatus('ready');
-      } catch (error) {
-        if (cancelled) return;
-        console.error('Failed to load manifest.json:', error);
-        setManifestMap({});
-        setManifestStatus('error');
-      }
-    };
-
-    void loadManifest();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const manifestMap = BUNDLED_MANIFEST_MAP;
 
   const effectiveItems = useMemo(() => {
     return items.map((item) => {
@@ -130,7 +93,7 @@ export function PDFTable({ items, title, viewMode }: PDFTableProps) {
         pdfState,
       };
     });
-  }, [items, manifestMap]);
+  }, [items]);
 
   const effectiveMainTests = effectiveItems.filter((item) => item.type === 'main');
   const effectiveMakeupTests = effectiveItems.filter((item) => item.type === 'makeup');
@@ -161,28 +124,6 @@ export function PDFTable({ items, title, viewMode }: PDFTableProps) {
     );
   }
 
-  if (manifestStatus === 'loading') {
-    return (
-      <div className="p-4 lg:p-6">
-        <h1 className="text-xl lg:text-2xl font-bold mb-4 text-gray-900">{title}</h1>
-        <div className="p-4 bg-white border rounded">
-          <p className="text-sm text-gray-600">Loading…</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (manifestStatus === 'error') {
-    return (
-      <div className="p-4 lg:p-6">
-        <h1 className="text-xl lg:text-2xl font-bold mb-4 text-gray-900">{title}</h1>
-        <div className="p-4 bg-red-50 border border-red-200 rounded">
-          <p className="text-sm text-red-700">manifest.json の読み込みに失敗しました。再読み込みしてください。</p>
-        </div>
-      </div>
-    );
-  }
-
   const scrollToMakeup = () => {
     document.getElementById('makeup-section')?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -190,7 +131,7 @@ export function PDFTable({ items, title, viewMode }: PDFTableProps) {
   const renderTable = (
     tests: Array<PDFItem & { problemExists: boolean; answerExists: boolean; pdfState: PdfState }>,
     tableTitle: string,
-    id?: string
+    id?: string,
   ) => (
     <div id={id} className="mb-8">
       <h2 className="text-lg font-semibold mb-3 text-gray-800 lg:sticky lg:top-0 bg-gray-100 py-2 z-10">
@@ -200,10 +141,18 @@ export function PDFTable({ items, title, viewMode }: PDFTableProps) {
         <table className="w-full table-fixed">
           <thead className="bg-gray-50 border-b">
             <tr>
-              <th className="text-left p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 border-r w-[30%]">年度</th>
-              <th className="text-left p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 border-r w-[30%]">教科</th>
-              <th className="text-center p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 border-r w-[20%]">問題</th>
-              <th className="text-center p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 w-[20%]">解答</th>
+              <th className="text-left p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 border-r w-[30%]">
+                年度
+              </th>
+              <th className="text-left p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 border-r w-[30%]">
+                教科
+              </th>
+              <th className="text-center p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 border-r w-[20%]">
+                問題
+              </th>
+              <th className="text-center p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 w-[20%]">
+                解答
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -225,15 +174,21 @@ export function PDFTable({ items, title, viewMode }: PDFTableProps) {
                     )}
                   </div>
                 </td>
+
                 <td className="p-2 sm:p-3 border-r">
                   <div className="text-xs sm:text-sm break-words">
                     {viewMode === 'byYear' ? (
-                      <span className="font-medium text-gray-900">{getDisplaySubject(item.subject)}</span>
+                      <span className="font-medium text-gray-900">
+                        {getDisplaySubject(item.subject)}
+                      </span>
                     ) : (
-                      <span className="text-gray-700">{getDisplaySubject(item.subject)}</span>
+                      <span className="text-gray-700">
+                        {getDisplaySubject(item.subject)}
+                      </span>
                     )}
                   </div>
                 </td>
+
                 <td className="p-2 sm:p-3 border-r">
                   <div className="flex flex-row gap-1 justify-center items-stretch">
                     <Button
@@ -246,6 +201,7 @@ export function PDFTable({ items, title, viewMode }: PDFTableProps) {
                       <ExternalLink className="w-3 h-3 sm:mr-1" />
                       <span className="hidden sm:inline">閲覧</span>
                     </Button>
+
                     <Button
                       size="sm"
                       variant="outline"
@@ -254,7 +210,7 @@ export function PDFTable({ items, title, viewMode }: PDFTableProps) {
                       onClick={() => {
                         downloadFile(
                           item.problemUrl,
-                          `${item.year}_${getSubjectForFilename(item.subject)}_${item.type}_問題.pdf`
+                          `${item.year}_${getSubjectForFilename(item.subject)}_${item.type}_問題.pdf`,
                         );
                       }}
                     >
@@ -263,6 +219,7 @@ export function PDFTable({ items, title, viewMode }: PDFTableProps) {
                     </Button>
                   </div>
                 </td>
+
                 <td className="p-2 sm:p-3">
                   <div className="flex flex-row gap-1 justify-center items-stretch">
                     <Button
@@ -275,6 +232,7 @@ export function PDFTable({ items, title, viewMode }: PDFTableProps) {
                       <ExternalLink className="w-3 h-3 sm:mr-1" />
                       <span className="hidden sm:inline">閲覧</span>
                     </Button>
+
                     <Button
                       size="sm"
                       variant="outline"
@@ -283,7 +241,7 @@ export function PDFTable({ items, title, viewMode }: PDFTableProps) {
                       onClick={() => {
                         downloadFile(
                           item.answerUrl,
-                          `${item.year}_${getSubjectForFilename(item.subject)}_${item.type}_解答.pdf`
+                          `${item.year}_${getSubjectForFilename(item.subject)}_${item.type}_解答.pdf`,
                         );
                       }}
                     >
