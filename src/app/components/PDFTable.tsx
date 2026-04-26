@@ -1,5 +1,12 @@
-import { useMemo } from 'react';
-import { Download, ExternalLink, ChevronDown, LucideIcon } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import {
+  Download,
+  ExternalLink,
+  ChevronDown,
+  Clipboard,
+  Check,
+  LucideIcon,
+} from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
 import { getEraDisplay } from '@/app/utils/era';
 import { getDisplaySubject, getSubjectForFilename } from '@/app/utils/subjectUtils';
@@ -94,6 +101,38 @@ function toAbsoluteUrl(url: string): string {
   return `${SITE_ORIGIN}${url.startsWith('/') ? '' : '/'}${url}`;
 }
 
+async function copyTextToClipboard(text: string): Promise<boolean> {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch {
+    // fallbackへ
+  }
+
+  try {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', 'readonly');
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-9999px';
+    textarea.style.top = '0';
+    textarea.style.opacity = '0';
+
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+
+    const ok = document.execCommand('copy');
+    document.body.removeChild(textarea);
+
+    return ok;
+  } catch {
+    return false;
+  }
+}
+
 function openInNewTab(url: string) {
   window.open(url, '_blank', 'noopener,noreferrer');
 }
@@ -106,7 +145,68 @@ function downloadFile(url: string, downloadName: string) {
   link.click();
 }
 
-function ActionLink({
+function CopyButton({
+  icon: Icon,
+  label,
+  href,
+  exists,
+}: {
+  icon: LucideIcon;
+  label: string;
+  href: string;
+  exists: boolean;
+}) {
+  const [copied, setCopied] = useState(false);
+  const absoluteHref = toAbsoluteUrl(href);
+
+  if (!exists) {
+    return (
+      <Button
+        size="sm"
+        variant="outline"
+        disabled
+        className="text-xs px-1.5 sm:px-2 py-1 h-auto min-w-0 opacity-50 cursor-not-allowed"
+      >
+        <Icon className="w-3 h-3 sm:mr-1" />
+        <span className="hidden sm:inline">{label}</span>
+      </Button>
+    );
+  }
+
+  return (
+    <Button
+      type="button"
+      size="sm"
+      variant="outline"
+      className="text-xs px-1.5 sm:px-2 py-1 h-auto min-w-0"
+      onClick={async () => {
+        const ok = await copyTextToClipboard(absoluteHref);
+
+        if (!ok) {
+          window.prompt('このURLをコピーしてください', absoluteHref);
+          return;
+        }
+
+        setCopied(true);
+        window.setTimeout(() => setCopied(false), 1200);
+      }}
+    >
+      {copied ? (
+        <>
+          <Check className="w-3 h-3 sm:mr-1" />
+          <span className="hidden sm:inline">済</span>
+        </>
+      ) : (
+        <>
+          <Clipboard className="w-3 h-3 sm:mr-1" />
+          <span className="hidden sm:inline">コピー</span>
+        </>
+      )}
+    </Button>
+  );
+}
+
+function ActionButton({
   icon: Icon,
   label,
   href,
@@ -124,6 +224,17 @@ function ActionLink({
   const gust = isGustMode();
   const absoluteHref = toAbsoluteUrl(href);
 
+  if (gust) {
+    return (
+      <CopyButton
+        icon={Icon}
+        label={label}
+        href={absoluteHref}
+        exists={exists}
+      />
+    );
+  }
+
   if (!exists) {
     return (
       <Button
@@ -135,27 +246,6 @@ function ActionLink({
         <Icon className="w-3 h-3 sm:mr-1" />
         <span className="hidden sm:inline">{label}</span>
       </Button>
-    );
-  }
-
-  if (gust) {
-    return (
-      <a
-        href={absoluteHref}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label={label}
-        title={label}
-        style={{
-          userSelect: 'none',
-          WebkitUserSelect: 'none',
-          WebkitTouchCallout: 'default',
-          touchAction: 'manipulation',
-        }}
-        className="inline-flex items-center justify-center w-7 h-7 rounded border border-gray-300 bg-white text-gray-800 no-underline"
-      >
-        <Icon className="w-4 h-4 pointer-events-none" />
-      </a>
     );
   }
 
@@ -308,14 +398,14 @@ export function PDFTable({ items, title, viewMode }: PDFTableProps) {
 
                   <td className="p-2 sm:p-3 border-r">
                     <div className="flex flex-row gap-1 justify-center items-stretch">
-                      <ActionLink
+                      <ActionButton
                         icon={ExternalLink}
                         label="閲覧"
                         href={item.problemUrl}
                         exists={item.problemExists}
                       />
 
-                      <ActionLink
+                      <ActionButton
                         icon={Download}
                         label="DL"
                         href={item.problemUrl}
@@ -328,14 +418,14 @@ export function PDFTable({ items, title, viewMode }: PDFTableProps) {
 
                   <td className="p-2 sm:p-3">
                     <div className="flex flex-row gap-1 justify-center items-stretch">
-                      <ActionLink
+                      <ActionButton
                         icon={ExternalLink}
                         label="閲覧"
                         href={item.answerUrl}
                         exists={item.answerExists}
                       />
 
-                      <ActionLink
+                      <ActionButton
                         icon={Download}
                         label="DL"
                         href={item.answerUrl}
