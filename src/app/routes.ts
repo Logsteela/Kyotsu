@@ -1,6 +1,7 @@
 import {
   createBrowserRouter,
   createHashRouter,
+  createMemoryRouter,
   type RouteObject,
 } from 'react-router';
 
@@ -29,7 +30,53 @@ const routes: RouteObject[] = [
   },
 ];
 
-function isGustBrowser() {
+function normalizeInternalPath(value: string | null): string | null {
+  if (!value) return null;
+
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  // 万一 full URL が渡された場合でも path 部分だけにする
+  const withoutOrigin = trimmed.replace(/^https?:\/\/[^/]+/i, '');
+
+  if (!withoutOrigin) return '/';
+
+  return withoutOrigin.startsWith('/') ? withoutOrigin : `/${withoutOrigin}`;
+}
+
+function getQueryRoutePath(): string | null {
+  if (typeof window === 'undefined') return null;
+
+  const params = new URLSearchParams(window.location.search);
+  const p = params.get('p');
+
+  return normalizeInternalPath(p);
+}
+
+function getHashRoutePath(): string | null {
+  if (typeof window === 'undefined') return null;
+
+  const hash = window.location.hash;
+
+  if (!hash.startsWith('#/')) return null;
+
+  return normalizeInternalPath(hash.slice(1));
+}
+
+function getCurrentPath(): string {
+  if (typeof window === 'undefined') return '/';
+
+  const { pathname, search } = window.location;
+
+  // ?p= は内部ルーティング用なので、現在パスとしては使わない
+  if (!pathname || pathname === '/') {
+    return '/';
+  }
+
+  return `${pathname}${search}`;
+}
+
+function isGustBrowser(): boolean {
   if (typeof window === 'undefined') return false;
 
   const ua = window.navigator.userAgent || '';
@@ -38,31 +85,17 @@ function isGustBrowser() {
   return /gust/i.test(ua) || /gust/i.test(appVersion);
 }
 
-function shouldUseHashRouter() {
-  if (typeof window === 'undefined') return false;
+const queryRoutePath = getQueryRoutePath();
+const hashRoutePath = getHashRoutePath();
 
-  return (
-    isGustBrowser() ||
-    window.location.hash.startsWith('#/') ||
-    new URLSearchParams(window.location.search).get('router') === 'hash'
-  );
-}
-
-function normalizeHashUrlForGust() {
-  if (typeof window === 'undefined') return;
-
-  if (!shouldUseHashRouter()) return;
-  if (window.location.hash.startsWith('#/')) return;
-
-  const { pathname, search } = window.location;
-
-  if (pathname !== '/') {
-    window.history.replaceState(null, '', `/#${pathname}${search}`);
-  }
-}
-
-normalizeHashUrlForGust();
-
-export const router = shouldUseHashRouter()
-  ? createHashRouter(routes)
-  : createBrowserRouter(routes);
+export const router = queryRoutePath
+  ? createMemoryRouter(routes, {
+      initialEntries: [queryRoutePath],
+    })
+  : isGustBrowser()
+    ? createMemoryRouter(routes, {
+        initialEntries: [hashRoutePath ?? getCurrentPath()],
+      })
+    : hashRoutePath
+      ? createHashRouter(routes)
+      : createBrowserRouter(routes);
