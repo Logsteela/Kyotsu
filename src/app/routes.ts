@@ -15,13 +15,8 @@ import { ArchivesPage } from '@/app/components/ArchivesPage';
 
 const routes: RouteObject[] = [
   {
-    // path を付けない layout route にする。
-    // これで GUST が pathname を変な形にしても、親 route は必ず入る。
     Component: Root,
-
-    // React Router の英語デフォルトエラー画面を出さない保険。
     ErrorBoundary: HomePage,
-
     children: [
       { index: true, Component: HomePage },
       { path: '/', Component: HomePage },
@@ -32,7 +27,6 @@ const routes: RouteObject[] = [
       { path: 'test/:questionPdf', Component: TestDetailPage },
       { path: 'archives', Component: ArchivesPage },
 
-      // GUST が /proxy/... など変な pathname を渡してきてもトップを表示する
       { path: '*', Component: HomePage },
     ],
   },
@@ -44,7 +38,6 @@ function normalizeInternalPath(value: string | null): string | null {
   const trimmed = value.trim();
   if (!trimmed) return null;
 
-  // full URL が渡された場合でも path 部分だけにする
   const withoutOrigin = trimmed.replace(/^https?:\/\/[^/]+/i, '');
 
   if (!withoutOrigin) return '/';
@@ -52,13 +45,40 @@ function normalizeInternalPath(value: string | null): string | null {
   return withoutOrigin.startsWith('/') ? withoutOrigin : `/${withoutOrigin}`;
 }
 
+function getShortQueryRoutePath(): string | null {
+  if (typeof window === 'undefined') return null;
+
+  const params = new URLSearchParams(window.location.search);
+
+  // 最短系
+  // /?o
+  if (params.has('o')) return '/overview';
+
+  // /?a
+  if (params.has('a')) return '/archives';
+
+  // /?y=2026
+  const year = params.get('y');
+  if (year) return `/year/${year}`;
+
+  // /?s=english
+  const subject = params.get('s');
+  if (subject) return `/subject/${subject}`;
+
+  // /?t=2026_国語_本試験問題.pdf
+  const test = params.get('t');
+  if (test) return `/test/${encodeURIComponent(test)}`;
+
+  return null;
+}
+
 function getQueryRoutePath(): string | null {
   if (typeof window === 'undefined') return null;
 
   const params = new URLSearchParams(window.location.search);
 
-  // GUST 用:
-  // https://kyotsutest.vercel.app/?p=/year/2026
+  // 旧GUST用も残す
+  // /?p=/overview
   return normalizeInternalPath(params.get('p'));
 }
 
@@ -72,13 +92,18 @@ function getHashRoutePath(): string | null {
   return normalizeInternalPath(hash.slice(1));
 }
 
+const shortQueryRoutePath = getShortQueryRoutePath();
 const queryRoutePath = getQueryRoutePath();
 const hashRoutePath = getHashRoutePath();
 
-export const router = queryRoutePath
+export const router = shortQueryRoutePath
   ? createMemoryRouter(routes, {
-      initialEntries: [queryRoutePath],
+      initialEntries: [shortQueryRoutePath],
     })
-  : hashRoutePath
-    ? createHashRouter(routes)
-    : createBrowserRouter(routes);
+  : queryRoutePath
+    ? createMemoryRouter(routes, {
+        initialEntries: [queryRoutePath],
+      })
+    : hashRoutePath
+      ? createHashRouter(routes)
+      : createBrowserRouter(routes);
