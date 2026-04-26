@@ -1,8 +1,16 @@
-import { Download, ExternalLink, Volume2, LucideIcon } from 'lucide-react';
+import { useState } from 'react';
+import {
+  Download,
+  ExternalLink,
+  Volume2,
+  Clipboard,
+  Check,
+  LucideIcon,
+} from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
 import { resolvePublicPdfUrl } from '@/app/data/testDatabase';
 
-type ActionType = 'view' | 'download' | 'audioView' | 'audioDownload';
+type ActionType = 'view' | 'download' | 'audioView' | 'audioDownload' | 'copy';
 
 type ResponsiveMode =
   | 'year-with-audio'
@@ -29,6 +37,7 @@ const ACTION_CONFIG: Record<ActionType, { icon: LucideIcon; label: string }> = {
   download: { icon: Download, label: 'DL' },
   audioView: { icon: Volume2, label: '再生' },
   audioDownload: { icon: Download, label: 'DL' },
+  copy: { icon: Clipboard, label: 'コピー' },
 };
 
 const RESPONSIVE_CLASSES: Record<ResponsiveMode, string> = {
@@ -95,6 +104,38 @@ function getDownloadName(pathOrUrl: string | undefined | null): string | undefin
   return fileName ? decodeURIComponent(fileName) : undefined;
 }
 
+async function copyTextToClipboard(text: string): Promise<boolean> {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch {
+    // fallbackへ
+  }
+
+  try {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', 'readonly');
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-9999px';
+    textarea.style.top = '0';
+    textarea.style.opacity = '0';
+
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+
+    const ok = document.execCommand('copy');
+    document.body.removeChild(textarea);
+
+    return ok;
+  } catch {
+    return false;
+  }
+}
+
 export function PDFActionButton({
   type,
   disabled = false,
@@ -103,7 +144,16 @@ export function PDFActionButton({
   className = '',
   responsiveMode = 'year-no-audio',
 }: PDFActionButtonProps) {
-  const config = ACTION_CONFIG[type];
+  const [copied, setCopied] = useState(false);
+
+  const gust = isGustMode();
+  const isDownload = type === 'download' || type === 'audioDownload';
+
+  const actualType: ActionType = gust ? 'copy' : type;
+  const config = copied
+    ? { icon: Check, label: '済' }
+    : ACTION_CONFIG[actualType];
+
   const Icon = config.icon;
   const textClass = RESPONSIVE_CLASSES[responsiveMode];
 
@@ -124,27 +174,28 @@ export function PDFActionButton({
     );
   }
 
-  const gust = isGustMode();
-  const isDownload = type === 'download' || type === 'audioDownload';
-
-  if (gust) {
+  if (gust || type === 'copy') {
     return (
-      <a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label={config.label}
-        title={config.label}
-        style={{
-          userSelect: 'none',
-          WebkitUserSelect: 'none',
-          WebkitTouchCallout: 'default',
-          touchAction: 'manipulation',
+      <Button
+        type="button"
+        size="sm"
+        variant="outline"
+        className={buttonClass}
+        onClick={async () => {
+          const ok = await copyTextToClipboard(href);
+
+          if (!ok) {
+            window.prompt('このURLをコピーしてください', href);
+            return;
+          }
+
+          setCopied(true);
+          window.setTimeout(() => setCopied(false), 1200);
         }}
-        className={`inline-flex items-center justify-center w-7 h-7 rounded border border-gray-300 bg-white text-gray-800 no-underline ${className}`}
       >
-        <Icon className="w-4 h-4 pointer-events-none" />
-      </a>
+        <Icon className="w-3 h-3 md:mr-1 flex-shrink-0" />
+        <span className={textClass}>{config.label}</span>
+      </Button>
     );
   }
 
@@ -192,6 +243,21 @@ export function PDFActionGroup({
   const downloadName = getDownloadName(pdfPath);
 
   const layoutClass = LAYOUT_CLASSES[responsiveMode];
+  const gust = isGustMode();
+
+  if (gust) {
+    return (
+      <div className={`flex gap-0.5 md:gap-1 justify-center items-stretch ${layoutClass}`}>
+        <PDFActionButton
+          type="copy"
+          disabled={disabled}
+          href={href}
+          downloadName={downloadName}
+          responsiveMode={responsiveMode}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className={`flex gap-0.5 md:gap-1 justify-center items-stretch ${layoutClass}`}>
@@ -237,6 +303,22 @@ export function AudioActionGroup({
 
   if (!audioPath || !exists) {
     return <div className="text-center text-gray-400 text-xs">-</div>;
+  }
+
+  const gust = isGustMode();
+
+  if (gust) {
+    return (
+      <div className={`flex gap-0.5 md:gap-1 justify-center items-stretch ${LAYOUT_CLASSES[responsiveMode]}`}>
+        <PDFActionButton
+          type="copy"
+          disabled={disabled}
+          href={href}
+          downloadName={downloadName}
+          responsiveMode={responsiveMode}
+        />
+      </div>
+    );
   }
 
   return (
