@@ -57,6 +57,13 @@ const LAYOUT_CLASSES: Record<ResponsiveMode, string> = {
 function isGustMode(): boolean {
   if (typeof window === 'undefined') return false;
 
+  const kyotsuWindow = window as Window & {
+    __KYOTSU_GUST_MODE__?: boolean;
+  };
+
+  if (kyotsuWindow.__KYOTSU_GUST_MODE__) return true;
+  if (document.documentElement.dataset.gustMode === '1') return true;
+
   const params = new URLSearchParams(window.location.search);
 
   return (
