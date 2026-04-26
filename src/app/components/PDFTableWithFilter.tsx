@@ -3,11 +3,16 @@ import { ChevronDown } from 'lucide-react';
 import { Link } from 'react-router';
 import { Button } from '@/app/components/ui/button';
 import { getEraDisplay } from '@/app/utils/era';
-import { EnhancedTestRecord, FILTERABLE_SUBJECTS, getOtherSubjectOrder } from '@/app/data/testDatabase';
+import {
+  EnhancedTestRecord,
+  FILTERABLE_SUBJECTS,
+  getOtherSubjectOrder,
+} from '@/app/data/testDatabase';
 import { FilterButton } from '@/app/components/FilterButton';
 import { PDFActionGroup, AudioActionGroup } from '@/app/components/PDFActionButton';
 import { TableLegend } from '@/app/components/TableLegend';
 import { getDisplaySubject } from '@/app/utils/subjectUtils';
+import pdfManifest from '@/app/data/pdfManifest.json';
 
 interface PDFTableWithFilterProps {
   items: EnhancedTestRecord[];
@@ -17,9 +22,7 @@ interface PDFTableWithFilterProps {
 }
 
 type PdfState = 1 | 2 | 3;
-type ManifestStatus = 'loading' | 'ready' | 'error';
-
-const MANIFEST_URL = '/manifest.json';
+type ManifestMap = Record<string, true>;
 
 function normalizeAssetKey(pathOrUrl: string | undefined | null): string | null {
   const s = (pathOrUrl ?? '').trim();
@@ -33,7 +36,7 @@ function normalizeAssetKey(pathOrUrl: string | undefined | null): string | null 
   return normalized || null;
 }
 
-function createManifestMap(payload: unknown): Record<string, true> {
+function createManifestMap(payload: unknown): ManifestMap {
   const entries = Array.isArray(payload)
     ? payload
     : payload && typeof payload === 'object' && Array.isArray((payload as { files?: unknown }).files)
@@ -42,7 +45,7 @@ function createManifestMap(payload: unknown): Record<string, true> {
         ? (payload as { keys: unknown[] }).keys
         : [];
 
-  const next: Record<string, true> = {};
+  const next: ManifestMap = {};
 
   for (const entry of entries) {
     if (typeof entry !== 'string') continue;
@@ -53,7 +56,14 @@ function createManifestMap(payload: unknown): Record<string, true> {
   return next;
 }
 
-function derivePdfState(questionExists: boolean, answerExists: boolean, audioExists: boolean, hasAudio: boolean): PdfState {
+const BUNDLED_MANIFEST_MAP: ManifestMap = createManifestMap(pdfManifest);
+
+function derivePdfState(
+  questionExists: boolean,
+  answerExists: boolean,
+  audioExists: boolean,
+  hasAudio: boolean,
+): PdfState {
   const checks = hasAudio
     ? [questionExists, answerExists, audioExists]
     : [questionExists, answerExists];
@@ -65,7 +75,12 @@ function derivePdfState(questionExists: boolean, answerExists: boolean, audioExi
   return 2;
 }
 
-export function PDFTableWithFilter({ items, title, viewMode, selectedCategorySubject }: PDFTableWithFilterProps) {
+export function PDFTableWithFilter({
+  items,
+  title,
+  viewMode,
+  selectedCategorySubject,
+}: PDFTableWithFilterProps) {
   const filterableSubject = selectedCategorySubject && selectedCategorySubject in FILTERABLE_SUBJECTS
     ? selectedCategorySubject as keyof typeof FILTERABLE_SUBJECTS
     : null;
@@ -74,42 +89,8 @@ export function PDFTableWithFilter({ items, title, viewMode, selectedCategorySub
     items.some(item => item.categorySubject === '英語（Listening）');
 
   const [selectedFilters, setSelectedFilters] = useState<Record<string, boolean>>({});
-  const [manifestMap, setManifestMap] = useState<Record<string, true>>({});
-  const [manifestStatus, setManifestStatus] = useState<ManifestStatus>('loading');
 
-  useEffect(() => {
-    let cancelled = false;
-
-    const loadManifest = async () => {
-      try {
-        const response = await fetch(MANIFEST_URL, {
-          method: 'GET',
-          cache: 'no-store',
-        });
-
-        if (!response.ok) {
-          throw new Error(`manifest fetch failed: ${response.status}`);
-        }
-
-        const json = await response.json();
-        if (cancelled) return;
-
-        setManifestMap(createManifestMap(json));
-        setManifestStatus('ready');
-      } catch (error) {
-        if (cancelled) return;
-        console.error('Failed to load manifest.json:', error);
-        setManifestMap({});
-        setManifestStatus('error');
-      }
-    };
-
-    void loadManifest();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const manifestMap = BUNDLED_MANIFEST_MAP;
 
   useEffect(() => {
     if (!filterableSubject) {
@@ -139,7 +120,7 @@ export function PDFTableWithFilter({ items, title, viewMode, selectedCategorySub
   const toggleFilter = (subject: string) => {
     setSelectedFilters(prev => ({
       ...prev,
-      [subject]: !prev[subject]
+      [subject]: !prev[subject],
     }));
   };
 
@@ -172,7 +153,7 @@ export function PDFTableWithFilter({ items, title, viewMode, selectedCategorySub
 
   const effectiveFilteredItems = useMemo(
     () => filteredItems.map(getEffectiveItem),
-    [filteredItems, manifestMap]
+    [filteredItems],
   );
 
   const isSpecialYear = items.length > 0 && typeof items[0].year === 'string';
@@ -192,30 +173,6 @@ export function PDFTableWithFilter({ items, title, viewMode, selectedCategorySub
     return (
       <div className="flex items-center justify-center h-64">
         <p className="text-gray-500">データがありません</p>
-      </div>
-    );
-  }
-
-  if (manifestStatus === 'loading') {
-    return (
-      <div className="p-4 lg:p-6 flex flex-col gap-4">
-        <h1 className="text-xl lg:text-2xl font-bold text-gray-900">{title}</h1>
-        <TableLegend />
-        <div className="p-4 bg-white border border-[var(--color-table-border)] rounded">
-          <p className="text-sm text-gray-600">Loading…</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (manifestStatus === 'error') {
-    return (
-      <div className="p-4 lg:p-6 flex flex-col gap-4">
-        <h1 className="text-xl lg:text-2xl font-bold text-gray-900">{title}</h1>
-        <TableLegend />
-        <div className="p-4 bg-red-50 border border-red-200 rounded">
-          <p className="text-sm text-red-700">manifest.json の読み込みに失敗しました。再読み込みしてください。</p>
-        </div>
       </div>
     );
   }
@@ -260,7 +217,14 @@ export function PDFTableWithFilter({ items, title, viewMode, selectedCategorySub
   const renderTable = (tests: EnhancedTestRecord[], tableTitle: string, id?: string) => {
     const isSpecialTest = tests.length > 0 && typeof tests[0].year === 'string';
 
-    const getResponsiveMode = (): 'year-with-audio' | 'year-no-audio' | 'subject-no-audio' | 'subject-with-audio' | 'overview-with-audio' | 'special-with-audio' | 'special-no-audio' => {
+    const getResponsiveMode = ():
+      | 'year-with-audio'
+      | 'year-no-audio'
+      | 'subject-no-audio'
+      | 'subject-with-audio'
+      | 'overview-with-audio'
+      | 'special-with-audio'
+      | 'special-no-audio' => {
       if (isSpecialTest) {
         return isListening ? 'special-with-audio' : 'special-no-audio';
       }
