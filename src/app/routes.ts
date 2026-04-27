@@ -1,9 +1,4 @@
-import {
-  createBrowserRouter,
-  createHashRouter,
-  createMemoryRouter,
-  type RouteObject,
-} from 'react-router';
+import { createBrowserRouter, type RouteObject } from 'react-router';
 
 import { Root } from '@/app/pages/Root';
 import { HomePage } from '@/app/pages/HomePage';
@@ -32,83 +27,27 @@ const routes: RouteObject[] = [
   },
 ];
 
-function normalizeInternalPath(value: string | null): string | null {
-  if (!value) return null;
+const legacyQueryRouteParams = ['o', 'a', 'y', 's', 't', 'p'];
 
-  const trimmed = value.trim();
-  if (!trimmed) return null;
+function removeLegacyQueryRouteParams(): void {
+  if (typeof window === 'undefined') return;
 
-  const withoutOrigin = trimmed.replace(/^https?:\/\/[^/]+/i, '');
+  const url = new URL(window.location.href);
+  let changed = false;
 
-  if (!withoutOrigin) return '/';
+  for (const param of legacyQueryRouteParams) {
+    if (!url.searchParams.has(param)) continue;
 
-  return withoutOrigin.startsWith('/') ? withoutOrigin : `/${withoutOrigin}`;
+    url.searchParams.delete(param);
+    changed = true;
+  }
+
+  if (!changed) return;
+
+  const nextUrl = `${url.pathname}${url.search}${url.hash}`;
+  window.history.replaceState(window.history.state, '', nextUrl);
 }
 
-function getShortQueryRoutePath(): string | null {
-  if (typeof window === 'undefined') return null;
+removeLegacyQueryRouteParams();
 
-  const params = new URLSearchParams(window.location.search);
-
-  // /?o
-  if (params.has('o')) return '/overview';
-
-  // /?a
-  if (params.has('a')) return '/archives';
-
-  // /?y=2026
-  const year = params.get('y');
-  if (year) return `/year/${year}`;
-
-  // /?s=english
-  const subject = params.get('s');
-  if (subject) return `/subject/${subject}`;
-
-  // /?t=2026_国語_本試験問題.pdf
-  const test = params.get('t');
-  if (test) return `/test/${encodeURIComponent(test)}`;
-
-  return null;
-}
-
-function getQueryRoutePath(): string | null {
-  if (typeof window === 'undefined') return null;
-
-  const params = new URLSearchParams(window.location.search);
-
-  // /?p=/overview
-  return normalizeInternalPath(params.get('p'));
-}
-
-function getHashRoutePath(): string | null {
-  if (typeof window === 'undefined') return null;
-
-  const hash = window.location.hash;
-
-  if (!hash.startsWith('#/')) return null;
-
-  return normalizeInternalPath(hash.slice(1));
-}
-
-const shortQueryRoutePath = getShortQueryRoutePath();
-const queryRoutePath = getQueryRoutePath();
-const hashRoutePath = getHashRoutePath();
-
-const isCompactMode = Boolean(shortQueryRoutePath || queryRoutePath || hashRoutePath);
-
-if (typeof window !== 'undefined' && isCompactMode) {
-  (window as Window & { __KYOTSU_GUST_MODE__?: boolean }).__KYOTSU_GUST_MODE__ = true;
-  document.documentElement.dataset.gustMode = '1';
-}
-
-export const router = shortQueryRoutePath
-  ? createMemoryRouter(routes, {
-      initialEntries: [shortQueryRoutePath],
-    })
-  : queryRoutePath
-    ? createMemoryRouter(routes, {
-        initialEntries: [queryRoutePath],
-      })
-    : hashRoutePath
-      ? createHashRouter(routes)
-      : createBrowserRouter(routes);
+export const router = createBrowserRouter(routes);
