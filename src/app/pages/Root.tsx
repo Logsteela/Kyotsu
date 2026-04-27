@@ -45,9 +45,9 @@ export function Root() {
       <main ref={mainRef} className="flex-1 overflow-y-auto relative flex flex-col min-w-0">
         {/* サイトタイトル */}
         <header className="bg-white border-b border-[var(--color-table-border)] px-4 sm:px-6 py-3 lg:py-4 flex-shrink-0">
-          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 text-center lg:text-left tracking-tight break-words">
+          <div className="text-2xl lg:text-3xl font-bold text-gray-900 text-center lg:text-left tracking-tight break-words">
             共通テスト過去問総集
-          </h1>
+          </div>
           <p className="text-sm text-gray-500 mt-2 text-center lg:text-left break-words">
             共通テストの全ての問題・解答を無料公開
           </p>
