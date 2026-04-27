@@ -10,12 +10,3 @@ Disallow: /*?t=
 Disallow: /*?p=
 
 Sitemap: https://kyotsutest.vercel.app/sitemap.xml
-
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Slurp
-Allow: /
