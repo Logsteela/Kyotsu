@@ -2,11 +2,20 @@ User-agent: *
 Allow: /
 Disallow: /api/
 Disallow: /admin/
+Disallow: /*?o
+Disallow: /*?a
+Disallow: /*?y=
+Disallow: /*?s=
+Disallow: /*?t=
+Disallow: /*?p=
+
 Sitemap: https://kyotsutest.vercel.app/sitemap.xml
-Crawl-delay: 1
+
 User-agent: Googlebot
 Allow: /
+
 User-agent: Bingbot
 Allow: /
+
 User-agent: Slurp
 Allow: /
