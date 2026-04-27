@@ -1,5 +1,5 @@
  import { Link } from 'react-router';
-import { FileText, Calendar, BookOpen, ArrowRight, Clock, Info } from 'lucide-react';
+import { FileText, Calendar, ArrowRight, Clock, Info } from 'lucide-react';
 import { SEOMeta } from '@/app/components/SEOMeta';
 import { StructuredData } from '@/app/components/StructuredData';
 import { Button } from '@/app/components/ui/button';
