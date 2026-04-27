@@ -68,12 +68,14 @@ export function SubjectPage() {
     ];
   }, [categorySubject, title, subjectSlug]);
 
+  const pagePath = `/subject/${subjectSlug ?? ''}`;
+
   return (
     <>
       <SEOMeta
         title={pageTitle}
         description={description}
-        path={`/subject/${subjectSlug}`}
+        path={pagePath}
         keywords={keywords}
         type="article"
       />
@@ -81,6 +83,7 @@ export function SubjectPage() {
         type="WebPage"
         pageTitle={pageTitle}
         pageDescription={description}
+        pagePath={pagePath}
         breadcrumbs={breadcrumbs}
       />
       <Breadcrumbs items={breadcrumbs} />
