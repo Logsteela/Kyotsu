@@ -6,6 +6,7 @@ import { Breadcrumbs } from '@/app/components/Breadcrumbs';
 import { PDFTableWithFilter } from '@/app/components/PDFTableWithFilter';
 import { getEnhancedDatabase, sortTestRecords } from '@/app/data/testDatabase';
 import { getEraDisplay } from '@/app/utils/era';
+import { getDisplaySubject } from '@/app/utils/subjectUtils';
 
 export function YearPage() {
   const { year } = useParams();
@@ -96,6 +97,13 @@ export function YearPage() {
 
   const pagePath = `/year/${year ?? ''}`;
 
+  const itemListItems = useMemo(() => {
+    return filteredPDFs.map((record) => ({
+      name: `${getDisplaySubject(record.subject)} ${record.testType === 'main' ? '本試験' : '追試験'}`,
+      url: `/test/${encodeURIComponent(record.questionPdf)}`,
+    }));
+  }, [filteredPDFs]);
+
   return (
     <>
       <SEOMeta
@@ -111,6 +119,11 @@ export function YearPage() {
         pageDescription={description}
         pagePath={pagePath}
         breadcrumbs={breadcrumbs}
+      />
+      <StructuredData
+        type="ItemList"
+        itemListName={title}
+        items={itemListItems}
       />
       <Breadcrumbs items={breadcrumbs} />
       <PDFTableWithFilter
