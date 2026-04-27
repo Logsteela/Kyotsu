@@ -5,6 +5,7 @@ import { StructuredData } from '@/app/components/StructuredData';
 import { Breadcrumbs } from '@/app/components/Breadcrumbs';
 import { PDFTableWithFilter } from '@/app/components/PDFTableWithFilter';
 import { getEnhancedDatabase, sortTestRecords, SLUG_TO_CATEGORY } from '@/app/data/testDatabase';
+import { getDisplaySubject } from '@/app/utils/subjectUtils';
 
 export function SubjectPage() {
   const { subject: subjectSlug } = useParams();
@@ -70,6 +71,13 @@ export function SubjectPage() {
 
   const pagePath = `/subject/${subjectSlug ?? ''}`;
 
+  const itemListItems = useMemo(() => {
+    return filteredPDFs.map((record) => ({
+      name: `${record.year} ${getDisplaySubject(record.subject)} ${record.testType === 'main' ? '本試験' : '追試験'}`,
+      url: `/test/${encodeURIComponent(record.questionPdf)}`,
+    }));
+  }, [filteredPDFs]);
+
   return (
     <>
       <SEOMeta
@@ -85,6 +93,11 @@ export function SubjectPage() {
         pageDescription={description}
         pagePath={pagePath}
         breadcrumbs={breadcrumbs}
+      />
+      <StructuredData
+        type="ItemList"
+        itemListName={title}
+        items={itemListItems}
       />
       <Breadcrumbs items={breadcrumbs} />
       <PDFTableWithFilter 
