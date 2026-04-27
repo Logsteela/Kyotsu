@@ -2,6 +2,8 @@
 
 import archivesTables from './archivesTables.json';
 import React, { useLayoutEffect, useRef, useState } from 'react';
+import { SEOMeta } from '@/app/components/SEOMeta';
+import { StructuredData } from '@/app/components/StructuredData';
 
 interface RankingItem {
   rank: number;
@@ -120,19 +122,35 @@ function RankingTable({ title, data }: RankingTableProps) {
 
 export function ArchivesPage() {
   const tables = archivesTables as unknown as ArchivesTable[];
+  const title = '記録資料集 - 共通テスト過去問総集';
+  const description = '共通テスト・センター試験・共通一次試験の記録資料集です。';
 
   return (
-    <div className="flex-1 bg-gray-100 px-4 sm:px-6 py-6 lg:py-8">
-      <div className="w-full max-w-none mx-auto">
-        <h1 className="text-xl lg:text-2xl font-bold text-gray-900 mb-6">記録資料集</h1>
+    <>
+      <SEOMeta
+        title={title}
+        description={description}
+        path="/archives"
+        keywords="共通テスト,センター試験,共通一次,記録資料集,平均点,得点,順位"
+      />
+      <StructuredData
+        type="WebPage"
+        pageTitle={title}
+        pageDescription={description}
+        pagePath="/archives"
+      />
+      <div className="flex-1 bg-gray-100 px-4 sm:px-6 py-6 lg:py-8">
+        <div className="w-full max-w-none mx-auto">
+          <h1 className="text-xl lg:text-2xl font-bold text-gray-900 mb-6">記録資料集</h1>
 
-        {/* ★空いてる限り横に並べる */}
-        <div className="flex flex-wrap gap-6 items-start">
-          {tables.map((t) => (
-            <RankingTable key={t.id} title={t.title} data={t.data} />
-          ))}
+          {/* ★空いてる限り横に並べる */}
+          <div className="flex flex-wrap gap-6 items-start">
+            {tables.map((t) => (
+              <RankingTable key={t.id} title={t.title} data={t.data} />
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
