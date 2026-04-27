@@ -1,7 +1,6 @@
 import { Download, ExternalLink, Volume2, LucideIcon } from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
 import { resolvePublicPdfUrl } from '@/app/data/testDatabase';
-import { GustUrlField, isGustMode, toAbsoluteUrl } from '@/app/components/GustUrlField';
 
 type ActionType = 'view' | 'download' | 'audioView' | 'audioDownload';
 
@@ -21,6 +20,7 @@ interface PDFActionButtonProps {
   downloadName?: string;
   className?: string;
   responsiveMode?: ResponsiveMode;
+  ariaLabel?: string;
 }
 
 const ACTION_CONFIG: Record<ActionType, { icon: LucideIcon; label: string }> = {
@@ -53,6 +53,11 @@ const LAYOUT_CLASSES: Record<ResponsiveMode, string> = {
   'special-no-audio': 'flex-col min-[1024px]:flex-row',
 };
 
+function toAbsoluteUrl(url: string): string {
+  if (/^https?:\/\//i.test(url)) return url;
+  return `https://kyotsutest.vercel.app${url.startsWith('/') ? '' : '/'}${url}`;
+}
+
 function getDownloadName(pathOrUrl: string | undefined | null): string | undefined {
   const raw = (pathOrUrl ?? '').trim();
   if (!raw) return undefined;
@@ -74,6 +79,7 @@ export function PDFActionButton({
   downloadName,
   className = '',
   responsiveMode = 'year-no-audio',
+  ariaLabel,
 }: PDFActionButtonProps) {
   const config = ACTION_CONFIG[type];
   const Icon = config.icon;
@@ -89,6 +95,7 @@ export function PDFActionButton({
         size="sm"
         variant="outline"
         className={buttonClass}
+        aria-label={ariaLabel}
       >
         <Icon className="w-3 h-3 md:mr-1 flex-shrink-0" />
         <span className={textClass}>{config.label}</span>
@@ -110,6 +117,7 @@ export function PDFActionButton({
         target={isDownload ? undefined : '_blank'}
         rel={isDownload ? undefined : 'noopener noreferrer'}
         download={isDownload ? downloadName : undefined}
+        aria-label={ariaLabel}
       >
         <Icon className="w-3 h-3 md:mr-1 flex-shrink-0" />
         <span className={textClass}>{config.label}</span>
@@ -140,22 +148,9 @@ export function PDFActionGroup({
   const href = resolvedUrl ? toAbsoluteUrl(resolvedUrl) : undefined;
   const disabled = isCompletelyMissing || isMissingThisFile || !href;
   const downloadName = getDownloadName(pdfPath);
+  const targetLabel = type === 'question' ? '問題' : '解答';
 
   const layoutClass = LAYOUT_CLASSES[responsiveMode];
-
-  if (isGustMode()) {
-    if (disabled || !href) {
-      return <div className="text-center text-gray-400 text-xs">-</div>;
-    }
-
-    return (
-      <GustUrlField
-        url={href}
-        label={type === 'question' ? '問題URL' : '解答URL'}
-        compact
-      />
-    );
-  }
 
   return (
     <div className={`flex gap-0.5 md:gap-1 justify-center items-stretch ${layoutClass}`}>
@@ -164,6 +159,7 @@ export function PDFActionGroup({
         disabled={disabled}
         href={href}
         responsiveMode={responsiveMode}
+        ariaLabel={`${targetLabel}を閲覧`}
       />
 
       <PDFActionButton
@@ -172,6 +168,7 @@ export function PDFActionGroup({
         href={href}
         downloadName={downloadName}
         responsiveMode={responsiveMode}
+        ariaLabel={`${targetLabel}をダウンロード`}
       />
     </div>
   );
@@ -203,20 +200,6 @@ export function AudioActionGroup({
     return <div className="text-center text-gray-400 text-xs">-</div>;
   }
 
-  if (isGustMode()) {
-    if (disabled || !href) {
-      return <div className="text-center text-gray-400 text-xs">-</div>;
-    }
-
-    return (
-      <GustUrlField
-        url={href}
-        label="音声URL"
-        compact
-      />
-    );
-  }
-
   return (
     <div className={`flex gap-0.5 md:gap-1 justify-center items-stretch ${LAYOUT_CLASSES[responsiveMode]}`}>
       <PDFActionButton
@@ -224,6 +207,7 @@ export function AudioActionGroup({
         disabled={disabled}
         href={href}
         responsiveMode={responsiveMode}
+        ariaLabel="音声を再生"
       />
 
       <PDFActionButton
@@ -232,6 +216,7 @@ export function AudioActionGroup({
         href={href}
         downloadName={downloadName}
         responsiveMode={responsiveMode}
+        ariaLabel="音声をダウンロード"
       />
     </div>
   );
