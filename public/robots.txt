@@ -1,12 +1,4 @@
 User-agent: *
 Allow: /
-Disallow: /api/
-Disallow: /admin/
-Disallow: /*?o
-Disallow: /*?a
-Disallow: /*?y=
-Disallow: /*?s=
-Disallow: /*?t=
-Disallow: /*?p=
 
 Sitemap: https://kyotsutest.vercel.app/sitemap.xml
