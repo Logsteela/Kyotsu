@@ -1,25 +1,7 @@
 export const SITE_ORIGIN = 'https://kyotsutest.vercel.app';
 
 export function isGustMode(): boolean {
-  if (typeof window === 'undefined') return false;
-
-  const kyotsuWindow = window as Window & {
-    __KYOTSU_GUST_MODE__?: boolean;
-  };
-
-  if (kyotsuWindow.__KYOTSU_GUST_MODE__) return true;
-  if (document.documentElement.dataset.gustMode === '1') return true;
-
-  const params = new URLSearchParams(window.location.search);
-
-  return (
-    params.has('o') ||
-    params.has('a') ||
-    params.has('y') ||
-    params.has('s') ||
-    params.has('t') ||
-    params.has('p')
-  );
+  return false;
 }
 
 export function toAbsoluteUrl(url: string): string {
