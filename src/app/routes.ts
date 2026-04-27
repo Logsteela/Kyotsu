@@ -6,12 +6,13 @@ import { OverviewPage } from '@/app/pages/OverviewPage';
 import { YearPage } from '@/app/pages/YearPage';
 import { SubjectPage } from '@/app/pages/SubjectPage';
 import { TestDetailPage } from '@/app/pages/TestDetailPage';
+import { NotFoundPage } from '@/app/pages/NotFoundPage';
 import { ArchivesPage } from '@/app/components/ArchivesPage';
 
 const routes: RouteObject[] = [
   {
     Component: Root,
-    ErrorBoundary: HomePage,
+    ErrorBoundary: NotFoundPage,
     children: [
       { index: true, Component: HomePage },
       { path: '/', Component: HomePage },
@@ -22,32 +23,9 @@ const routes: RouteObject[] = [
       { path: 'test/:questionPdf', Component: TestDetailPage },
       { path: 'archives', Component: ArchivesPage },
 
-      { path: '*', Component: HomePage },
+      { path: '*', Component: NotFoundPage },
     ],
   },
 ];
-
-const legacyQueryRouteParams = ['o', 'a', 'y', 's', 't', 'p'];
-
-function removeLegacyQueryRouteParams(): void {
-  if (typeof window === 'undefined') return;
-
-  const url = new URL(window.location.href);
-  let changed = false;
-
-  for (const param of legacyQueryRouteParams) {
-    if (!url.searchParams.has(param)) continue;
-
-    url.searchParams.delete(param);
-    changed = true;
-  }
-
-  if (!changed) return;
-
-  const nextUrl = `${url.pathname}${url.search}${url.hash}`;
-  window.history.replaceState(window.history.state, '', nextUrl);
-}
-
-removeLegacyQueryRouteParams();
 
 export const router = createBrowserRouter(routes);
