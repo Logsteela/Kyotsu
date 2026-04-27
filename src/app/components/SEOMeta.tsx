@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async';
 interface SEOMetaProps {
   title: string;
   description: string;
-  path: string;
+  path?: string;
   keywords?: string;
   type?: 'website' | 'article';
   imageUrl?: string;
@@ -13,6 +13,11 @@ interface SEOMetaProps {
 const BASE_URL = 'https://kyotsutest.vercel.app';
 const SITE_NAME = '共通テスト過去問総集';
 const DEFAULT_IMAGE_ALT = '共通テスト過去問総集';
+
+function getCurrentPath(): string {
+  if (typeof window === 'undefined') return '/';
+  return `${window.location.pathname}${window.location.hash}`;
+}
 
 function toAbsoluteUrl(pathOrUrl: string): string {
   if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
@@ -44,7 +49,7 @@ export function SEOMeta({
   imageUrl = '/ogp-image.png',
   noIndex = false,
 }: SEOMetaProps) {
-  const fullUrl = toAbsoluteUrl(path);
+  const fullUrl = toAbsoluteUrl(path ?? getCurrentPath());
   const fullImageUrl = toAbsoluteUrl(imageUrl);
   const robotsContent = noIndex
     ? 'noindex, nofollow, noarchive'
