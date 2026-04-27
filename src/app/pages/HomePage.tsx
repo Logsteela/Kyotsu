@@ -23,9 +23,9 @@ export function HomePage() {
         <div className="max-w-4xl mx-auto">
           {/* ウェルカムセクション */}
           <section className="bg-white rounded-lg border border-[var(--color-table-border)] p-6 lg:p-8 mb-6">
-            <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">
+            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">
               共通テスト集成の最高峰
-            </h2>
+            </h1>
             <p className="text-gray-700 leading-relaxed mb-4">
               このサイトでは、ほとんど全ての共通テストの問題・解答を無料で閲覧・ダウンロードできます。また、旧センター試験、旧共通一次試験も収集しています。
               すべての過去問を網羅的に収録している最中です。
