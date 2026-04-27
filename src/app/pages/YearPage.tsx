@@ -94,12 +94,14 @@ export function YearPage() {
     ];
   }, [year, title]);
 
+  const pagePath = `/year/${year ?? ''}`;
+
   return (
     <>
       <SEOMeta
         title={pageTitle}
         description={description}
-        path={`/year/${year}`}
+        path={pagePath}
         keywords={keywords}
         type="article"
       />
@@ -107,6 +109,7 @@ export function YearPage() {
         type="WebPage"
         pageTitle={pageTitle}
         pageDescription={description}
+        pagePath={pagePath}
         breadcrumbs={breadcrumbs}
       />
       <Breadcrumbs items={breadcrumbs} />
