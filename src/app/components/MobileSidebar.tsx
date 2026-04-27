@@ -63,9 +63,9 @@ export function MobileSidebar({ subjects, years }: MobileSidebarProps) {
         <div className="p-6 flex flex-col gap-8">
           {/* ホームセクション */}
           <div className="flex flex-col gap-4 mt-12">
-            <h2 className="font-semibold text-gray-900">ホーム</h2>
+            <div className="font-semibold text-gray-900">ホーム</div>
             <div>
-              <Link to="/">
+              <Link to="/" aria-current={currentPath === '/' ? 'page' : undefined}>
                 <Button
                   variant={currentPath === '/' ? 'default' : 'ghost'}
                   className="w-full justify-start text-sm"
@@ -79,9 +79,9 @@ export function MobileSidebar({ subjects, years }: MobileSidebarProps) {
 
           {/* 総覧セクション */}
           <div className="flex flex-col gap-4">
-            <h2 className="font-semibold text-gray-900">総覧</h2>
+            <div className="font-semibold text-gray-900">総覧</div>
             <div>
-              <Link to="/overview">
+              <Link to="/overview" aria-current={currentPath === '/overview' ? 'page' : undefined}>
                 <Button
                   variant={currentPath === '/overview' ? 'default' : 'ghost'}
                   className="w-full justify-start text-sm"
@@ -95,13 +95,13 @@ export function MobileSidebar({ subjects, years }: MobileSidebarProps) {
 
           {/* 年度セクション */}
           <div className="flex flex-col gap-4">
-            <h2 className="font-semibold text-gray-900">年度別</h2>
+            <div className="font-semibold text-gray-900">年度別</div>
             <div className="flex flex-col gap-1 max-h-64 overflow-y-auto">
               {years.map((year) => {
                 const yearPath = typeof year === 'number' ? `/year/${year}` : `/year/${year}`;
                 const isActive = currentPath === yearPath;
                 return (
-                  <Link key={year} to={yearPath}>
+                  <Link key={year} to={yearPath} aria-current={isActive ? 'page' : undefined}>
                     <Button
                       variant={isActive ? 'default' : 'ghost'}
                       className="w-full justify-start text-sm"
@@ -117,14 +117,14 @@ export function MobileSidebar({ subjects, years }: MobileSidebarProps) {
 
           {/* 教科セクション */}
           <div className="flex flex-col gap-4">
-            <h2 className="font-semibold text-gray-900">教科別</h2>
+            <div className="font-semibold text-gray-900">教科別</div>
             <div className="flex flex-col gap-1 max-h-64 overflow-y-auto">
               {subjects.map((subject) => {
                 const slug = CATEGORY_TO_SLUG[subject] || 'sonota';
                 const subjectPath = `/subject/${slug}`;
                 const isActive = currentPath === subjectPath;
                 return (
-                  <Link key={subject} to={subjectPath}>
+                  <Link key={subject} to={subjectPath} aria-current={isActive ? 'page' : undefined}>
                     <Button
                       variant={isActive ? 'default' : 'ghost'}
                       className="w-full justify-start text-sm"
@@ -140,9 +140,9 @@ export function MobileSidebar({ subjects, years }: MobileSidebarProps) {
 
           {/* 付記セクション */}
           <div className="flex flex-col gap-4">
-            <h2 className="font-semibold text-gray-900">付記</h2>
+            <div className="font-semibold text-gray-900">付記</div>
             <div>
-              <Link to="/archives">
+              <Link to="/archives" aria-current={currentPath === '/archives' ? 'page' : undefined}>
                 <Button
                   variant={currentPath === '/archives' ? 'default' : 'ghost'}
                   className="w-full justify-start text-sm"
