@@ -24,8 +24,6 @@ interface PDFTableWithFilterProps {
 type PdfState = 1 | 2 | 3;
 type ManifestMap = Record<string, true>;
 
-const SITE_ORIGIN = 'https://kyotsutest.vercel.app';
-
 function normalizeAssetKey(pathOrUrl: string | undefined | null): string | null {
   const s = (pathOrUrl ?? '').trim();
   if (!s) return null;
@@ -75,32 +73,6 @@ function derivePdfState(
   if (missingCount === 0) return 1;
   if (missingCount === checks.length) return 3;
   return 2;
-}
-
-function isGustMode(): boolean {
-  if (typeof window === 'undefined') return false;
-
-  const kyotsuWindow = window as Window & {
-    __KYOTSU_GUST_MODE__?: boolean;
-  };
-
-  if (kyotsuWindow.__KYOTSU_GUST_MODE__) return true;
-  if (document.documentElement.dataset.gustMode === '1') return true;
-
-  const params = new URLSearchParams(window.location.search);
-
-  return (
-    params.has('o') ||
-    params.has('a') ||
-    params.has('y') ||
-    params.has('s') ||
-    params.has('t') ||
-    params.has('p')
-  );
-}
-
-function getGustTestUrl(questionPdf: string): string {
-  return `${SITE_ORIGIN}/?t=${encodeURIComponent(questionPdf)}`;
 }
 
 export function PDFTableWithFilter({
@@ -231,28 +203,6 @@ export function PDFTableWithFilter({
 
   const renderSubject = (item: EnhancedTestRecord) => {
     const label = getDisplaySubject(item.subject);
-
-    if (isGustMode()) {
-      const gustDetailUrl = getGustTestUrl(item.questionPdf);
-
-      return (
-        <a
-          href={gustDetailUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-bold underline decoration-1 underline-offset-2 text-black hover:text-gray-600 transition-colors"
-          style={{
-            userSelect: 'none',
-            WebkitUserSelect: 'none',
-            WebkitTouchCallout: 'default',
-            touchAction: 'manipulation',
-          }}
-        >
-          {label}
-        </a>
-      );
-    }
-
     const detailPageUrl = `/test/${encodeURIComponent(item.questionPdf)}`;
 
     return (
@@ -306,29 +256,29 @@ export function PDFTableWithFilter({
               <tr>
                 {isOverviewMode ? (
                   <>
-                    <th className="text-left p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 border-r border-[var(--color-table-border)] w-[15%] md:w-[18%]">
+                    <th scope="col" className="text-left p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 border-r border-[var(--color-table-border)] w-[15%] md:w-[18%]">
                       年度
                     </th>
-                    <th className="text-left p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 border-r border-[var(--color-table-border)] w-[15%] md:w-[18%]">
+                    <th scope="col" className="text-left p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 border-r border-[var(--color-table-border)] w-[15%] md:w-[18%]">
                       教科
                     </th>
                   </>
                 ) : viewMode === 'bySubject' ? (
                   <>
-                    <th className="text-left p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 border-r border-[var(--color-table-border)] w-[15%] md:w-[18%]">
+                    <th scope="col" className="text-left p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 border-r border-[var(--color-table-border)] w-[15%] md:w-[18%]">
                       年度
                     </th>
-                    <th className="text-left p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 border-r border-[var(--color-table-border)] w-[15%] md:w-[18%]">
+                    <th scope="col" className="text-left p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 border-r border-[var(--color-table-border)] w-[15%] md:w-[18%]">
                       教科
                     </th>
                   </>
                 ) : (
-                  <th className="text-left p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 border-r border-[var(--color-table-border)] w-[20%] md:w-[22%]">
+                  <th scope="col" className="text-left p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 border-r border-[var(--color-table-border)] w-[20%] md:w-[22%]">
                     教科
                   </th>
                 )}
 
-                <th className={`text-center p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 ${
+                <th scope="col" className={`text-center p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 ${
                   isListening
                     ? (isOverviewMode || viewMode === 'bySubject' ? 'w-[23.33%] md:w-[21.33%]' : 'w-[26.67%] md:w-[26%]')
                     : (isOverviewMode || viewMode === 'bySubject' ? 'w-[35%] md:w-[32%]' : 'w-[40%] md:w-[39%]')
@@ -336,7 +286,7 @@ export function PDFTableWithFilter({
                   問題
                 </th>
 
-                <th className={`text-center p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 ${
+                <th scope="col" className={`text-center p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 ${
                   isListening
                     ? (isOverviewMode || viewMode === 'bySubject' ? 'w-[23.33%] md:w-[21.33%] border-r border-[var(--color-table-border)]' : 'w-[26.67%] md:w-[26%] border-r border-[var(--color-table-border)]')
                     : (isOverviewMode || viewMode === 'bySubject' ? 'w-[35%] md:w-[32%]' : 'w-[40%] md:w-[39%]')
@@ -345,7 +295,7 @@ export function PDFTableWithFilter({
                 </th>
 
                 {isListening && (
-                  <th className={`text-center p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 ${
+                  <th scope="col" className={`text-center p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 ${
                     isOverviewMode || viewMode === 'bySubject' ? 'w-[23.33%] md:w-[21.33%]' : 'w-[26.67%] md:w-[26%]'
                   }`}>
                     音声
@@ -367,9 +317,9 @@ export function PDFTableWithFilter({
                           ? `${item.year}（${getEraDisplay(item.year)}）`
                           : item.year}
                       </td>
-                      <td className="p-2 sm:p-3 text-xs sm:text-sm font-medium text-gray-900 border-r border-[var(--color-table-border)] break-words overflow-hidden">
+                      <th scope="row" className="p-2 sm:p-3 text-xs sm:text-sm font-medium text-gray-900 border-r border-[var(--color-table-border)] break-words overflow-hidden text-left">
                         {renderSubject(item)}
-                      </td>
+                      </th>
                     </>
                   ) : viewMode === 'bySubject' ? (
                     <>
@@ -378,14 +328,14 @@ export function PDFTableWithFilter({
                           ? `${item.year}（${getEraDisplay(item.year)}）`
                           : item.year}
                       </td>
-                      <td className="p-2 sm:p-3 text-xs sm:text-sm font-medium text-gray-900 border-r border-[var(--color-table-border)] break-words overflow-hidden">
+                      <th scope="row" className="p-2 sm:p-3 text-xs sm:text-sm font-medium text-gray-900 border-r border-[var(--color-table-border)] break-words overflow-hidden text-left">
                         {renderSubject(item)}
-                      </td>
+                      </th>
                     </>
                   ) : (
-                    <td className="p-2 sm:p-3 text-xs sm:text-sm font-medium text-gray-900 border-r border-[var(--color-table-border)] break-words overflow-hidden">
+                    <th scope="row" className="p-2 sm:p-3 text-xs sm:text-sm font-medium text-gray-900 border-r border-[var(--color-table-border)] break-words overflow-hidden text-left">
                       {renderSubject(item)}
-                    </td>
+                    </th>
                   )}
 
                   <td className="p-1.5 sm:p-2 border-r border-[var(--color-table-border)] overflow-hidden">
