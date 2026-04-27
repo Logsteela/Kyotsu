@@ -94,7 +94,7 @@ export function StructuredData({
     '@id': `${BASE_URL}/#organization`,
     name: SITE_NAME,
     url: `${BASE_URL}/`,
-    logo: `${BASE_URL}/android-chrome-512x512.png`,
+    logo: `${BASE_URL}/ogp-image.png`,
   };
 
   const generateWebSiteSchema = () => ({
