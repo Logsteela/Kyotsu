@@ -14,6 +14,7 @@ export function NotFoundPage() {
         title="ページが見つかりません (404) - 共通テスト過去問総集"
         description="お探しのページは見つかりませんでした。URLをご確認いただくか、トップページからお探しください。"
         path="/404"
+        noIndex
       />
       <div className="flex-1 flex items-center justify-center p-4 sm:p-6">
         <div className="max-w-md w-full text-center">
@@ -78,7 +79,7 @@ export function NotFoundPage() {
               </li>
               <li>
                 <Link
-                  to="/subject/math-1a"
+                  to="/subject/math1"
                   className="text-[var(--color-brand-green)] hover:underline"
                 >
                   → 数学ⅠAの過去問一覧
