@@ -4,6 +4,7 @@ import { StructuredData } from '@/app/components/StructuredData';
 import { Breadcrumbs } from '@/app/components/Breadcrumbs';
 import { PDFTableWithFilter } from '@/app/components/PDFTableWithFilter';
 import { getEnhancedDatabase, sortTestRecords } from '@/app/data/testDatabase';
+import { getDisplaySubject } from '@/app/utils/subjectUtils';
 
 export function OverviewPage() {
   const filteredPDFs = useMemo(() => {
@@ -18,6 +19,13 @@ export function OverviewPage() {
     { name: '総覧', url: '/overview' }
   ];
 
+  const itemListItems = useMemo(() => {
+    return filteredPDFs.slice(0, 200).map((record) => ({
+      name: `${record.year} ${getDisplaySubject(record.subject)} ${record.testType === 'main' ? '本試験' : '追試験'}`,
+      url: `/test/${encodeURIComponent(record.questionPdf)}`,
+    }));
+  }, [filteredPDFs]);
+
   return (
     <>
       <SEOMeta
@@ -31,6 +39,11 @@ export function OverviewPage() {
       />
       <StructuredData
         type="EducationalOccupationalProgram"
+      />
+      <StructuredData
+        type="ItemList"
+        itemListName="総覧"
+        items={itemListItems}
       />
       <Breadcrumbs items={breadcrumbItems} />
       <PDFTableWithFilter 
