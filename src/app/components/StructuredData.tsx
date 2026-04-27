@@ -27,10 +27,17 @@ interface StructuredDataProps {
 const BASE_URL = 'https://kyotsutest.vercel.app';
 const SITE_NAME = '共通テスト過去問総集';
 
+function getCurrentPath(): string {
+  if (typeof window === 'undefined') return '/';
+  return window.location.pathname;
+}
+
 function toAbsoluteUrl(pathOrUrl = '/'): string {
   if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
 
-  const normalizedPath = pathOrUrl.startsWith('/') ? pathOrUrl : `/${pathOrUrl}`;
+  const [pathWithoutHash] = pathOrUrl.split('#');
+  const [pathWithoutQuery] = pathWithoutHash.split('?');
+  const normalizedPath = pathWithoutQuery.startsWith('/') ? pathWithoutQuery : `/${pathWithoutQuery}`;
   return `${BASE_URL}${normalizedPath}`;
 }
 
@@ -65,7 +72,7 @@ export function StructuredData({
   breadcrumbs = [],
   pageTitle,
   pageDescription,
-  pagePath = '/',
+  pagePath,
   itemListName,
   items = [],
   name,
@@ -73,6 +80,8 @@ export function StructuredData({
   url,
   keywords = [],
 }: StructuredDataProps) {
+  const effectivePagePath = pagePath ?? getCurrentPath();
+
   const siteEntity = {
     '@type': 'WebSite',
     '@id': `${BASE_URL}/#website`,
@@ -106,7 +115,7 @@ export function StructuredData({
     '@type': 'WebPage',
     name: pageTitle,
     description: pageDescription,
-    url: toAbsoluteUrl(pagePath),
+    url: toAbsoluteUrl(effectivePagePath),
     inLanguage: 'ja-JP',
     isPartOf: siteEntity,
     publisher: organizationEntity,
@@ -126,7 +135,7 @@ export function StructuredData({
         '@type': 'ListItem',
         position: index + 2,
         name: item.name,
-        item: item.url ? toAbsoluteUrl(item.url) : toAbsoluteUrl(pagePath),
+        item: item.url ? toAbsoluteUrl(item.url) : toAbsoluteUrl(effectivePagePath),
       })),
     ],
   });
@@ -167,7 +176,7 @@ export function StructuredData({
     '@type': 'Dataset',
     name,
     description,
-    url: toAbsoluteUrl(url ?? pagePath),
+    url: toAbsoluteUrl(url ?? effectivePagePath),
     inLanguage: 'ja-JP',
     isPartOf: siteEntity,
     publisher: organizationEntity,
@@ -175,7 +184,7 @@ export function StructuredData({
     distribution: {
       '@type': 'DataDownload',
       encodingFormat: 'application/pdf',
-      contentUrl: toAbsoluteUrl(url ?? pagePath),
+      contentUrl: toAbsoluteUrl(url ?? effectivePagePath),
     },
   });
 
