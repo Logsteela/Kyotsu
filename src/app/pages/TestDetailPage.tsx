@@ -158,7 +158,7 @@ export function TestDetailPage() {
 
   const pageTitle = `${formatYear(testRecord.year)} ${getDisplaySubject(testRecord.subject)} ${testRecord.testType === 'main' ? '本試験' : '追試験'} - 共通テスト過去問総集`;
 
-  const description = `${formatYear(testRecord.year)}共通テスト ${getDisplaySubject(testRecord.subject)} ${testRecord.testType === 'main' ? '本試験' : '追試験'}の問題・解答PDFの詳細情報ページです。`;
+  const description = `${formatYear(testRecord.year)}共通テスト ${getDisplaySubject(testRecord.subject)} ${testRecord.testType === 'main' ? '本試験' : '追試験'}の問題・解答PDFの閲覧やダウンロード及び平均点等統計情報。`;
 
   const breadcrumbItems = [
     { name: formatYear(testRecord.year), url: `/year/${testRecord.year}` },
