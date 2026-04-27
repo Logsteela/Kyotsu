@@ -6,7 +6,7 @@ import { Button } from '@/app/components/ui/button';
 
 export function HomePage() {
   const title = 'ホーム - 共通テスト過去問総集';
-  const description = 'ほとんど全ての共通テストの問題・解答を、本試験・追試験・特例追試験・試行問題・試作問題などを問わず無料で公開しています。';
+  const description = '共通テスト、センター試験、共通一次試験の、本試験・追試験・特例追試験・試行問題・試作問題の過去問を、2026年度(令和8年度)も全て無料でPDFダウンロード。令和3年度特例追試験と大学共通第1次学力試験が登録なしでダウンロードできる唯一のサイト。';
 
   return (
     <>
