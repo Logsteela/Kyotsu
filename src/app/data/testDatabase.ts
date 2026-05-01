@@ -2545,6 +2545,7 @@ const DATABASE_TSV = `
 平成30年度試行調査	main	化学基礎	2018_化学基礎_試行調査問題.pdf	2018_化学基礎_試行調査解答.pdf		1
 平成30年度試行調査	main	国語	2018_国語_試行調査問題.pdf	2018_国語_試行調査解答.pdf		1
 平成30年度試行調査	main	国語（記述）	2018_国語_試行調査記述式参考問題.pdf	2018_国語_試行調査記述式参考問題解答.pdf		1
+平成30年度試行調査	main	国語（記述提供方式）	2018_国語_記述提供方式試行問題.pdf	2018_国語_記述提供方式試行解答.pdf		1
 平成30年度試行調査	main	地学	2018_地学_試行調査問題.pdf	2018_地学_試行調査解答.pdf		1
 平成30年度試行調査	main	地学基礎	2018_地学基礎_試行調査問題.pdf	2018_地学基礎_試行調査解答.pdf		1
 平成30年度試行調査	main	地理Ａ	2018_地理A_試行調査問題.pdf	2018_地理A_試行調査解答.pdf		1
@@ -2785,6 +2786,7 @@ export const SUBJECT_MAPPING: Record<string, { category: string; essential: stri
 
   '国語（マーク）': { category: 'その他', essential: '試行等の国語', slug: 'sonota' },
   '国語（記述）': { category: 'その他', essential: '試行等の国語', slug: 'sonota' },
+  '国語（記述提供方式）': { category: 'その他', essential: '試行等の国語', slug: 'sonota' },
   '数学（マーク）': { category: 'その他', essential: '試行等の数学', slug: 'sonota' },
   '数学（記述）': { category: 'その他', essential: '試行等の数学', slug: 'sonota' },
 };
