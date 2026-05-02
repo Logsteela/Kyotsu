@@ -1,4 +1,4 @@
- // テストデータベース
+// テストデータベース
 // フォーマット: 年度	本試追試	教科	問題	解答	音声	PDF状態
 // タブ区切り（TSV）形式でデータを管理
 // 本試追試: main=本試験, makeup=追試験
@@ -2745,6 +2745,7 @@ export const SUBJECT_MAPPING: Record<string, { category: string; essential: stri
   '情報Ⅰ': { category: '情報', essential: '情報', slug: 'joho' },
   '情報Ⅰ（参考問題）': { category: '情報', essential: '情報', slug: 'joho' },
   '情報関係基礎': { category: '情報', essential: '情報', slug: 'joho' },
+  '情報': { category: '情報', essential: '情報', slug: 'joho' },
   '旧情報': { category: '情報', essential: '情報', slug: 'joho' },
   '旧情報（仮）': { category: '情報', essential: '情報', slug: 'joho' },
   '旧情報関係基礎': { category: '情報', essential: '情報', slug: 'joho' },
