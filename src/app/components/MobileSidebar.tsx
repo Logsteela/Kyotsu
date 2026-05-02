@@ -37,7 +37,7 @@ export function MobileSidebar({ subjects, years }: MobileSidebarProps) {
         <Button
           size="icon"
           onClick={() => setIsOpen(!isOpen)}
-          className="border-2 border-white text-white hover:opacity-90 bg-[var(--color-brand-green)] hover:bg-[var(--color-brand-green-hover)]"
+          className="mobile-menu-button border-2 border-white text-white hover:opacity-90 bg-[var(--color-brand-green)] hover:bg-[var(--color-brand-green-hover)]"
           variant="default"
         >
           {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
