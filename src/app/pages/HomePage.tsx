@@ -14,7 +14,7 @@ export function HomePage() {
         title={title}
         description={description}
         path="/"
-        keywords="共通テスト,過去問,センター試験,共通一次,一覧,全部,大学入試,問題,解答,PDF,ダウンロード,ホーム"
+        keywords="共通テスト,過去問,センター試験,共通一次,一覧,特例追試験,追試験,再試験,大学入試,問題,解答,PDF,ダウンロード,ホーム"
       />
       <StructuredData type="WebSite" />
       <StructuredData type="EducationalOccupationalProgram" />
