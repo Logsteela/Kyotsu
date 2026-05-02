@@ -86,7 +86,7 @@ export function PDFActionButton({
   const textClass = RESPONSIVE_CLASSES[responsiveMode];
 
   const buttonClass =
-    `text-[10px] md:text-xs px-1 md:px-2 py-1 h-auto min-w-0 whitespace-nowrap border-gray-300 hover:bg-gray-100 ${className}`;
+    `text-[10px] md:text-xs px-1 md:px-2 py-1 h-auto min-w-0 whitespace-nowrap rounded-[0.375rem] border border-gray-300 bg-white bg-clip-padding hover:bg-gray-100 overflow-hidden ${className}`;
 
   if (disabled || !href) {
     return (
