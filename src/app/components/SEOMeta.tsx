@@ -16,11 +16,16 @@ const DEFAULT_IMAGE_ALT = '共通テスト過去問総集';
 
 function getCurrentPath(): string {
   if (typeof window === 'undefined') return '/';
-  return `${window.location.pathname}${window.location.hash}`;
+  return window.location.pathname;
 }
 
 function toAbsoluteUrl(pathOrUrl: string): string {
-  if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
+  if (/^https?:\/\//i.test(pathOrUrl)) {
+    const url = new URL(pathOrUrl);
+    url.search = '';
+    url.hash = '';
+    return url.toString().replace(/\/$/, url.pathname === '/' ? '/' : '');
+  }
 
   const [pathWithoutHash] = pathOrUrl.split('#');
   const [pathWithoutQuery] = pathWithoutHash.split('?');
@@ -28,7 +33,7 @@ function toAbsoluteUrl(pathOrUrl: string): string {
     ? pathWithoutQuery
     : `/${pathWithoutQuery}`;
 
-  return `${BASE_URL}${normalizedPath}`;
+  return `${BASE_URL}${normalizedPath === '/' ? '' : normalizedPath}`;
 }
 
 /**
