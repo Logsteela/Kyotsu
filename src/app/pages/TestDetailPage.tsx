@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router';
 import { SEOMeta } from '@/app/components/SEOMeta';
 import { StructuredData } from '@/app/components/StructuredData';
 import { Breadcrumbs } from '@/app/components/Breadcrumbs';
-import { getEnhancedDatabase } from '@/app/data/testDatabase';
+import { getEnhancedDatabase, SLUG_TO_CATEGORY } from '@/app/data/testDatabase';
 import { getTestDetails } from '@/app/data/testDetailsDatabase';
 import { getEraDisplay } from '@/app/utils/era';
 import { getDisplaySubject } from '@/app/utils/subjectUtils';
@@ -46,6 +46,11 @@ function isGustMode(): boolean {
 function toAbsoluteUrl(url: string): string {
   if (/^https?:\/\//i.test(url)) return url;
   return `${SITE_ORIGIN}${url.startsWith('/') ? '' : '/'}${url}`;
+}
+
+function getSubjectSlug(categorySubject: string): string | null {
+  const entry = Object.entries(SLUG_TO_CATEGORY).find(([, value]) => value === categorySubject);
+  return entry?.[0] ?? null;
 }
 
 async function copyTextToClipboard(text: string): Promise<boolean> {
@@ -156,13 +161,26 @@ export function TestDetailPage() {
     return isSpecialTest ? year : `${year}年度`;
   };
 
-  const pageTitle = `${formatYear(testRecord.year)} ${getDisplaySubject(testRecord.subject)} ${testRecord.testType === 'main' ? '本試験' : '追試験'} - 共通テスト過去問総集`;
+  const formattedYear = formatYear(testRecord.year);
+  const displaySubject = getDisplaySubject(testRecord.subject);
+  const testTypeLabel = testRecord.testType === 'main' ? '本試験' : '追試験';
+  const yearPath = `/year/${encodeURIComponent(String(testRecord.year))}`;
+  const subjectSlug = testRecord.categorySubject
+    ? getSubjectSlug(testRecord.categorySubject)
+    : null;
+  const subjectPath = subjectSlug ? `/subject/${subjectSlug}` : '';
+  const pagePath = `/test/${encodeURIComponent(decodedPdf)}`;
 
-  const description = `${formatYear(testRecord.year)}共通テスト ${getDisplaySubject(testRecord.subject)} ${testRecord.testType === 'main' ? '本試験' : '追試験'}の問題・解答PDFの閲覧やダウンロード及び平均点等統計情報。`;
+  const pageTitle = `${formattedYear} ${displaySubject} ${testTypeLabel}｜問題・解答PDF｜共通テスト過去問総集`;
+
+  const description = `${formattedYear} ${displaySubject} ${testTypeLabel}の問題PDF、解答PDF、平均点、受験者数。`;
 
   const breadcrumbItems = [
-    { name: formatYear(testRecord.year), url: `/year/${testRecord.year}` },
-    { name: `${getDisplaySubject(testRecord.subject)} ${testRecord.testType === 'main' ? '本試験' : '追試験'}`, url: '' },
+    { name: formattedYear, url: yearPath },
+    ...(subjectPath
+      ? [{ name: testRecord.categorySubject || displaySubject, url: subjectPath }]
+      : []),
+    { name: testTypeLabel, url: '' },
   ];
 
   const DownloadButton = ({ label, pdfPath, exists }: { label: string; pdfPath: string; exists: boolean }) => {
@@ -188,7 +206,7 @@ export function TestDetailPage() {
     }
 
     return (
-      <a href={urlPath} target="_blank" rel="noopener noreferrer" download>
+      <a href={urlPath} target="_blank" rel="noopener noreferrer" download type="application/pdf">
         <Button variant="default" className="w-full sm:w-auto">
           <Download className="w-4 h-4 mr-2" />
           {label}をダウンロード
@@ -247,7 +265,7 @@ export function TestDetailPage() {
     }
 
     return (
-      <a href={urlPath} target="_blank" rel="noopener noreferrer">
+      <a href={urlPath} target="_blank" rel="noopener noreferrer" type="application/pdf">
         <Button variant="outline" className="w-full sm:w-auto">
           <ExternalLink className="w-4 h-4 mr-2" />
           {label}を閲覧
@@ -283,25 +301,49 @@ export function TestDetailPage() {
     );
   };
 
+  const linkedValueClassName = 'text-base font-medium text-gray-900 hover:text-[var(--color-brand-green)] transition-colors';
+
   return (
     <div>
       <Breadcrumbs items={breadcrumbItems} />
 
       <div className="p-4 lg:p-6">
-        <SEOMeta title={pageTitle} description={description} />
+        <SEOMeta
+          title={pageTitle}
+          description={description}
+          path={pagePath}
+          keywords={`共通テスト,過去問,${formattedYear},${displaySubject},${testTypeLabel},問題,解答,PDF,平均点,受験者数`}
+        />
+        <StructuredData
+          type="WebPage"
+          pageTitle={pageTitle}
+          pageDescription={description}
+          pagePath={pagePath}
+          breadcrumbs={breadcrumbItems}
+        />
         <StructuredData
           type="Dataset"
-          name={`${formatYear(testRecord.year)} ${getDisplaySubject(testRecord.subject)} ${testRecord.testType === 'main' ? '本試験' : '追試験'}`}
+          name={`${formattedYear} ${displaySubject} ${testTypeLabel}`}
           description={description}
+          url={getPdfUrlPath(testRecord.questionPdf)}
+          keywords={[
+            '共通テスト',
+            '過去問',
+            formattedYear,
+            displaySubject,
+            testTypeLabel,
+            '問題PDF',
+            '解答PDF',
+          ]}
         />
 
         <div className="flex flex-col gap-6">
           <div className="border-b border-gray-200 pb-4">
             <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
-              {formatYear(testRecord.year)} {getDisplaySubject(testRecord.subject)}
+              {formattedYear} {displaySubject}
             </h1>
             <p className="text-lg text-gray-600 mt-2">
-              {testRecord.testType === 'main' ? '本試験' : '追試験'}
+              {testTypeLabel}
               {typeof testRecord.year === 'number' && ` （${getEraDisplay(testRecord.year)}）`}
             </p>
           </div>
@@ -311,17 +353,25 @@ export function TestDetailPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1">
                 <span className="text-sm text-gray-500">年度</span>
-                <span className="text-base font-medium text-gray-900">{formatYear(testRecord.year)}</span>
+                <Link to={yearPath} className={linkedValueClassName}>
+                  {formattedYear}
+                </Link>
               </div>
               <div className="flex flex-col gap-1">
                 <span className="text-sm text-gray-500">試験区分</span>
                 <span className="text-base font-medium text-gray-900">
-                  {testRecord.testType === 'main' ? '本試験' : '追試験'}
+                  {testTypeLabel}
                 </span>
               </div>
               <div className="flex flex-col gap-1">
                 <span className="text-sm text-gray-500">教科名</span>
-                <span className="text-base font-medium text-gray-900">{getDisplaySubject(testRecord.subject)}</span>
+                {subjectPath ? (
+                  <Link to={subjectPath} className={linkedValueClassName}>
+                    {displaySubject}
+                  </Link>
+                ) : (
+                  <span className="text-base font-medium text-gray-900">{displaySubject}</span>
+                )}
               </div>
               <div className="flex flex-col gap-1">
                 <span className="text-sm text-gray-500">実施日</span>
@@ -444,9 +494,9 @@ export function TestDetailPage() {
           </div>
 
           <div className="mt-4">
-            <Link to={`/year/${testRecord.year}`}>
+            <Link to={yearPath}>
               <Button variant="outline">
-                ← {formatYear(testRecord.year)}一覧に戻る
+                ← {formattedYear}一覧に戻る
               </Button>
             </Link>
           </div>
