@@ -48,17 +48,17 @@ export function SubjectPage() {
 
   const pageTitle = useMemo(() => {
     if (!categorySubject) return '共通テスト過去問総集';
-    return `${categorySubject} - 共通テスト過去問総集`;
+    return `共通テスト ${categorySubject} 過去問｜問題・解答PDF`;
   }, [categorySubject]);
 
   const description = useMemo(() => {
     if (!categorySubject) return '';
-    return `共通テスト${categorySubject}の過去問（問題・解答PDF）を1978年から2025年まで年度別・本試験・追試験別に閲覧・ダウンロードできます。`;
+    return `共通テスト ${categorySubject}の問題PDF、解答PDF、本試験、追試験、年度別一覧。`;
   }, [categorySubject]);
 
   const keywords = useMemo(() => {
     if (!categorySubject) return '共通テスト,過去問,PDF,ダウンロード';
-    return `共通テスト,${categorySubject},過去問,問題,解答,PDF,ダウンロード,センター試験,大学入試`;
+    return `共通テスト,${categorySubject},過去問,問題,解答,PDF,ダウンロード,センター試験,大学入試,本試験,追試験`;
   }, [categorySubject]);
 
   const breadcrumbs = useMemo(() => {
