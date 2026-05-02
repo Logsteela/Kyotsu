@@ -6,16 +6,19 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const BASE_URL = 'https://kyotsutest.vercel.app';
-const OUTPUT_PATH = join(__dirname, '../public/sitemap.xml');
+const XML_OUTPUT_PATH = join(__dirname, '../public/sitemap.xml');
+const TXT_OUTPUT_PATH = join(__dirname, '../public/sitemap.txt');
 const DATABASE_PATH = join(__dirname, '../src/app/data/testDatabase.ts');
 
 const SUBJECT_SLUGS = [
-  'english',
+  'eigo-reading',
+  'eigo-listening',
   'math1',
   'math2',
   'kokugo',
   'rika-kiso',
   'rika',
+  'joho',
   'shakai',
   'sonota',
 ];
@@ -75,7 +78,7 @@ function addUrl(urls, loc, lastmod, changefreq, priority) {
   });
 }
 
-function generateSitemapXML() {
+function buildUrls() {
   const today = new Date().toISOString().split('T')[0];
   const records = extractRecords();
   const urls = [];
@@ -101,6 +104,10 @@ function generateSitemapXML() {
     addUrl(urls, `${BASE_URL}/test/${encodeURIComponent(questionPdf)}`, today, 'yearly', 0.6);
   });
 
+  return urls;
+}
+
+function generateSitemapXML(urls) {
   const urlElements = urls
     .map((url) => `  <url>
     <loc>${escapeXml(url.loc)}</loc>
@@ -116,15 +123,21 @@ ${urlElements}
 </urlset>`;
 }
 
+function generateSitemapText(urls) {
+  return `${urls.map((url) => url.loc).join('\n')}\n`;
+}
+
 try {
-  const sitemapXML = generateSitemapXML();
-  writeFileSync(OUTPUT_PATH, sitemapXML, 'utf8');
+  const urls = buildUrls();
+  writeFileSync(XML_OUTPUT_PATH, generateSitemapXML(urls), 'utf8');
+  writeFileSync(TXT_OUTPUT_PATH, generateSitemapText(urls), 'utf8');
 
   const records = extractRecords();
   const years = new Set(records.map((record) => record.year));
   const questionPdfs = new Set(records.map((record) => record.questionPdf));
 
-  console.log('✅ sitemap.xml を生成しました:', OUTPUT_PATH);
+  console.log('✅ sitemap.xml を生成しました:', XML_OUTPUT_PATH);
+  console.log('✅ sitemap.txt を生成しました:', TXT_OUTPUT_PATH);
   console.log(`📄 合計 ${3 + years.size + SUBJECT_SLUGS.length + questionPdfs.size} ページを登録`);
   console.log('   - トップページ: 1');
   console.log('   - 総覧ページ: 1');
@@ -133,6 +146,6 @@ try {
   console.log(`   - 教科別ページ: ${SUBJECT_SLUGS.length}`);
   console.log(`   - 試験詳細ページ: ${questionPdfs.size}`);
 } catch (error) {
-  console.error('❌ sitemap.xml の生成に失敗しました:', error);
+  console.error('❌ sitemap の生成に失敗しました:', error);
   process.exit(1);
 }
