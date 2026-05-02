@@ -81,3 +81,30 @@
     .lg\:gap-4 { row-gap: 0.5rem; }
   }
 }
+
+/* PDF一覧表だけ、縦余白を圧縮前に戻す。 */
+table.w-full.table-fixed th,
+table.w-full.table-fixed td {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+table.w-full.table-fixed td:has(a),
+table.w-full.table-fixed td:has(button) {
+  padding-top: 0.375rem;
+  padding-bottom: 0.375rem;
+}
+
+@media (min-width: 40rem) {
+  table.w-full.table-fixed th,
+  table.w-full.table-fixed td {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+
+  table.w-full.table-fixed td:has(a),
+  table.w-full.table-fixed td:has(button) {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+}
