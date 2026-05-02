@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
-import { Link } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 import { Button } from '@/app/components/ui/button';
 import { getEraDisplay } from '@/app/utils/era';
 import {
@@ -81,6 +81,8 @@ export function PDFTableWithFilter({
   viewMode,
   selectedCategorySubject,
 }: PDFTableWithFilterProps) {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const subjectQuery = searchParams.get('subject');
   const filterableSubject = selectedCategorySubject && selectedCategorySubject in FILTERABLE_SUBJECTS
     ? selectedCategorySubject as keyof typeof FILTERABLE_SUBJECTS
     : null;
@@ -98,26 +100,40 @@ export function PDFTableWithFilter({
       return;
     }
 
+    const subjects = filterableSubject === 'その他'
+      ? (() => {
+          const otherSubjects = getOtherSubjectOrder();
+          const currentSubjects = Array.from(new Set(items.map(item => item.essentialSubject)));
+          return otherSubjects.filter(s => currentSubjects.includes(s));
+        })()
+      : FILTERABLE_SUBJECTS[filterableSubject];
+
+    const normalizedSubjectQuery = subjectQuery?.trim();
+    const hasQuerySubject = Boolean(
+      normalizedSubjectQuery && subjects.includes(normalizedSubjectQuery),
+    );
+
     const filters: Record<string, boolean> = {};
 
-    if (filterableSubject === 'その他') {
-      const otherSubjects = getOtherSubjectOrder();
-      const currentSubjects = Array.from(new Set(items.map(item => item.essentialSubject)));
-      const orderedSubjects = otherSubjects.filter(s => currentSubjects.includes(s));
+    subjects.forEach(subject => {
+      if (hasQuerySubject) {
+        filters[subject] = subject === normalizedSubjectQuery;
+        return;
+      }
 
-      orderedSubjects.forEach(subject => {
-        filters[subject] = selectedFilters[subject] !== undefined ? selectedFilters[subject] : true;
-      });
-    } else {
-      FILTERABLE_SUBJECTS[filterableSubject].forEach((subject) => {
-        filters[subject] = selectedFilters[subject] !== undefined ? selectedFilters[subject] : true;
-      });
-    }
+      filters[subject] = selectedFilters[subject] !== undefined ? selectedFilters[subject] : true;
+    });
 
     setSelectedFilters(filters);
-  }, [filterableSubject, items.length]);
+  }, [filterableSubject, items.length, subjectQuery]);
 
   const toggleFilter = (subject: string) => {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev);
+      next.delete('subject');
+      return next;
+    }, { replace: true });
+
     setSelectedFilters(prev => ({
       ...prev,
       [subject]: !prev[subject],
