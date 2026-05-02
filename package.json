@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run generate-sitemap && vite build",
+    "build": "npm run generate-sitemap && vite build && npm run generate-static-pages",
     "preview": "vite preview",
-    "generate-sitemap": "node scripts/generate-sitemap.js"
+    "generate-sitemap": "node scripts/generate-sitemap.js",
+    "generate-static-pages": "node scripts/generate-static-pages.js"
   },
   "dependencies": {
     "@emotion/react": "11.14.0",
