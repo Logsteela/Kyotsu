@@ -12,8 +12,8 @@ export function OverviewPage() {
     return sortTestRecords(enhancedDatabase);
   }, []);
 
-  const title = '総覧 - 共通テスト過去問総集';
-  const description = '全ての共通テストの問題・解答を、本試験・追試験などを問わず収録。1978年から2025年までの過去問を年度別・教科別に閲覧・ダウンロードできます。';
+  const title = '共通テスト過去問一覧｜全年度・全教科';
+  const description = '共通テスト、センター試験、共通一次の問題PDF、解答PDF、本試験、追試験、特例追試験。';
 
   const breadcrumbItems = [
     { name: '総覧', url: '/overview' }
@@ -32,7 +32,14 @@ export function OverviewPage() {
         title={title}
         description={description}
         path="/overview"
-        keywords="共通テスト,過去問,総覧,センター試験,大学入試,問題,解答,PDF,ダウンロード,1978-2025"
+        keywords="共通テスト,過去問,一覧,総覧,センター試験,共通一次,大学入試,問題,解答,PDF,ダウンロード,本試験,追試験,特例追試験"
+      />
+      <StructuredData
+        type="WebPage"
+        pageTitle={title}
+        pageDescription={description}
+        pagePath="/overview"
+        breadcrumbs={breadcrumbItems}
       />
       <StructuredData
         type="WebSite"
