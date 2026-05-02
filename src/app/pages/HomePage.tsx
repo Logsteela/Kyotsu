@@ -115,11 +115,20 @@ export function HomePage() {
             <div className="space-y-4">
               <div className="border-l-4 border-gray-300 pl-4 py-2">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
+                  <span className="text-sm font-semibold text-gray-900">2026年5月2日</span>
+                  <span className="text-sm text-gray-600">Ver 0.0.2β</span>
+                </div>
+                <p className="text-gray-700 text-sm leading-relaxed">
+                 昭和50,51,52,63年の試行、平成30年記述提供方式、令和3年サンプルの追加
+                </p>
+              </div>
+             <div className="border-l-4 border-gray-300 pl-4 py-2">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
                   <span className="text-sm font-semibold text-gray-900">2026年4月19日</span>
                   <span className="text-sm text-gray-600">Ver 0.0.1β</span>
                 </div>
                 <p className="text-gray-700 text-sm leading-relaxed">
-                  ベータ版として公開を開始しました。
+                  ベータ版を公開
                 </p>
               </div>
 
