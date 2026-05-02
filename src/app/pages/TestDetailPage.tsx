@@ -169,6 +169,9 @@ export function TestDetailPage() {
     ? getSubjectSlug(testRecord.categorySubject)
     : null;
   const subjectPath = subjectSlug ? `/subject/${subjectSlug}` : '';
+  const subjectFilteredPath = subjectPath
+    ? `${subjectPath}?subject=${encodeURIComponent(testRecord.essentialSubject || displaySubject)}`
+    : '';
   const pagePath = `/test/${encodeURIComponent(decodedPdf)}`;
 
   const pageTitle = `${formattedYear} ${displaySubject} ${testTypeLabel}｜問題・解答PDF｜共通テスト過去問総集`;
@@ -365,8 +368,8 @@ export function TestDetailPage() {
               </div>
               <div className="flex flex-col gap-1">
                 <span className="text-sm text-gray-500">教科名</span>
-                {subjectPath ? (
-                  <Link to={subjectPath} className={linkedValueClassName}>
+                {subjectFilteredPath ? (
+                  <Link to={subjectFilteredPath} className={linkedValueClassName}>
                     {displaySubject}
                   </Link>
                 ) : (
