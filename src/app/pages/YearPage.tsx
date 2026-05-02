@@ -57,24 +57,24 @@ export function YearPage() {
     if (!year) return '共通テスト過去問総集';
 
     if (isNaN(Number(year))) {
-      return `${year} - 共通テスト過去問総集`;
+      return `${year}｜問題・解答PDF｜共通テスト過去問総集`;
     }
 
     const yearNum = Number(year);
     const era = getEraDisplay(yearNum);
-    return `${yearNum}年度（${era}）- 共通テスト過去問総集`;
+    return `${yearNum}年度（${era}）共通テスト過去問｜問題・解答PDF`;
   }, [year]);
 
   const description = useMemo(() => {
     if (!year) return '';
 
     if (isNaN(Number(year))) {
-      return `${year}の共通テスト過去問（問題・解答）を本試験・追試験別に閲覧・ダウンロードできます。`;
+      return `${year}の問題PDF、解答PDF、本試験、追試験。`;
     }
 
     const yearNum = Number(year);
     const era = getEraDisplay(yearNum);
-    return `${yearNum}年度（${era}）共通テスト過去問の問題・解答PDFを全教科収録。本試験・追試験別に閲覧・ダウンロードできます。`;
+    return `${yearNum}年度（${era}）共通テストの問題PDF、解答PDF、本試験、追試験。`;
   }, [year]);
 
   const keywords = useMemo(() => {
@@ -83,7 +83,7 @@ export function YearPage() {
     const yearNum = isNaN(Number(year)) ? year : Number(year);
     const era = typeof yearNum === 'number' ? getEraDisplay(yearNum) : '';
 
-    return `共通テスト,${yearNum}年度,${era},過去問,問題,解答,PDF,ダウンロード,本試験,追試験`;
+    return `共通テスト,${yearNum}年度,${era},過去問,問題,解答,PDF,ダウンロード,本試験,追試験,センター試験`;
   }, [year]);
 
   const breadcrumbs = useMemo(() => {
