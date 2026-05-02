@@ -20,7 +20,7 @@ export function HomePage() {
       <StructuredData type="EducationalOccupationalProgram" />
 
       <div className="flex-1 bg-gray-100 px-4 sm:px-6 py-6 lg:py-8">
-        <div className="max-w-4xl mx-auto">
+        <div className="w-full">
           {/* ウェルカムセクション */}
           <section className="bg-white rounded-lg border border-[var(--color-table-border)] p-6 lg:p-8 mb-6">
             <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">
