@@ -11,7 +11,7 @@ export function FilterButton({ label, selected, onClick }: FilterButtonProps) {
     <button
       onClick={onClick}
       className={`
-        px-3 py-1.5 text-sm rounded-md border transition-colors
+        px-3 py-1.5 text-sm rounded-[0.375rem] border transition-colors
         ${
           selected
             ? 'bg-[var(--color-brand-green)] text-white border-[var(--color-brand-green)] hover:bg-[var(--color-brand-green-hover)]'
