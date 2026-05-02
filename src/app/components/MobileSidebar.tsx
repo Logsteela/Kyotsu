@@ -10,13 +10,17 @@ interface MobileSidebarProps {
   years: (number | string)[];
 }
 
+function SidebarButtonLabel({ children }: { children: string }) {
+  return <span className="block min-w-0 truncate">{children}</span>;
+}
+
 export function MobileSidebar({ subjects, years }: MobileSidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const location = useLocation();
   const currentPath = location.pathname;
   const decodedCurrentPath = decodeURIComponent(currentPath);
-  const sidebarButtonClass = 'w-full justify-start text-sm px-2';
+  const sidebarButtonClass = 'w-full justify-start text-[13px] leading-tight px-1.5 overflow-hidden';
 
   useEffect(() => {
     if (isOpen) {
@@ -72,8 +76,9 @@ export function MobileSidebar({ subjects, years }: MobileSidebarProps) {
                   variant={currentPath === '/' ? 'default' : 'ghost'}
                   className={sidebarButtonClass}
                   size="sm"
+                  title="ホーム"
                 >
-                  ホーム
+                  <SidebarButtonLabel>ホーム</SidebarButtonLabel>
                 </Button>
               </Link>
             </div>
@@ -88,8 +93,9 @@ export function MobileSidebar({ subjects, years }: MobileSidebarProps) {
                   variant={currentPath === '/overview' ? 'default' : 'ghost'}
                   className={sidebarButtonClass}
                   size="sm"
+                  title="全テスト一覧"
                 >
-                  全テスト一覧
+                  <SidebarButtonLabel>全テスト一覧</SidebarButtonLabel>
                 </Button>
               </Link>
             </div>
@@ -103,14 +109,16 @@ export function MobileSidebar({ subjects, years }: MobileSidebarProps) {
                 const rawYearPath = `/year/${String(year)}`;
                 const yearPath = `/year/${encodeURIComponent(String(year))}`;
                 const isActive = currentPath === yearPath || decodedCurrentPath === rawYearPath;
+                const label = typeof year === 'number' ? `${year}年度（${getEraDisplay(year)}）` : String(year);
                 return (
                   <Link key={year} to={yearPath} aria-current={isActive ? 'page' : undefined}>
                     <Button
                       variant={isActive ? 'default' : 'ghost'}
                       className={sidebarButtonClass}
                       size="sm"
+                      title={label}
                     >
-                      {typeof year === 'number' ? `${year}年度（${getEraDisplay(year)}）` : year}
+                      <SidebarButtonLabel>{label}</SidebarButtonLabel>
                     </Button>
                   </Link>
                 );
@@ -132,8 +140,9 @@ export function MobileSidebar({ subjects, years }: MobileSidebarProps) {
                       variant={isActive ? 'default' : 'ghost'}
                       className={sidebarButtonClass}
                       size="sm"
+                      title={subject}
                     >
-                      {subject}
+                      <SidebarButtonLabel>{subject}</SidebarButtonLabel>
                     </Button>
                   </Link>
                 );
@@ -150,8 +159,9 @@ export function MobileSidebar({ subjects, years }: MobileSidebarProps) {
                   variant={currentPath === '/archives' ? 'default' : 'ghost'}
                   className={sidebarButtonClass}
                   size="sm"
+                  title="記録資料集"
                 >
-                  記録資料集
+                  <SidebarButtonLabel>記録資料集</SidebarButtonLabel>
                 </Button>
               </Link>
             </div>
