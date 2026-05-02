@@ -1,0 +1,19 @@
+{
+  "name": "共通テスト過去問総集",
+  "short_name": "共通テスト過去問",
+  "description": "大学入学共通テスト、旧センター試験、共通一次試験の過去問を年度別・教科別に閲覧できます。",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#004800",
+  "lang": "ja-JP",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
