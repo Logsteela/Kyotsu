@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="共通テスト過去問総集">
+  <rect width="512" height="512" rx="96" fill="#004800"/>
+  <path d="M132 116h248c17.7 0 32 14.3 32 32v216c0 17.7-14.3 32-32 32H132c-17.7 0-32-14.3-32-32V148c0-17.7 14.3-32 32-32Z" fill="#ffffff"/>
+  <path d="M148 166h216v34H148v-34Zm0 70h216v28H148v-28Zm0 58h154v28H148v-28Z" fill="#004800"/>
+  <circle cx="356" cy="338" r="52" fill="#ffb000"/>
+  <path d="M333 338l15 15 32-39" fill="none" stroke="#004800" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
