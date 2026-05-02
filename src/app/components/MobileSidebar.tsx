@@ -15,6 +15,8 @@ export function MobileSidebar({ subjects, years }: MobileSidebarProps) {
   const [isVisible, setIsVisible] = useState(false);
   const location = useLocation();
   const currentPath = location.pathname;
+  const decodedCurrentPath = decodeURIComponent(currentPath);
+  const sidebarButtonClass = 'w-full justify-start text-sm px-2';
 
   useEffect(() => {
     if (isOpen) {
@@ -60,7 +62,7 @@ export function MobileSidebar({ subjects, years }: MobileSidebarProps) {
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="p-6 flex flex-col gap-8">
+        <div className="p-6 flex flex-col" style={{ rowGap: '1.5rem' }}>
           {/* ホームセクション */}
           <div className="flex flex-col gap-4 mt-12">
             <div className="font-semibold text-gray-900">ホーム</div>
@@ -68,7 +70,7 @@ export function MobileSidebar({ subjects, years }: MobileSidebarProps) {
               <Link to="/" aria-current={currentPath === '/' ? 'page' : undefined}>
                 <Button
                   variant={currentPath === '/' ? 'default' : 'ghost'}
-                  className="w-full justify-start text-sm"
+                  className={sidebarButtonClass}
                   size="sm"
                 >
                   ホーム
@@ -84,7 +86,7 @@ export function MobileSidebar({ subjects, years }: MobileSidebarProps) {
               <Link to="/overview" aria-current={currentPath === '/overview' ? 'page' : undefined}>
                 <Button
                   variant={currentPath === '/overview' ? 'default' : 'ghost'}
-                  className="w-full justify-start text-sm"
+                  className={sidebarButtonClass}
                   size="sm"
                 >
                   全テスト一覧
@@ -98,13 +100,14 @@ export function MobileSidebar({ subjects, years }: MobileSidebarProps) {
             <div className="font-semibold text-gray-900">年度別</div>
             <div className="flex flex-col gap-1 max-h-64 overflow-y-auto">
               {years.map((year) => {
-                const yearPath = typeof year === 'number' ? `/year/${year}` : `/year/${year}`;
-                const isActive = currentPath === yearPath;
+                const rawYearPath = `/year/${String(year)}`;
+                const yearPath = `/year/${encodeURIComponent(String(year))}`;
+                const isActive = currentPath === yearPath || decodedCurrentPath === rawYearPath;
                 return (
                   <Link key={year} to={yearPath} aria-current={isActive ? 'page' : undefined}>
                     <Button
                       variant={isActive ? 'default' : 'ghost'}
-                      className="w-full justify-start text-sm"
+                      className={sidebarButtonClass}
                       size="sm"
                     >
                       {typeof year === 'number' ? `${year}年度（${getEraDisplay(year)}）` : year}
@@ -127,7 +130,7 @@ export function MobileSidebar({ subjects, years }: MobileSidebarProps) {
                   <Link key={subject} to={subjectPath} aria-current={isActive ? 'page' : undefined}>
                     <Button
                       variant={isActive ? 'default' : 'ghost'}
-                      className="w-full justify-start text-sm"
+                      className={sidebarButtonClass}
                       size="sm"
                     >
                       {subject}
@@ -145,7 +148,7 @@ export function MobileSidebar({ subjects, years }: MobileSidebarProps) {
               <Link to="/archives" aria-current={currentPath === '/archives' ? 'page' : undefined}>
                 <Button
                   variant={currentPath === '/archives' ? 'default' : 'ghost'}
-                  className="w-full justify-start text-sm"
+                  className={sidebarButtonClass}
                   size="sm"
                 >
                   記録資料集
