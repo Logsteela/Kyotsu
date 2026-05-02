@@ -11,10 +11,12 @@ interface SidebarProps {
 export function Sidebar({ subjects, years }: SidebarProps) {
   const location = useLocation();
   const currentPath = location.pathname;
+  const decodedCurrentPath = decodeURIComponent(currentPath);
+  const sidebarButtonClass = 'w-full justify-start text-sm px-2';
 
   return (
     <div className="w-64 min-w-[256px] max-w-[256px] border-r border-[var(--color-table-border)] bg-[var(--color-sidebar-bg)] h-screen overflow-y-auto flex flex-col sticky top-0">
-      <div className="p-6 flex flex-col gap-8">
+      <div className="p-6 flex flex-col" style={{ rowGap: '1.5rem' }}>
         {/* ホームセクション */}
         <div className="flex flex-col gap-4">
           <div className="font-semibold text-gray-900">ホーム</div>
@@ -22,7 +24,7 @@ export function Sidebar({ subjects, years }: SidebarProps) {
             <Link to="/" aria-current={currentPath === '/' ? 'page' : undefined}>
               <Button
                 variant={currentPath === '/' ? 'default' : 'ghost'}
-                className="w-full justify-start text-sm"
+                className={sidebarButtonClass}
                 size="sm"
               >
                 ホーム
@@ -38,7 +40,7 @@ export function Sidebar({ subjects, years }: SidebarProps) {
             <Link to="/overview" aria-current={currentPath === '/overview' ? 'page' : undefined}>
               <Button
                 variant={currentPath === '/overview' ? 'default' : 'ghost'}
-                className="w-full justify-start text-sm"
+                className={sidebarButtonClass}
                 size="sm"
               >
                 全テスト一覧
@@ -52,13 +54,14 @@ export function Sidebar({ subjects, years }: SidebarProps) {
           <div className="font-semibold text-gray-900">年度別</div>
           <div className="flex flex-col gap-1 max-h-78 overflow-y-auto border border-[var(--color-table-border)] rounded-md p-2 bg-[var(--color-sidebar-scroll-bg)]">
             {years.map((year) => {
-              const yearPath = typeof year === 'number' ? `/year/${year}` : `/year/${year}`;
-              const isActive = currentPath === yearPath;
+              const rawYearPath = `/year/${String(year)}`;
+              const yearPath = `/year/${encodeURIComponent(String(year))}`;
+              const isActive = currentPath === yearPath || decodedCurrentPath === rawYearPath;
               return (
                 <Link key={year} to={yearPath} aria-current={isActive ? 'page' : undefined}>
                   <Button
                     variant={isActive ? 'default' : 'ghost'}
-                    className="w-full justify-start text-sm"
+                    className={sidebarButtonClass}
                     size="sm"
                   >
                     {typeof year === 'number' ? `${year}年度（${getEraDisplay(year)}）` : year}
@@ -81,7 +84,7 @@ export function Sidebar({ subjects, years }: SidebarProps) {
                 <Link key={subject} to={subjectPath} aria-current={isActive ? 'page' : undefined}>
                   <Button
                     variant={isActive ? 'default' : 'ghost'}
-                    className="w-full justify-start text-sm"
+                    className={sidebarButtonClass}
                     size="sm"
                   >
                     {subject}
@@ -99,7 +102,7 @@ export function Sidebar({ subjects, years }: SidebarProps) {
             <Link to="/archives" aria-current={currentPath === '/archives' ? 'page' : undefined}>
               <Button
                 variant={currentPath === '/archives' ? 'default' : 'ghost'}
-                className="w-full justify-start text-sm"
+                className={sidebarButtonClass}
                 size="sm"
               >
                 記録資料集
