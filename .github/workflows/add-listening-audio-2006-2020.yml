@@ -1,0 +1,83 @@
+name: Add listening audio filenames 2006-2020
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/add-listening-audio-2006-2020.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-database:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Add mp3 filenames to testDatabase.ts
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+
+          path = Path("src/app/data/testDatabase.ts")
+          text = path.read_text(encoding="utf-8")
+
+          lines = text.splitlines(keepends=True)
+          new_lines = []
+          changed = []
+
+          for line in lines:
+              stripped = line.rstrip("\r\n")
+              cols = stripped.split("\t")
+
+              if len(cols) >= 7:
+                  year, exam_type, subject = cols[0], cols[1], cols[2]
+
+                  if (
+                      year.isdigit()
+                      and 2006 <= int(year) <= 2020
+                      and subject == "英語（リスニング）"
+                      and cols[5] == ""
+                  ):
+                      if exam_type == "main":
+                          cols[5] = f"{year}_英語L_本試験音源.mp3"
+                          changed.append((year, "main", cols[5]))
+                      elif exam_type == "makeup":
+                          cols[5] = f"{year}_英語L_追試験音源.mp3"
+                          changed.append((year, "makeup", cols[5]))
+
+                      newline = "\r\n" if line.endswith("\r\n") else "\n" if line.endswith("\n") else ""
+                      line = "\t".join(cols) + newline
+
+              new_lines.append(line)
+
+          new_text = "".join(new_lines)
+          if text != new_text:
+              path.write_text(new_text, encoding="utf-8")
+              print(f"updated {len(changed)} rows")
+              for year, exam_type, audio in changed:
+                  print(f"{year} {exam_type}: {audio}")
+          else:
+              print("no database changes")
+          PY
+
+      - name: Remove one-shot workflow
+        run: |
+          rm -f .github/workflows/add-listening-audio-2006-2020.yml
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git add src/app/data/testDatabase.ts .github/workflows/add-listening-audio-2006-2020.yml
+          git commit -m "Add listening audio filenames for 2006-2020"
+          git push
