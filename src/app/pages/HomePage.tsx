@@ -1,5 +1,5 @@
  import { Link } from 'react-router';
-import { FileText, Calendar, ArrowRight, Clock, Info } from 'lucide-react';
+import { FileText, Calendar, ArrowRight, Clock, Info, Activity } from 'lucide-react';
 import { SEOMeta } from '@/app/components/SEOMeta';
 import { StructuredData } from '@/app/components/StructuredData';
 import { Button } from '@/app/components/ui/button';
@@ -41,7 +41,7 @@ export function HomePage() {
               <ArrowRight className="w-5 h-5 text-[var(--color-brand-green)]" />
               クイックアクセス
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <Link to="/overview">
                 <Button
                   variant="outline"
@@ -67,6 +67,21 @@ export function HomePage() {
                     <div className="flex-1 text-left">
                       <div className="font-semibold text-gray-900 mb-1">最新年度（2026年度）</div>
                       <div className="text-sm text-gray-600">令和8年度の過去問へ</div>
+                    </div>
+                  </div>
+                </Button>
+              </Link>
+
+              <Link to="/stats">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start h-auto py-4 px-4 hover:bg-gray-50 hover:border-[var(--color-brand-green)]"
+                >
+                  <div className="flex items-start gap-3 w-full">
+                    <Activity className="w-5 h-5 text-[var(--color-brand-green)] flex-shrink-0 mt-0.5" />
+                    <div className="flex-1 text-left">
+                      <div className="font-semibold text-gray-900 mb-1">クリック集計</div>
+                      <div className="text-sm text-gray-600">閲覧・DL回数を見る</div>
                     </div>
                   </div>
                 </Button>
