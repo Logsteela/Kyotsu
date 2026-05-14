@@ -128,6 +128,7 @@ export function StatsPage() {
         description="閲覧リンク・ダウンロードリンクのクリック回数の集計"
         path="/stats"
         keywords="共通テスト,過去問,PDF,ダウンロード,集計"
+        noIndex
       />
 
       <div className="flex-1 bg-gray-100 px-4 sm:px-6 py-6 lg:py-8">
