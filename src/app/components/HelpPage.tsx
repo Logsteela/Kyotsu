@@ -80,7 +80,7 @@ export function HelpPage({ onClose }: HelpPageProps) {
           <section>
             <h3 className="text-lg font-semibold mb-2 text-gray-900">連絡</h3>
             <p className="text-gray-700 mb-2">
-              入試側ではなく，サイト制作者に何らかの誤りがあると思われる場合は，lordingcontact at gmail dot com にメールしてください。一般に誤りとされる綴りでアドレスを取得しているので間違えないでください。どうでもいい誤りは，どうでもよくない誤りと一緒に伝達された場合のみ受け付けます。
+              入試側ではなく，サイト制作者に何らかの誤りがあると思われる場合は，Discord:loading_0318 に連絡してください。全部一人でやってるんでね
             </p>
           </section>
           
