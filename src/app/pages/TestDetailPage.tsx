@@ -164,6 +164,8 @@ export function TestDetailPage() {
   const formattedYear = formatYear(testRecord.year);
   const displaySubject = getDisplaySubject(testRecord.subject);
   const testTypeLabel = testRecord.testType === 'main' ? '本試験' : '追試験';
+  const testTypeSuffix = testRecord.testType === 'main' ? '' : ' (追)';
+  const displayTestName = `${formattedYear} ${displaySubject}${testTypeSuffix}`;
   const yearPath = `/year/${encodeURIComponent(String(testRecord.year))}`;
   const subjectSlug = testRecord.categorySubject
     ? getSubjectSlug(testRecord.categorySubject)
@@ -174,9 +176,9 @@ export function TestDetailPage() {
     : '';
   const pagePath = `/test/${encodeURIComponent(decodedPdf)}`;
 
-  const pageTitle = `${formattedYear} ${displaySubject} ${testTypeLabel}｜問題・解答PDF｜共通テスト過去問総集`;
+  const pageTitle = `${displayTestName}｜問題・解答PDF｜共通テスト過去問総集`;
 
-  const description = `${formattedYear} ${displaySubject} ${testTypeLabel}の問題PDF、解答PDF、平均点、受験者数。`;
+  const description = `${displayTestName}の問題PDF・解答PDFを掲載。平均点、受験者数、試験時間、配点などの試験情報も確認できます。`;
 
   const breadcrumbItems = [
     { name: formattedYear, url: yearPath },
@@ -326,7 +328,7 @@ export function TestDetailPage() {
         />
         <StructuredData
           type="Dataset"
-          name={`${formattedYear} ${displaySubject} ${testTypeLabel}`}
+          name={displayTestName}
           description={description}
           url={getPdfUrlPath(testRecord.questionPdf)}
           keywords={[
@@ -343,7 +345,7 @@ export function TestDetailPage() {
         <div className="flex flex-col gap-6">
           <div className="border-b border-gray-200 pb-4">
             <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
-              {formattedYear} {displaySubject}
+              {displayTestName}
             </h1>
             <p className="text-lg text-gray-600 mt-2">
               {testTypeLabel}
