@@ -8,6 +8,7 @@ import { getTestDetails } from '@/app/data/testDetailsDatabase';
 import { getEraDisplay } from '@/app/utils/era';
 import { getDisplaySubject } from '@/app/utils/subjectUtils';
 import { getPdfUrlPath } from '@/app/utils/pdfPath';
+import { forceBrowserDownload } from '@/app/utils/downloadFile';
 import { Button } from '@/app/components/ui/button';
 import {
   Download,
@@ -51,6 +52,20 @@ function toAbsoluteUrl(url: string): string {
 function getSubjectSlug(categorySubject: string): string | null {
   const entry = Object.entries(SLUG_TO_CATEGORY).find(([, value]) => value === categorySubject);
   return entry?.[0] ?? null;
+}
+
+function getDownloadName(pathOrUrl: string | undefined | null): string | undefined {
+  const raw = (pathOrUrl ?? '').trim();
+  if (!raw) return undefined;
+
+  const withoutOrigin = raw.replace(/^https?:\/\/[^/]+\//, '');
+  const normalized = withoutOrigin
+    .replace(/^\/+/, '')
+    .replace(/^pdfs\//, '');
+
+  const fileName = normalized.split('/').pop();
+
+  return fileName ? decodeURIComponent(fileName) : undefined;
 }
 
 async function copyTextToClipboard(text: string): Promise<boolean> {
@@ -211,12 +226,15 @@ export function TestDetailPage() {
     }
 
     return (
-      <a href={urlPath} target="_blank" rel="noopener noreferrer" download type="application/pdf">
-        <Button variant="default" className="w-full sm:w-auto">
-          <Download className="w-4 h-4 mr-2" />
-          {label}をダウンロード
-        </Button>
-      </a>
+      <Button
+        type="button"
+        variant="default"
+        className="w-full sm:w-auto"
+        onClick={() => void forceBrowserDownload(urlPath, getDownloadName(pdfPath))}
+      >
+        <Download className="w-4 h-4 mr-2" />
+        {label}をダウンロード
+      </Button>
     );
   };
 
@@ -238,12 +256,15 @@ export function TestDetailPage() {
     }
 
     return (
-      <a href={urlPath} target="_blank" rel="noopener noreferrer" download>
-        <Button variant="default" className="w-full sm:w-auto">
-          <Volume2 className="w-4 h-4 mr-2" />
-          音声ファイルをダウンロード
-        </Button>
-      </a>
+      <Button
+        type="button"
+        variant="default"
+        className="w-full sm:w-auto"
+        onClick={() => void forceBrowserDownload(urlPath, getDownloadName(audioPath))}
+      >
+        <Volume2 className="w-4 h-4 mr-2" />
+        音声ファイルをダウンロード
+      </Button>
     );
   };
 
