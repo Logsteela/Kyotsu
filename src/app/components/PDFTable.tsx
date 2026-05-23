@@ -11,6 +11,7 @@ import { Button } from '@/app/components/ui/button';
 import { getEraDisplay } from '@/app/utils/era';
 import { getDisplaySubject, getSubjectForFilename } from '@/app/utils/subjectUtils';
 import pdfManifest from '@/app/data/pdfManifest.json';
+import { getPdfUrlPath } from '@/app/utils/pdfPath';
 
 interface PDFItem {
   id: string;
@@ -29,8 +30,6 @@ interface PDFTableProps {
 
 type PdfState = 1 | 2 | 3;
 type ManifestMap = Record<string, true>;
-
-const SITE_ORIGIN = 'https://kyotsu.org';
 
 function normalizeAssetKey(pathOrUrl: string | undefined | null): string | null {
   const s = (pathOrUrl ?? '').trim();
@@ -97,8 +96,7 @@ function isGustMode(): boolean {
 }
 
 function toAbsoluteUrl(url: string): string {
-  if (/^https?:\/\//i.test(url)) return url;
-  return `${SITE_ORIGIN}${url.startsWith('/') ? '' : '/'}${url}`;
+  return getPdfUrlPath(url);
 }
 
 async function copyTextToClipboard(text: string): Promise<boolean> {
