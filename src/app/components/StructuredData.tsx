@@ -24,7 +24,7 @@ interface StructuredDataProps {
   keywords?: string[];
 }
 
-const BASE_URL = 'https://kyotsutest.vercel.app';
+const BASE_URL = 'https://kyotsu.org';
 const SITE_NAME = '共通テスト過去問総集';
 
 function getCurrentPath(): string {
