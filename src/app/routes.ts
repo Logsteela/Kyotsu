@@ -6,7 +6,6 @@ import { OverviewPage } from '@/app/pages/OverviewPage';
 import { YearPage } from '@/app/pages/YearPage';
 import { SubjectPage } from '@/app/pages/SubjectPage';
 import { TestDetailPage } from '@/app/pages/TestDetailPage';
-import { StatsPage } from '@/app/pages/StatsPage';
 import { NotFoundPage } from '@/app/pages/NotFoundPage';
 import { ArchivesPage } from '@/app/components/ArchivesPage';
 
@@ -23,7 +22,6 @@ const routes: RouteObject[] = [
       { path: 'subject/:subject', Component: SubjectPage },
       { path: 'test/:questionPdf', Component: TestDetailPage },
       { path: 'archives', Component: ArchivesPage },
-      { path: 'stats', Component: StatsPage },
 
       { path: '*', Component: NotFoundPage },
     ],
