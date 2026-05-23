@@ -1,4 +1,4 @@
-export const SITE_ORIGIN = 'https://kyotsutest.vercel.app';
+export const SITE_ORIGIN = 'https://kyotsu.org';
 
 export function isGustMode(): boolean {
   return false;
