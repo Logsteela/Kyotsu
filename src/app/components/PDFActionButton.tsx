@@ -1,6 +1,6 @@
 import { Download, ExternalLink, Volume2, LucideIcon } from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
-import { resolvePublicPdfUrl } from '@/app/data/testDatabase';
+import { getPdfUrlPath } from '@/app/utils/pdfPath';
 
 type ActionType = 'view' | 'download' | 'audioView' | 'audioDownload';
 
@@ -52,14 +52,6 @@ const LAYOUT_CLASSES: Record<ResponsiveMode, string> = {
   'special-with-audio': 'flex-col min-[1024px]:flex-row',
   'special-no-audio': 'flex-col min-[1024px]:flex-row',
 };
-
-const R2_PUBLIC_ORIGIN = 'https://pub-43d2006e555442dca4a107e7bc0d01bb' + '.r2.dev';
-
-function toAbsoluteUrl(url: string): string {
-  const path = url.replace(/^https?:\/\/[^/]+\//, '').replace(/^\/+/, '').replace(/^pdfs\//, '');
-  const fileName = path.split('/').filter(Boolean).pop();
-  return fileName ? `${R2_PUBLIC_ORIGIN}/${encodeURIComponent(decodeURIComponent(fileName))}` : '';
-}
 
 function getDownloadName(pathOrUrl: string | undefined | null): string | undefined {
   const raw = (pathOrUrl ?? '').trim();
@@ -147,8 +139,7 @@ export function PDFActionGroup({
   const isCompletelyMissing = pdfState === 3;
   const isMissingThisFile = !pdfPath || !exists;
 
-  const resolvedUrl = resolvePublicPdfUrl(pdfPath);
-  const href = resolvedUrl ? toAbsoluteUrl(resolvedUrl) : undefined;
+  const href = getPdfUrlPath(pdfPath);
   const disabled = isCompletelyMissing || isMissingThisFile || !href;
   const downloadName = getDownloadName(pdfPath);
   const targetLabel = type === 'question' ? '問題' : '解答';
@@ -194,8 +185,7 @@ export function AudioActionGroup({
 }: AudioActionGroupProps) {
   const isMissingThisFile = !audioPath || !exists;
 
-  const resolvedUrl = resolvePublicPdfUrl(audioPath);
-  const href = resolvedUrl ? toAbsoluteUrl(resolvedUrl) : undefined;
+  const href = getPdfUrlPath(audioPath);
   const disabled = isMissingThisFile || !href;
   const downloadName = getDownloadName(audioPath);
 
