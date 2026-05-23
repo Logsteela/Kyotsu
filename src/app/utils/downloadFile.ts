@@ -5,41 +5,23 @@ function getFileNameFromUrl(url: string): string {
   return fileName ? decodeURIComponent(fileName) : 'download';
 }
 
-function clickDownloadLink(url: string, fileName: string) {
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = fileName;
-  link.rel = 'noopener noreferrer';
-  link.style.display = 'none';
+function buildDownloadEndpoint(url: string, fileName: string): string {
+  const params = new URLSearchParams();
+  params.set('url', url);
+  params.set('name', fileName);
 
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  return `/dl?${params.toString()}`;
 }
 
-export async function forceBrowserDownload(url: string, fileName?: string) {
+export function forceBrowserDownload(url: string, fileName?: string) {
   const downloadName = fileName || getFileNameFromUrl(url);
+  const endpoint = buildDownloadEndpoint(url, downloadName);
+  const frame = document.createElement('iframe');
 
-  try {
-    const response = await fetch(url, {
-      method: 'GET',
-      mode: 'cors',
-      credentials: 'omit',
-    });
+  frame.src = endpoint;
+  frame.style.display = 'none';
+  frame.setAttribute('aria-hidden', 'true');
 
-    if (!response.ok) {
-      throw new Error(`Download failed: ${response.status}`);
-    }
-
-    const blob = await response.blob();
-    const objectUrl = URL.createObjectURL(blob);
-
-    try {
-      clickDownloadLink(objectUrl, downloadName);
-    } finally {
-      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 30_000);
-    }
-  } catch {
-    clickDownloadLink(url, downloadName);
-  }
+  document.body.appendChild(frame);
+  window.setTimeout(() => frame.remove(), 60_000);
 }
