@@ -1,6 +1,7 @@
 import { Download, ExternalLink, Volume2, LucideIcon } from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
 import { getPdfUrlPath } from '@/app/utils/pdfPath';
+import { forceBrowserDownload } from '@/app/utils/downloadFile';
 
 type ActionType = 'view' | 'download' | 'audioView' | 'audioDownload';
 
@@ -113,6 +114,11 @@ export function PDFActionButton({
         rel={isDownload ? undefined : 'noopener noreferrer'}
         download={isDownload ? downloadName : undefined}
         aria-label={ariaLabel}
+        onClick={(event) => {
+          if (!isDownload) return;
+          event.preventDefault();
+          void forceBrowserDownload(href, downloadName);
+        }}
       >
         <Icon className="w-3 h-3 md:mr-1 flex-shrink-0" />
         <span className={textClass}>{config.label}</span>
