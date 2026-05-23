@@ -2,4 +2,3 @@ User-agent: *
 Allow: /
 
 Sitemap: https://kyotsu.org/sitemap.txt
-Sitemap: https://kyotsu.org/sitemap.xml
