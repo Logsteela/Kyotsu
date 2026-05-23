@@ -5,7 +5,7 @@ import { dirname, join } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const BASE_URL = 'https://kyotsutest.vercel.app';
+const BASE_URL = 'https://kyotsu.org';
 const SITE_NAME = '共通テスト過去問総集';
 const DIST_DIR = join(__dirname, '../dist');
 const DIST_INDEX = join(DIST_DIR, 'index.html');
@@ -46,7 +46,6 @@ function escapeJsonForHtml(value) {
 function extractRecords() {
   const databaseContent = readFileSync(DATABASE_PATH, 'utf8');
   const tsvMatch = databaseContent.match(/const DATABASE_TSV = `\n([\s\S]*?)\n`/);
-
   if (!tsvMatch) return [];
 
   return tsvMatch[1]
@@ -69,7 +68,6 @@ function sortYears(years) {
   return [...years].sort((a, b) => {
     const aNumber = Number(a);
     const bNumber = Number(b);
-
     if (!Number.isNaN(aNumber) && !Number.isNaN(bNumber)) return bNumber - aNumber;
     if (!Number.isNaN(aNumber)) return -1;
     if (!Number.isNaN(bNumber)) return 1;
@@ -106,18 +104,6 @@ function normalizeSubject(subject) {
 }
 
 function pageJsonLd(meta) {
-  const breadcrumbItems = meta.breadcrumbs?.length
-    ? {
-        '@type': 'BreadcrumbList',
-        itemListElement: meta.breadcrumbs.map((item, index) => ({
-          '@type': 'ListItem',
-          position: index + 1,
-          name: item.name,
-          item: item.url,
-        })),
-      }
-    : null;
-
   const graph = [
     {
       '@type': 'WebSite',
@@ -127,9 +113,7 @@ function pageJsonLd(meta) {
       alternateName: ['共通テスト過去問', SITE_NAME],
       description: DEFAULT_DESCRIPTION,
       inLanguage: 'ja-JP',
-      publisher: {
-        '@id': `${BASE_URL}/#organization`,
-      },
+      publisher: { '@id': `${BASE_URL}/#organization` },
     },
     {
       '@type': 'Organization',
@@ -144,19 +128,24 @@ function pageJsonLd(meta) {
       url: meta.url,
       name: meta.title,
       description: meta.description,
-      isPartOf: {
-        '@id': `${BASE_URL}/#website`,
-      },
+      isPartOf: { '@id': `${BASE_URL}/#website` },
       inLanguage: 'ja-JP',
     },
   ];
 
-  if (breadcrumbItems) graph.push(breadcrumbItems);
+  if (meta.breadcrumbs?.length) {
+    graph.push({
+      '@type': 'BreadcrumbList',
+      itemListElement: meta.breadcrumbs.map((item, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: item.name,
+        item: item.url,
+      })),
+    });
+  }
 
-  return {
-    '@context': 'https://schema.org',
-    '@graph': graph,
-  };
+  return { '@context': 'https://schema.org', '@graph': graph };
 }
 
 function cleanHead(html) {
@@ -222,17 +211,13 @@ function pathToFilePaths(pathname) {
 
   const rawSegments = pathname.replace(/^\//, '').split('/').filter(Boolean);
   const decodedSegments = rawSegments.map((segment) => decodeURIComponent(segment));
-
   const decodedPath = join(DIST_DIR, ...decodedSegments, 'index.html');
   const rawPath = join(DIST_DIR, ...rawSegments, 'index.html');
-
   return decodedPath === rawPath ? [decodedPath] : [decodedPath, rawPath];
 }
 
 function buildPages(records) {
-  const today = new Date().toISOString().split('T')[0];
   const pages = [];
-
   const add = ({ path, title, description, keywords, type = 'website', breadcrumbs = [] }) => {
     const normalizedPath = path === '/' ? '/' : `/${path.replace(/^\//, '').replace(/\/$/, '')}`;
     pages.push({
@@ -242,7 +227,6 @@ function buildPages(records) {
       description,
       keywords,
       type,
-      lastmod: today,
       breadcrumbs,
     });
   };
@@ -253,7 +237,6 @@ function buildPages(records) {
     description: DEFAULT_DESCRIPTION,
     keywords: '共通テスト,過去問,センター試験,共通一次,一覧,全部,大学入試,問題,解答,PDF,ダウンロード,ホーム',
   });
-
   add({
     path: '/overview',
     title: '共通テスト過去問一覧｜全年度・全教科',
@@ -261,7 +244,6 @@ function buildPages(records) {
     keywords: '共通テスト,過去問,一覧,総覧,センター試験,共通一次,大学入試,問題,解答,PDF,ダウンロード,本試験,追試験,特例追試験',
     breadcrumbs: [{ name: '総覧', url: `${BASE_URL}/overview` }],
   });
-
   add({
     path: '/archives',
     title: '記録資料集｜共通テスト過去問総集',
@@ -270,11 +252,9 @@ function buildPages(records) {
     breadcrumbs: [{ name: '記録資料集', url: `${BASE_URL}/archives` }],
   });
 
-  const years = sortYears(new Set(records.map((record) => record.year)));
-  for (const year of years) {
+  for (const year of sortYears(new Set(records.map((record) => record.year)))) {
     const isNumeric = !Number.isNaN(Number(year));
     const era = isNumeric ? getEraDisplay(year) : '';
-
     add({
       path: `/year/${encodeURIComponent(year)}`,
       title: isNumeric
@@ -311,13 +291,12 @@ function buildPages(records) {
     if (!uniqueByQuestionPdf.has(record.questionPdf)) uniqueByQuestionPdf.set(record.questionPdf, record);
   }
 
-  for (const record of [...uniqueByQuestionPdf.values()]) {
+  for (const record of uniqueByQuestionPdf.values()) {
     const formattedYear = formatYear(record.year);
     const era = Number.isNaN(Number(record.year)) ? '' : getEraDisplay(record.year);
     const subject = normalizeSubject(record.subject);
     const testType = getTestTypeLabel(record.examType);
-    const encodedPdf = encodeURIComponent(record.questionPdf);
-    const testPath = `/test/${encodedPdf}`;
+    const testPath = `/test/${encodeURIComponent(record.questionPdf)}`;
 
     add({
       path: testPath,
@@ -343,14 +322,11 @@ function main() {
   const records = extractRecords();
   const pages = buildPages(records);
   const baseHtml = readFileSync(DIST_INDEX, 'utf8');
-
   let fileCount = 0;
 
   for (const page of pages) {
     const html = injectMeta(baseHtml, page);
-    const filePaths = pathToFilePaths(page.path);
-
-    for (const filePath of filePaths) {
+    for (const filePath of pathToFilePaths(page.path)) {
       writeFileEnsuringDir(filePath, html);
       fileCount += 1;
     }
