@@ -10,7 +10,7 @@ interface SEOMetaProps {
   noIndex?: boolean;
 }
 
-const BASE_URL = 'https://kyotsutest.vercel.app';
+const BASE_URL = 'https://kyotsu.org';
 const SITE_NAME = '共通テスト過去問総集';
 const SITE_ALTERNATE_NAMES = ['共通テスト過去問', '共通テスト過去問総集', '共通テスト集成'];
 const SITE_DESCRIPTION = '共通テスト、センター試験、共通一次、追試験、特例追試験の問題・解答PDFを年度別・教科別に探せる過去問アーカイブです。';
