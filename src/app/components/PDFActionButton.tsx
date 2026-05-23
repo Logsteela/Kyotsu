@@ -1,7 +1,6 @@
 import { Download, ExternalLink, Volume2, LucideIcon } from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
 import { resolvePublicPdfUrl } from '@/app/data/testDatabase';
-import { recordClick } from '@/app/utils/clickStats';
 
 type ActionType = 'view' | 'download' | 'audioView' | 'audioDownload';
 
@@ -56,7 +55,7 @@ const LAYOUT_CLASSES: Record<ResponsiveMode, string> = {
 
 function toAbsoluteUrl(url: string): string {
   if (/^https?:\/\//i.test(url)) return url;
-  return `https://kyotsutest.vercel.app${url.startsWith('/') ? '' : '/'}${url}`;
+  return `https://kyotsu.org${url.startsWith('/') ? '' : '/'}${url}`;
 }
 
 function getDownloadName(pathOrUrl: string | undefined | null): string | undefined {
@@ -105,7 +104,6 @@ export function PDFActionButton({
   }
 
   const isDownload = type === 'download' || type === 'audioDownload';
-  const clickAction = type;
 
   return (
     <Button
@@ -120,7 +118,6 @@ export function PDFActionButton({
         rel={isDownload ? undefined : 'noopener noreferrer'}
         download={isDownload ? downloadName : undefined}
         aria-label={ariaLabel}
-        onClick={() => recordClick(clickAction, href)}
       >
         <Icon className="w-3 h-3 md:mr-1 flex-shrink-0" />
         <span className={textClass}>{config.label}</span>
