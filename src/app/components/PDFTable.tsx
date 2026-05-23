@@ -10,7 +10,6 @@ import {
 import { Button } from '@/app/components/ui/button';
 import { getEraDisplay } from '@/app/utils/era';
 import { getDisplaySubject, getSubjectForFilename } from '@/app/utils/subjectUtils';
-import { recordClick } from '@/app/utils/clickStats';
 import pdfManifest from '@/app/data/pdfManifest.json';
 
 interface PDFItem {
@@ -31,7 +30,7 @@ interface PDFTableProps {
 type PdfState = 1 | 2 | 3;
 type ManifestMap = Record<string, true>;
 
-const SITE_ORIGIN = 'https://kyotsutest.vercel.app';
+const SITE_ORIGIN = 'https://kyotsu.org';
 
 function normalizeAssetKey(pathOrUrl: string | undefined | null): string | null {
   const s = (pathOrUrl ?? '').trim();
@@ -181,7 +180,6 @@ function CopyButton({
       variant="outline"
       className="text-xs px-1.5 sm:px-2 py-1 h-auto min-w-0"
       onClick={async () => {
-        recordClick('copy', absoluteHref);
         const ok = await copyTextToClipboard(absoluteHref);
 
         if (!ok) {
@@ -225,7 +223,6 @@ function ActionButton({
 }) {
   const gust = isGustMode();
   const absoluteHref = toAbsoluteUrl(href);
-  const clickAction = isDownload ? 'download' : 'view';
 
   if (gust) {
     return (
@@ -266,7 +263,6 @@ function ActionButton({
         download={isDownload ? downloadName : undefined}
         onClick={(event) => {
           event.preventDefault();
-          recordClick(clickAction, absoluteHref);
 
           if (isDownload) {
             downloadFile(
