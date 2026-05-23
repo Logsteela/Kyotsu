@@ -5,7 +5,7 @@ import { dirname, join } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const BASE_URL = 'https://kyotsutest.vercel.app';
+const BASE_URL = 'https://kyotsu.org';
 const XML_OUTPUT_PATH = join(__dirname, '../public/sitemap.xml');
 const TXT_OUTPUT_PATH = join(__dirname, '../public/sitemap.txt');
 const DATABASE_PATH = join(__dirname, '../src/app/data/testDatabase.ts');
