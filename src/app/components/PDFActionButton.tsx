@@ -53,9 +53,12 @@ const LAYOUT_CLASSES: Record<ResponsiveMode, string> = {
   'special-no-audio': 'flex-col min-[1024px]:flex-row',
 };
 
+const R2_PUBLIC_ORIGIN = 'https://pub-43d2006e555442dca4a107e7bc0d01bb' + '.r2.dev';
+
 function toAbsoluteUrl(url: string): string {
-  if (/^https?:\/\//i.test(url)) return url;
-  return `https://kyotsu.org${url.startsWith('/') ? '' : '/'}${url}`;
+  const path = url.replace(/^https?:\/\/[^/]+\//, '').replace(/^\/+/, '').replace(/^pdfs\//, '');
+  const fileName = path.split('/').filter(Boolean).pop();
+  return fileName ? `${R2_PUBLIC_ORIGIN}/${encodeURIComponent(decodeURIComponent(fileName))}` : '';
 }
 
 function getDownloadName(pathOrUrl: string | undefined | null): string | undefined {
