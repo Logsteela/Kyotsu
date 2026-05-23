@@ -12,6 +12,7 @@ import { getEraDisplay } from '@/app/utils/era';
 import { getDisplaySubject, getSubjectForFilename } from '@/app/utils/subjectUtils';
 import pdfManifest from '@/app/data/pdfManifest.json';
 import { getPdfUrlPath } from '@/app/utils/pdfPath';
+import { forceBrowserDownload } from '@/app/utils/downloadFile';
 
 interface PDFItem {
   id: string;
@@ -135,14 +136,6 @@ function openInNewTab(url: string) {
   window.open(url, '_blank', 'noopener,noreferrer');
 }
 
-function downloadFile(url: string, downloadName: string) {
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = downloadName;
-  link.rel = 'noopener noreferrer';
-  link.click();
-}
-
 function CopyButton({
   icon: Icon,
   label,
@@ -263,7 +256,7 @@ function ActionButton({
           event.preventDefault();
 
           if (isDownload) {
-            downloadFile(
+            void forceBrowserDownload(
               absoluteHref,
               downloadName ?? absoluteHref.split('/').pop() ?? 'download',
             );
