@@ -4,6 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <script>
+      if (location.hostname === 'kyotsutest.vercel.app') {
+        location.replace('https://kyotsu.org' + location.pathname + location.search + location.hash);
+      }
+    </script>
+
     <meta
       name="google-site-verification"
       content="gOqichdTq9hmLiWai2HKVpJKwZwmJwMcRS0vV0L4AUg"
