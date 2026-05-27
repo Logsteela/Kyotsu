@@ -178,8 +178,8 @@ export function StructuredData({
     description,
     url: toAbsoluteUrl(url ?? effectivePagePath),
     inLanguage: 'ja-JP',
-    isPartOf: siteEntity,
     publisher: organizationEntity,
+    creator: organizationEntity,
     keywords,
     distribution: {
       '@type': 'DataDownload',
