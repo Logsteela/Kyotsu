@@ -929,7 +929,7 @@ const DATABASE_TSV = `
 2004	main	数学Ⅱ・数学Ｂ	2004_数学IIB_問題例問題.pdf	2004_数学IIB_問題例解答.pdf		1
 2004	main	理科総合Ａ	2004_理科総合A_問題例問題.pdf	2004_理科総合A_問題例解答.pdf		1
 2004	main	理科総合Ｂ	2004_理科総合B_問題例問題.pdf	2004_理科総合B_問題例解答.pdf		1
-2004	main	英語（リスニング）	2004_英語L_試行テスト問題.pdf	2004_英語L_試行テスト解答.pdf	2004_英語L_試行テスト音源.mp3	1
+2004	main	英語【リスニング】	2004_英語L_試行テスト問題.pdf	2004_英語L_試行テスト解答.pdf	2004_英語L_試行テスト音源.mp3	1
 2003	main	国語Ⅰ	2003_国語I_本試験問題.pdf	2003_国語I_本試験解答.pdf		1
 2003	main	国語Ⅰ・Ⅱ	2003_国語III_本試験問題.pdf	2003_国語III_本試験解答.pdf		1
 2003	main	世界史Ａ	2003_世界史A_本試験問題.pdf	2003_世界史A_本試験解答.pdf		1
@@ -2748,6 +2748,7 @@ export const SUBJECT_MAPPING: Record<string, { category: string; essential: stri
   '英語Ｂ': { category: '英語（Reading）', essential: 'Reading', slug: 'eigo-reading' },
   '英語': { category: '英語（Reading）', essential: 'Reading', slug: 'eigo-reading' },
   '英語（リスニング）': { category: '英語（Listening）', essential: 'Listening', slug: 'eigo-listening' },
+  '英語【リスニング】': { category: '英語（Listening）', essential: 'Listening', slug: 'eigo-listening' },
   '英語　筆記［リーディング］': { category: '英語（Reading）', essential: 'Reading', slug: 'eigo-reading' },
   '英語　リスニング（バージョンA）': { category: '英語（Listening）', essential: 'Listening', slug: 'eigo-listening' },
   '英語　リスニング（バージョンＢ）': { category: '英語（Listening）', essential: 'Listening', slug: 'eigo-listening' },
