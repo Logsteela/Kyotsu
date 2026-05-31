@@ -1,0 +1,59 @@
+name: n
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fix entries
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+
+          path = Path('src/app/data/pdfManifest.json')
+          data = json.loads(path.read_text(encoding='utf-8'))
+          files = data['files']
+
+          replacements = {
+              '2015_化学_試作問題.pdf': '2013_化学_試作問題.pdf',
+              '2015_地学_試作問題.pdf': '2013_地学_試作問題.pdf',
+              '2015_数学IA_試作問題.pdf': '2013_数学IA_試作問題.pdf',
+              '2015_数学IIB_試作問題.pdf': '2013_数学IIB_試作問題.pdf',
+              '2015_物理_試作問題.pdf': '2013_物理_試作問題.pdf',
+              '2015_生物_試作問題.pdf': '2013_生物_試作問題.pdf',
+          }
+
+          before_len = len(files)
+          for old, new in replacements.items():
+              files[:] = [new if item == old else item for item in files]
+
+          if len(files) != before_len:
+              raise SystemExit('Refusing to write: manifest length changed unexpectedly')
+
+          for old, new in replacements.items():
+              if old in files:
+                  raise SystemExit(f'Old entry still present: {old}')
+              if new not in files:
+                  raise SystemExit(f'New entry missing: {new}')
+
+          path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/n.yml
+          git add src/app/data/pdfManifest.json
+          git diff --cached --quiet && exit 0
+          git commit -m "Fix trial PDF manifest years"
+          git push
