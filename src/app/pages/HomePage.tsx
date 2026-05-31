@@ -116,6 +116,15 @@ export function HomePage() {
             <div className="space-y-4">
               <div className="border-l-4 border-gray-300 pl-4 py-2">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
+                  <span className="text-sm font-semibold text-gray-900">2026年5月31日</span>
+                  <span className="text-sm text-gray-600">Ver 0.0.3β</span>
+                </div>
+                <p className="text-gray-700 text-sm leading-relaxed">
+                 2004年問題例、2015年試作問題、2004年一部追試験解答、2015年一部追試験の追加
+                </p>
+              </div>
+              <div className="border-l-4 border-gray-300 pl-4 py-2">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
                   <span className="text-sm font-semibold text-gray-900">2026年5月2日</span>
                   <span className="text-sm text-gray-600">Ver 0.0.2β</span>
                 </div>
