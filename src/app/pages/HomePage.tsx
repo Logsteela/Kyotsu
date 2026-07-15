@@ -1,4 +1,4 @@
- import { Link } from 'react-router';
+import { Link } from 'react-router';
 import { FileText, Calendar, ArrowRight, Clock, Info } from 'lucide-react';
 import { SEOMeta } from '@/app/components/SEOMeta';
 import { StructuredData } from '@/app/components/StructuredData';
@@ -25,7 +25,7 @@ export function HomePage() {
           <section className="bg-white rounded-lg border border-[var(--color-table-border)] p-6 lg:p-8 mb-6">
             <h1 className="sr-only">共通テスト過去問総集</h1>
             <p className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">
-              共通テスト集成の最高峰
+              唯一の共通テスト全集
             </p>
             <p className="text-gray-700 leading-relaxed mb-4">
               このサイトでは、ほとんど全ての共通テストの問題・解答を無料で閲覧・ダウンロードできます。また、旧センター試験、旧共通一次試験も収集しています。
