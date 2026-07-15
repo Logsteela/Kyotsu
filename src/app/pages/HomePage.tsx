@@ -1,4 +1,4 @@
-import { Link } from 'react-router';
+ import { Link } from 'react-router';
 import { FileText, Calendar, ArrowRight, Clock, Info } from 'lucide-react';
 import { SEOMeta } from '@/app/components/SEOMeta';
 import { StructuredData } from '@/app/components/StructuredData';
