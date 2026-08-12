@@ -5,6 +5,8 @@ import { Sidebar } from '@/app/components/Sidebar';
 import { MobileSidebar } from '@/app/components/MobileSidebar';
 import { HelpPage } from '@/app/components/HelpPage';
 import { Button } from '@/app/components/ui/button';
+import { AdSdkLoader } from '@/app/components/ads/AdSdkLoader';
+import { RouteAdPlacements } from '@/app/components/ads/RouteAdPlacements';
 import { getYearList, getSubjectList } from '@/app/data/testDatabase';
 
 export function Root() {
@@ -20,7 +22,7 @@ export function Root() {
     const prevPath = prevPathRef.current;
 
     // ホームページへの遷移、またはテスト詳細ページへの遷移の場合のみスクロールをリセット
-    const shouldResetScroll = 
+    const shouldResetScroll =
       currentPath === '/' || // ホームページへの遷移
       currentPath.startsWith('/test/'); // テスト詳細ページへの遷移
 
@@ -66,6 +68,8 @@ export function Root() {
         </div>
 
         <Outlet />
+        <RouteAdPlacements key={`placements-${location.pathname}`} />
+        <AdSdkLoader key={`admax-${location.pathname}`} />
       </main>
 
       {/* ヘルプページ */}

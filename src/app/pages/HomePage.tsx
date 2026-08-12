@@ -3,6 +3,8 @@ import { FileText, Calendar, ArrowRight, Clock, Info } from 'lucide-react';
 import { SEOMeta } from '@/app/components/SEOMeta';
 import { StructuredData } from '@/app/components/StructuredData';
 import { Button } from '@/app/components/ui/button';
+import { AdSection } from '@/app/components/ads/AdSection';
+import { ADMAX } from '@/app/config/admax';
 
 export function HomePage() {
   const title = '共通テスト過去問総集｜PDFダウンロード';
@@ -75,6 +77,8 @@ export function HomePage() {
             </div>
           </section>
 
+          <AdSection admaxId={ADMAX.homeQuick.id} type={ADMAX.homeQuick.type} className="mb-6" />
+
           {/* サイトの目的 */}
           <section className="bg-white rounded-lg border border-[var(--color-table-border)] p-6 lg:p-8 mb-6">
             <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
@@ -108,7 +112,10 @@ export function HomePage() {
 
 </div>
           </section>
-          <section className="bg-white rounded-lg border border-[var(--color-table-border)] p-6 lg:p-8">
+
+          <AdSection admaxId={ADMAX.homeAbout.id} type={ADMAX.homeAbout.type} className="mb-6" />
+
+          <section className="bg-white rounded-lg border border-[var(--color-table-border)] p-6 lg:p-8 mb-6">
             <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
               <Clock className="w-5 h-5 text-[var(--color-brand-green)]" />
               更新履歴
@@ -144,6 +151,8 @@ export function HomePage() {
 
             </div>
           </section>
+
+          <AdSection admaxId={ADMAX.homeHistory.id} type={ADMAX.homeHistory.type} />
         </div>
       </div>
     </>
