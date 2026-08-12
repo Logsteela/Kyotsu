@@ -86,7 +86,6 @@ export function RouteAdPlacements() {
     setPlacements(next);
 
     return () => {
-      setPlacements([]);
       createdHosts.forEach((host) => host.remove());
     };
   }, [location.pathname]);
