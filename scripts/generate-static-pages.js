@@ -29,6 +29,15 @@ const SUBJECTS = [
   { slug: 'sonota', category: 'その他', label: 'その他', titleLabel: 'その他' },
 ];
 
+function canonicalPagePath(pathname) {
+  if (pathname === '/') return '/';
+  return `${pathname.replace(/\/+$/, '')}/`;
+}
+
+function canonicalPageUrl(pathname) {
+  return `${BASE_URL}${canonicalPagePath(pathname)}`;
+}
+
 function escapeHtml(value) {
   return String(value)
     .replace(/&/g, '&amp;')
@@ -222,7 +231,7 @@ function buildYearStaticBody({ year, title, era, records }) {
 
     const listItems = items.map((record) => {
       const subject = normalizeSubject(record.subject);
-      const href = `/test/${encodeURIComponent(record.questionPdf)}`;
+      const href = `/test/${encodeURIComponent(record.questionPdf)}/`;
       return `<li><a href="${escapeHtml(href)}">${escapeHtml(subject)}</a></li>`;
     }).join('');
 
@@ -305,8 +314,8 @@ function buildHomeStaticBody() {
         <section class="bg-white rounded-lg border border-[var(--color-table-border)] p-6 lg:p-8 mb-6">
           <h2 class="text-xl font-bold text-gray-900 mb-4">クイックアクセス</h2>
           <ul class="space-y-2">
-            <li><a href="/overview">総覧 — すべてのテストを一覧表示</a></li>
-            <li><a href="/year/2026">最新年度（2026年度）— 令和8年度の過去問へ</a></li>
+            <li><a href="/overview/">総覧 — すべてのテストを一覧表示</a></li>
+            <li><a href="/year/2026/">最新年度（2026年度）— 令和8年度の過去問へ</a></li>
           </ul>
         </section>
 
@@ -341,7 +350,7 @@ function buildOverviewStaticBody(records) {
       : `${year}年度（${getEraDisplay(year)}）`;
 
     const listItems = items.map((record) => {
-      const href = `/test/${encodeURIComponent(record.questionPdf)}`;
+      const href = `/test/${encodeURIComponent(record.questionPdf)}/`;
       const subjectName = normalizeSubject(record.subject);
       const testType = getTestTypeLabel(record.examType);
       return `<li><a href="${escapeHtml(href)}">${escapeHtml(`${subjectName} ${testType}`)}</a></li>`;
@@ -382,7 +391,7 @@ function buildSubjectStaticBody({ subject, records, categoryMap }) {
       : `${year}年度（${getEraDisplay(year)}）`;
 
     const listItems = items.map((record) => {
-      const href = `/test/${encodeURIComponent(record.questionPdf)}`;
+      const href = `/test/${encodeURIComponent(record.questionPdf)}/`;
       const subjectName = normalizeSubject(record.subject);
       const testType = getTestTypeLabel(record.examType);
       return `<li><a href="${escapeHtml(href)}">${escapeHtml(`${subjectName} ${testType}`)}</a></li>`;
@@ -573,7 +582,7 @@ function buildPages(records, archivesTables = readArchivesTables()) {
     const normalizedPath = path === '/' ? '/' : `/${path.replace(/^\//, '').replace(/\/$/, '')}`;
     pages.push({
       path: normalizedPath,
-      url: `${BASE_URL}${normalizedPath === '/' ? '' : normalizedPath}`,
+      url: canonicalPageUrl(normalizedPath),
       title,
       description,
       keywords,
@@ -595,7 +604,7 @@ function buildPages(records, archivesTables = readArchivesTables()) {
     title: '共通テスト過去問一覧｜全年度・全教科',
     description: '共通テスト、センター試験、共通一次の問題・解答を、年度、教科、本試験・追試験ごとに整理した一覧です。',
     keywords: '共通テスト,過去問,一覧,総覧,センター試験,共通一次,大学入試,問題,解答,PDF,ダウンロード,本試験,追試験,特例追試験',
-    breadcrumbs: [{ name: '総覧', url: `${BASE_URL}/overview` }],
+    breadcrumbs: [{ name: '総覧', url: `${BASE_URL}/overview/` }],
     staticBody: buildOverviewStaticBody(records),
   });
   add({
@@ -624,8 +633,8 @@ function buildPages(records, archivesTables = readArchivesTables()) {
       keywords: `共通テスト,${year}年度,${era},過去問,問題,解答,PDF,ダウンロード,本試験,追試験,センター試験`,
       type: 'article',
       breadcrumbs: [
-        { name: '総覧', url: `${BASE_URL}/overview` },
-        { name: yearTitle, url: `${BASE_URL}/year/${encodeURIComponent(year)}` },
+        { name: '総覧', url: `${BASE_URL}/overview/` },
+        { name: yearTitle, url: `${BASE_URL}/year/${encodeURIComponent(year)}/` },
       ],
       staticBody: buildYearStaticBody({
         year,
@@ -646,8 +655,8 @@ function buildPages(records, archivesTables = readArchivesTables()) {
       keywords: `共通テスト,${subject.titleLabel},過去問,問題,解答,PDF,ダウンロード,センター試験,大学入試,本試験,追試験`,
       type: 'article',
       breadcrumbs: [
-        { name: '総覧', url: `${BASE_URL}/overview` },
-        { name: `${subject.label}一覧`, url: `${BASE_URL}/subject/${subject.slug}` },
+        { name: '総覧', url: `${BASE_URL}/overview/` },
+        { name: `${subject.label}一覧`, url: `${BASE_URL}/subject/${subject.slug}/` },
       ],
       staticBody: buildSubjectStaticBody({
         subject,
@@ -679,7 +688,7 @@ function buildPages(records, archivesTables = readArchivesTables()) {
       type: 'article',
       breadcrumbs: [
         { name: formattedYear, url: `${BASE_URL}/year/${encodeURIComponent(record.year)}` },
-        { name: testType, url: `${BASE_URL}${testPath}` },
+        { name: testType, url: `${BASE_URL}${testPath}/` },
       ],
       staticBody: buildTestStaticBody({
         displayTestName,
