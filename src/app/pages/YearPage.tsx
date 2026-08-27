@@ -90,8 +90,8 @@ export function YearPage() {
     if (!year) return [];
 
     return [
-      { name: '総覧', url: '/overview' },
-      { name: title, url: `/year/${year}` },
+      { name: '総覧', url: '/overview/' },
+      { name: title, url: `/year/${year}/` },
     ];
   }, [year, title]);
 
@@ -101,7 +101,7 @@ export function YearPage() {
   const itemListItems = useMemo(() => {
     return filteredPDFs.map((record) => ({
       name: `${getDisplaySubject(record.subject)} ${record.testType === 'main' ? '本試験' : '追試験'}`,
-      url: `/test/${encodeURIComponent(record.questionPdf)}`,
+      url: `/test/${encodeURIComponent(record.questionPdf)}/`,
     }));
   }, [filteredPDFs]);
 
