@@ -53,13 +53,14 @@ function extractRecords() {
     .split('\n')
     .map((line) => line.split('\t'))
     .filter((columns) => columns.length >= 4)
-    .map(([year, examType, subject, questionPdf, answerPdf, audio]) => ({
+    .map(([year, examType, subject, questionPdf, answerPdf, audio, pdfStatus]) => ({
       year,
       examType,
       subject,
       questionPdf,
       answerPdf,
       audio,
+      pdfStatus,
     }))
     .filter((record) => record.year && record.questionPdf);
 }
@@ -101,6 +102,71 @@ function normalizeSubject(subject) {
     .replace(/Ⅱ/g, 'II')
     .replace(/Ⅲ/g, 'III')
     .replace(/，/g, '・');
+}
+
+function getPdfStatusLabel(status) {
+  if (status === '1') return '正常';
+  if (status === '2') return '一部欠損';
+  if (status === '3') return '完全欠損';
+  return '未確認';
+}
+
+function buildTestStaticBody({
+  displayTestName,
+  formattedYear,
+  era,
+  subject,
+  testType,
+  pdfStatus,
+  hasAnswer,
+  hasAudio,
+}) {
+  const eraText = era ? ` （${era}）` : '';
+  const answerText = hasAnswer ? '登録あり' : '登録なし';
+  const audioText = hasAudio ? '登録あり' : '登録なし';
+
+  return `
+    <article data-static-fallback="test-detail" class="p-4 lg:p-6">
+      <div class="flex flex-col gap-6">
+        <div class="border-b border-gray-200 pb-4">
+          <h1 class="text-2xl lg:text-3xl font-bold text-gray-900">${escapeHtml(displayTestName)}</h1>
+          <p class="text-lg text-gray-600 mt-2">${escapeHtml(testType + eraText)}</p>
+          <p class="text-sm text-gray-600 leading-relaxed mt-3">
+            ${escapeHtml(`${displayTestName}の問題・解答資料です。年度・試験区分・教科と、資料の収録状況を整理して掲載しています。`)}
+          </p>
+        </div>
+
+        <section class="bg-white border border-gray-200 rounded-lg p-6">
+          <h2 class="text-xl font-semibold text-gray-900 mb-4">試験情報</h2>
+          <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1">
+              <dt class="text-sm text-gray-500">年度</dt>
+              <dd class="text-base font-medium text-gray-900">${escapeHtml(formattedYear)}</dd>
+            </div>
+            <div class="flex flex-col gap-1">
+              <dt class="text-sm text-gray-500">試験区分</dt>
+              <dd class="text-base font-medium text-gray-900">${escapeHtml(testType)}</dd>
+            </div>
+            <div class="flex flex-col gap-1">
+              <dt class="text-sm text-gray-500">教科名</dt>
+              <dd class="text-base font-medium text-gray-900">${escapeHtml(subject)}</dd>
+            </div>
+            <div class="flex flex-col gap-1">
+              <dt class="text-sm text-gray-500">収録状況</dt>
+              <dd class="text-base font-medium text-gray-900">${escapeHtml(getPdfStatusLabel(pdfStatus))}</dd>
+            </div>
+            <div class="flex flex-col gap-1">
+              <dt class="text-sm text-gray-500">解答資料</dt>
+              <dd class="text-base font-medium text-gray-900">${escapeHtml(answerText)}</dd>
+            </div>
+            <div class="flex flex-col gap-1">
+              <dt class="text-sm text-gray-500">音声資料</dt>
+              <dd class="text-base font-medium text-gray-900">${escapeHtml(audioText)}</dd>
+            </div>
+          </dl>
+        </section>
+      </div>
+    </article>`;
 }
 
 function pageJsonLd(meta) {
@@ -201,6 +267,17 @@ function injectMeta(html, meta) {
   return cleaned.replace('</head>', `${buildHeadTags(meta)}\n  </head>`);
 }
 
+function injectStaticBody(html, meta) {
+  if (!meta.staticBody) return html;
+
+  const rootPattern = /<div\s+id=["']root["']>\s*<\/div>/i;
+  if (!rootPattern.test(html)) {
+    throw new Error(`静的本文を挿入できませんでした: #root が見つかりません (${meta.path})`);
+  }
+
+  return html.replace(rootPattern, `<div id="root">${meta.staticBody}</div>`);
+}
+
 function writeFileEnsuringDir(filePath, content) {
   mkdirSync(dirname(filePath), { recursive: true });
   writeFileSync(filePath, content, 'utf8');
@@ -218,7 +295,7 @@ function pathToFilePaths(pathname) {
 
 function buildPages(records) {
   const pages = [];
-  const add = ({ path, title, description, keywords, type = 'website', breadcrumbs = [] }) => {
+  const add = ({ path, title, description, keywords, type = 'website', breadcrumbs = [], staticBody = '' }) => {
     const normalizedPath = path === '/' ? '/' : `/${path.replace(/^\//, '').replace(/\/$/, '')}`;
     pages.push({
       path: normalizedPath,
@@ -228,6 +305,7 @@ function buildPages(records) {
       keywords,
       type,
       breadcrumbs,
+      staticBody,
     });
   };
 
@@ -298,6 +376,8 @@ function buildPages(records) {
     const testType = getTestTypeLabel(record.examType);
     const testPath = `/test/${encodeURIComponent(record.questionPdf)}`;
 
+    const displayTestName = `${formattedYear} ${subject}${record.examType === 'main' ? '' : ' (追)'}`;
+
     add({
       path: testPath,
       title: `${formattedYear} ${subject} ${testType}｜問題・解答PDF｜共通テスト過去問総集`,
@@ -308,6 +388,16 @@ function buildPages(records) {
         { name: formattedYear, url: `${BASE_URL}/year/${encodeURIComponent(record.year)}` },
         { name: testType, url: `${BASE_URL}${testPath}` },
       ],
+      staticBody: buildTestStaticBody({
+        displayTestName,
+        formattedYear,
+        era,
+        subject,
+        testType,
+        pdfStatus: record.pdfStatus,
+        hasAnswer: Boolean(record.answerPdf),
+        hasAudio: Boolean(record.audio),
+      }),
     });
   }
 
@@ -325,7 +415,7 @@ function main() {
   let fileCount = 0;
 
   for (const page of pages) {
-    const html = injectMeta(baseHtml, page);
+    const html = injectStaticBody(injectMeta(baseHtml, page), page);
     for (const filePath of pathToFilePaths(page.path)) {
       writeFileEnsuringDir(filePath, html);
       fileCount += 1;
