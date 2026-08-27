@@ -164,7 +164,7 @@ export function TestDetailPage() {
         <SEOMeta
           title="試験が見つかりません - 共通テスト過去問総集"
           description="指定された試験情報は見つかりませんでした。"
-          path={questionPdf ? `/test/${encodeURIComponent(questionPdf)}` : '/test'}
+          path={questionPdf ? `/test/${encodeURIComponent(questionPdf)}/` : '/test/'}
           noIndex
         />
         <div className="p-4 lg:p-6">
@@ -189,15 +189,15 @@ export function TestDetailPage() {
   const testTypeLabel = testRecord.testType === 'main' ? '本試験' : '追試験';
   const testTypeSuffix = testRecord.testType === 'main' ? '' : ' (追)';
   const displayTestName = `${formattedYear} ${displaySubject}${testTypeSuffix}`;
-  const yearPath = `/year/${encodeURIComponent(String(testRecord.year))}`;
+  const yearPath = `/year/${encodeURIComponent(String(testRecord.year))}/`;
   const subjectSlug = testRecord.categorySubject
     ? getSubjectSlug(testRecord.categorySubject)
     : null;
-  const subjectPath = subjectSlug ? `/subject/${subjectSlug}` : '';
+  const subjectPath = subjectSlug ? `/subject/${subjectSlug}/` : '';
   const subjectFilteredPath = subjectPath
     ? `${subjectPath}?subject=${encodeURIComponent(testRecord.essentialSubject || displaySubject)}`
     : '';
-  const pagePath = `/test/${encodeURIComponent(decodedPdf)}`;
+  const pagePath = `/test/${encodeURIComponent(decodedPdf)}/`;
 
   const pageTitle = `${displayTestName}｜問題・解答PDF｜共通テスト過去問総集`;
 
