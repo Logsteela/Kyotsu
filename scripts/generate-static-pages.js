@@ -43,8 +43,12 @@ function escapeJsonForHtml(value) {
     .replace(/&/g, '\\u0026');
 }
 
+function readDatabaseSource() {
+  return readFileSync(DATABASE_PATH, 'utf8');
+}
+
 function extractRecords() {
-  const databaseContent = readFileSync(DATABASE_PATH, 'utf8');
+  const databaseContent = readDatabaseSource();
   const tsvMatch = databaseContent.match(/const DATABASE_TSV = `\n([\s\S]*?)\n`/);
   if (!tsvMatch) return [];
 
@@ -63,6 +67,30 @@ function extractRecords() {
       pdfStatus,
     }))
     .filter((record) => record.year && record.questionPdf);
+}
+
+function extractSubjectCategoryMap() {
+  const databaseContent = readDatabaseSource();
+  const mappingMatch = databaseContent.match(
+    /export const SUBJECT_MAPPING:[\s\S]*?= \{([\s\S]*?)\n\};/,
+  );
+  if (!mappingMatch) {
+    throw new Error('SUBJECT_MAPPING が見つかりませんでした');
+  }
+
+  const categoryMap = new Map();
+  const entryPattern = /^\s*'([^']+)'\s*:\s*\{\s*category:\s*'([^']+)'[\s\S]*?\},?\s*$/gm;
+  let match;
+
+  while ((match = entryPattern.exec(mappingMatch[1])) !== null) {
+    categoryMap.set(match[1], match[2]);
+  }
+
+  if (categoryMap.size === 0) {
+    throw new Error('SUBJECT_MAPPING のカテゴリを解析できませんでした');
+  }
+
+  return categoryMap;
 }
 
 function sortYears(years) {
@@ -202,6 +230,47 @@ function buildYearStaticBody({ year, title, era, records }) {
         ${renderList(mainRecords, '本試験')}
         ${renderList(makeupRecords, '追試験')}
       </div>
+    </article>`;
+}
+
+function buildSubjectStaticBody({ subject, records, categoryMap }) {
+  const subjectRecords = records.filter((record) => {
+    const category = categoryMap.get(record.subject) || 'その他';
+    return category === subject.label;
+  });
+
+  const uniqueRecords = Array.from(
+    new Map(subjectRecords.map((record) => [record.questionPdf, record])).values(),
+  );
+
+  const years = sortYears(new Set(uniqueRecords.map((record) => record.year)));
+  const summary = `${subject.label}の問題・解答を年度別に整理した教科別一覧です。全${uniqueRecords.length}件を収録しています。`;
+
+  const sections = years.map((year) => {
+    const items = uniqueRecords.filter((record) => record.year === year);
+    const yearLabel = Number.isNaN(Number(year))
+      ? String(year)
+      : `${year}年度（${getEraDisplay(year)}）`;
+
+    const listItems = items.map((record) => {
+      const href = `/test/${encodeURIComponent(record.questionPdf)}`;
+      const subjectName = normalizeSubject(record.subject);
+      const testType = getTestTypeLabel(record.examType);
+      return `<li><a href="${escapeHtml(href)}">${escapeHtml(`${subjectName} ${testType}`)}</a></li>`;
+    }).join('');
+
+    return `
+      <section>
+        <h2 class="text-lg font-semibold text-gray-800">${escapeHtml(yearLabel)}</h2>
+        <ul class="list-disc pl-6 space-y-1">${listItems}</ul>
+      </section>`;
+  }).join('');
+
+  return `
+    <article data-static-fallback="subject" class="p-4 lg:p-6 flex flex-col gap-4">
+      <h1 class="text-xl lg:text-2xl font-bold text-gray-900">${escapeHtml(`${subject.label}一覧`)}</h1>
+      <p class="text-sm text-gray-600 leading-relaxed">${escapeHtml(summary)}</p>
+      <div class="flex flex-col gap-6">${sections}</div>
     </article>`;
 }
 
@@ -395,6 +464,8 @@ function buildPages(records) {
     });
   }
 
+  const categoryMap = extractSubjectCategoryMap();
+
   for (const subject of SUBJECTS) {
     add({
       path: `/subject/${subject.slug}`,
@@ -406,6 +477,11 @@ function buildPages(records) {
         { name: '総覧', url: `${BASE_URL}/overview` },
         { name: `${subject.label}一覧`, url: `${BASE_URL}/subject/${subject.slug}` },
       ],
+      staticBody: buildSubjectStaticBody({
+        subject,
+        records,
+        categoryMap,
+      }),
     });
   }
 
