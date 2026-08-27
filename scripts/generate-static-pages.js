@@ -612,7 +612,7 @@ function buildPages(records, archivesTables = readArchivesTables()) {
     title: '記録資料集｜共通テスト過去問総集',
     description: '共通テスト、センター試験、共通一次試験の記録資料集。',
     keywords: '共通テスト,センター試験,共通一次,記録資料集,平均点,得点,順位',
-    breadcrumbs: [{ name: '記録資料集', url: `${BASE_URL}/archives` }],
+    breadcrumbs: [{ name: '記録資料集', url: `${BASE_URL}/archives/` }],
     staticBody: buildArchivesStaticBody(archivesTables),
   });
 
@@ -687,7 +687,7 @@ function buildPages(records, archivesTables = readArchivesTables()) {
       keywords: `共通テスト,過去問,${formattedYear},${era},${subject},${testType},問題,解答,PDF,平均点,受験者数`,
       type: 'article',
       breadcrumbs: [
-        { name: formattedYear, url: `${BASE_URL}/year/${encodeURIComponent(record.year)}` },
+        { name: formattedYear, url: `${BASE_URL}/year/${encodeURIComponent(record.year)}/` },
         { name: testType, url: `${BASE_URL}${testPath}/` },
       ],
       staticBody: buildTestStaticBody({
@@ -824,6 +824,10 @@ function verifyPageDefinitions(pages, records, archivesTables) {
 
   for (const page of contentPages) {
     assertStatic(Boolean(page.staticBody), `静的本文が空です: ${page.path}`);
+    assertStatic(
+      page.path === '/' ? page.url === `${BASE_URL}/` : page.url.endsWith('/'),
+      `canonical URL の末尾スラッシュが不正です: ${page.path} -> ${page.url}`,
+    );
     assertStatic(
       page.staticBody.includes('data-static-fallback='),
       `静的本文マーカーがありません: ${page.path}`,
