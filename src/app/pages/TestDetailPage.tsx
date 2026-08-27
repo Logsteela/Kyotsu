@@ -355,21 +355,6 @@ export function TestDetailPage() {
           pagePath={pagePath}
           breadcrumbs={breadcrumbItems}
         />
-        <StructuredData
-          type="Dataset"
-          name={displayTestName}
-          description={description}
-          url={getPdfUrlPath(testRecord.questionPdf)}
-          keywords={[
-            '共通テスト',
-            '過去問',
-            formattedYear,
-            displaySubject,
-            testTypeLabel,
-            '問題PDF',
-            '解答PDF',
-          ]}
-        />
 
         <div className="flex flex-col gap-6">
           <div className="border-b border-gray-200 pb-4">
