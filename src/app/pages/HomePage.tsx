@@ -44,7 +44,7 @@ export function HomePage() {
               クイックアクセス
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Link to="/overview">
+              <Link to="/overview/">
                 <Button
                   variant="outline"
                   className="w-full justify-start h-auto py-4 px-4 hover:bg-gray-50 hover:border-[var(--color-brand-green)]"
@@ -59,7 +59,7 @@ export function HomePage() {
                 </Button>
               </Link>
 
-              <Link to="/year/2026">
+              <Link to="/year/2026/">
                 <Button
                   variant="outline"
                   className="w-full justify-start h-auto py-4 px-4 hover:bg-gray-50 hover:border-[var(--color-brand-green)]"
