@@ -64,8 +64,8 @@ export function SubjectPage() {
   const breadcrumbs = useMemo(() => {
     if (!categorySubject) return [];
     return [
-      { name: '総覧', url: '/overview' },
-      { name: title, url: `/subject/${subjectSlug}` },
+      { name: '総覧', url: '/overview/' },
+      { name: title, url: `/subject/${subjectSlug}/` },
     ];
   }, [categorySubject, title, subjectSlug]);
 
@@ -75,7 +75,7 @@ export function SubjectPage() {
   const itemListItems = useMemo(() => {
     return filteredPDFs.map((record) => ({
       name: `${record.year} ${getDisplaySubject(record.subject)} ${record.testType === 'main' ? '本試験' : '追試験'}`,
-      url: `/test/${encodeURIComponent(record.questionPdf)}`,
+      url: `/test/${encodeURIComponent(record.questionPdf)}/`,
     }));
   }, [filteredPDFs]);
 
