@@ -26,7 +26,7 @@ function toAbsoluteUrl(pathOrUrl: string): string {
     const url = new URL(pathOrUrl);
     url.search = '';
     url.hash = '';
-    return url.toString().replace(/\/$/, url.pathname === '/' ? '/' : '');
+    return url.toString();
   }
 
   const [pathWithoutHash] = pathOrUrl.split('#');
@@ -35,7 +35,17 @@ function toAbsoluteUrl(pathOrUrl: string): string {
     ? pathWithoutQuery
     : `/${pathWithoutQuery}`;
 
-  return `${BASE_URL}${normalizedPath === '/' ? '' : normalizedPath}`;
+  return `${BASE_URL}${normalizedPath === '/' ? '/' : normalizedPath}`;
+}
+
+function toCanonicalPageUrl(pathOrUrl: string): string {
+  const url = new URL(toAbsoluteUrl(pathOrUrl));
+  if (url.pathname !== '/' && !url.pathname.endsWith('/')) {
+    url.pathname = `${url.pathname}/`;
+  }
+  url.search = '';
+  url.hash = '';
+  return url.toString();
 }
 
 /**
@@ -56,7 +66,7 @@ export function SEOMeta({
   imageUrl = '/ogp-image.png',
   noIndex = false,
 }: SEOMetaProps) {
-  const fullUrl = toAbsoluteUrl(path ?? getCurrentPath());
+  const fullUrl = toCanonicalPageUrl(path ?? getCurrentPath());
   const fullImageUrl = toAbsoluteUrl(imageUrl);
   const robotsContent = noIndex
     ? 'noindex, nofollow, noarchive'
