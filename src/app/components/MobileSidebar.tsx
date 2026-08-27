@@ -19,7 +19,8 @@ export function MobileSidebar({ subjects, years }: MobileSidebarProps) {
   const [isVisible, setIsVisible] = useState(false);
   const location = useLocation();
   const currentPath = location.pathname;
-  const decodedCurrentPath = decodeURIComponent(currentPath);
+  const normalizedCurrentPath = currentPath === '/' ? '/' : currentPath.replace(/\/+$/, '');
+  const decodedCurrentPath = decodeURIComponent(normalizedCurrentPath);
   const sidebarButtonClass = 'w-full justify-start text-[13px] leading-tight px-1.5 overflow-hidden';
 
   useEffect(() => {
@@ -88,9 +89,9 @@ export function MobileSidebar({ subjects, years }: MobileSidebarProps) {
           <div className="flex flex-col gap-4">
             <div className="font-semibold text-gray-900">総覧</div>
             <div>
-              <Link to="/overview" aria-current={currentPath === '/overview' ? 'page' : undefined}>
+              <Link to="/overview/" aria-current={normalizedCurrentPath === '/overview' ? 'page' : undefined}>
                 <Button
-                  variant={currentPath === '/overview' ? 'default' : 'ghost'}
+                  variant={normalizedCurrentPath === '/overview' ? 'default' : 'ghost'}
                   className={sidebarButtonClass}
                   size="sm"
                   title="全テスト一覧"
@@ -154,9 +155,9 @@ export function MobileSidebar({ subjects, years }: MobileSidebarProps) {
           <div className="flex flex-col gap-4">
             <div className="font-semibold text-gray-900">付記</div>
             <div>
-              <Link to="/archives" aria-current={currentPath === '/archives' ? 'page' : undefined}>
+              <Link to="/archives/" aria-current={normalizedCurrentPath === '/archives' ? 'page' : undefined}>
                 <Button
-                  variant={currentPath === '/archives' ? 'default' : 'ghost'}
+                  variant={normalizedCurrentPath === '/archives' ? 'default' : 'ghost'}
                   className={sidebarButtonClass}
                   size="sm"
                   title="記録資料集"
