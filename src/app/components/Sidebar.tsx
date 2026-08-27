@@ -15,7 +15,8 @@ function SidebarButtonLabel({ children }: { children: string }) {
 export function Sidebar({ subjects, years }: SidebarProps) {
   const location = useLocation();
   const currentPath = location.pathname;
-  const decodedCurrentPath = decodeURIComponent(currentPath);
+  const normalizedCurrentPath = currentPath === '/' ? '/' : currentPath.replace(/\/+$/, '');
+  const decodedCurrentPath = decodeURIComponent(normalizedCurrentPath);
   const sidebarButtonClass = 'w-full justify-start text-[13px] leading-tight px-1.5 overflow-hidden';
 
   return (
@@ -42,9 +43,9 @@ export function Sidebar({ subjects, years }: SidebarProps) {
         <div className="flex flex-col gap-4">
           <div className="font-semibold text-gray-900">総覧</div>
           <div className="border border-[var(--color-table-border)] rounded-md p-2 bg-[var(--color-sidebar-scroll-bg)]">
-            <Link to="/overview" aria-current={currentPath === '/overview' ? 'page' : undefined}>
+            <Link to="/overview/" aria-current={normalizedCurrentPath === '/overview' ? 'page' : undefined}>
               <Button
-                variant={currentPath === '/overview' ? 'default' : 'ghost'}
+                variant={normalizedCurrentPath === '/overview' ? 'default' : 'ghost'}
                 className={sidebarButtonClass}
                 size="sm"
                 title="全テスト一覧"
@@ -61,8 +62,8 @@ export function Sidebar({ subjects, years }: SidebarProps) {
           <div className="flex flex-col gap-1 max-h-78 overflow-y-auto border border-[var(--color-table-border)] rounded-md p-2 bg-[var(--color-sidebar-scroll-bg)]">
             {years.map((year) => {
               const rawYearPath = `/year/${String(year)}`;
-              const yearPath = `/year/${encodeURIComponent(String(year))}`;
-              const isActive = currentPath === yearPath || decodedCurrentPath === rawYearPath;
+              const yearPath = `/year/${encodeURIComponent(String(year))}/`;
+              const isActive = normalizedCurrentPath === yearPath.replace(/\/$/, '') || decodedCurrentPath === rawYearPath;
               const label = typeof year === 'number' ? `${year}年度（${getEraDisplay(year)}）` : String(year);
               return (
                 <Link key={year} to={yearPath} aria-current={isActive ? 'page' : undefined}>
@@ -86,8 +87,8 @@ export function Sidebar({ subjects, years }: SidebarProps) {
           <div className="flex flex-col gap-1 max-h-79 overflow-y-auto border border-[var(--color-table-border)] rounded-md p-2 bg-[var(--color-sidebar-scroll-bg)]">
             {subjects.map((subject) => {
               const slug = CATEGORY_TO_SLUG[subject] || 'sonota';
-              const subjectPath = `/subject/${slug}`;
-              const isActive = currentPath === subjectPath;
+              const subjectPath = `/subject/${slug}/`;
+              const isActive = normalizedCurrentPath === subjectPath.replace(/\/$/, '');
               return (
                 <Link key={subject} to={subjectPath} aria-current={isActive ? 'page' : undefined}>
                   <Button
@@ -108,9 +109,9 @@ export function Sidebar({ subjects, years }: SidebarProps) {
         <div className="flex flex-col gap-4">
           <div className="font-semibold text-gray-900">付記</div>
           <div className="border border-[var(--color-table-border)] rounded-md p-2 bg-[var(--color-sidebar-scroll-bg)]">
-            <Link to="/archives" aria-current={currentPath === '/archives' ? 'page' : undefined}>
+            <Link to="/archives/" aria-current={normalizedCurrentPath === '/archives' ? 'page' : undefined}>
               <Button
-                variant={currentPath === '/archives' ? 'default' : 'ghost'}
+                variant={normalizedCurrentPath === '/archives' ? 'default' : 'ghost'}
                 className={sidebarButtonClass}
                 size="sm"
                 title="記録資料集"

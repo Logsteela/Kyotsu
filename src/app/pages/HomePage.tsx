@@ -8,7 +8,7 @@ import { ADMAX } from '@/app/config/admax';
 
 export function HomePage() {
   const title = '共通テスト過去問総集｜PDFダウンロード';
-  const description = '共通テスト、センター試験、共通一次、追試験、特例追試験の問題、解答の過去問PDFを年度別、教科別掲載。';
+  const description = '共通テスト、センター試験、共通一次、追試験、特例追試験の問題・解答を、年度別・教科別に整理した過去問アーカイブです。';
 
   return (
     <>
@@ -19,7 +19,6 @@ export function HomePage() {
         keywords="共通テスト,過去問,センター試験,共通一次,一覧,特例追試験,追試験,再試験,大学入試,問題,解答,PDF,ダウンロード,ホーム"
       />
       <StructuredData type="WebSite" />
-      <StructuredData type="EducationalOccupationalProgram" />
 
       <div className="flex-1 bg-gray-100 px-4 sm:px-6 py-6 lg:py-8">
         <div className="w-full">
@@ -30,8 +29,8 @@ export function HomePage() {
               唯一の共通テスト全集
             </p>
             <p className="text-gray-700 leading-relaxed mb-4">
-              このサイトでは、ほとんど全ての共通テストの問題・解答を無料で閲覧・ダウンロードできます。また、旧センター試験、旧共通一次試験も収集しています。
-              すべての過去問を網羅的に収録している最中です。
+              このサイトでは、共通テストの問題・解答をすべて収録し、無料で閲覧・ダウンロードできます。また、旧センター試験、旧共通一次試験も収集しています。
+              旧センター試験・旧共通一次試験については、入手できた資料を順次整理・追加しています。
             </p>
             <p className="text-gray-700 leading-relaxed">
               年度別・教科別で閲覧する機能を使って、必要な過去問を素早く見つけることができます。
@@ -45,7 +44,7 @@ export function HomePage() {
               クイックアクセス
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Link to="/overview">
+              <Link to="/overview/">
                 <Button
                   variant="outline"
                   className="w-full justify-start h-auto py-4 px-4 hover:bg-gray-50 hover:border-[var(--color-brand-green)]"
@@ -60,7 +59,7 @@ export function HomePage() {
                 </Button>
               </Link>
 
-              <Link to="/year/2026">
+              <Link to="/year/2026/">
                 <Button
                   variant="outline"
                   className="w-full justify-start h-auto py-4 px-4 hover:bg-gray-50 hover:border-[var(--color-brand-green)]"
@@ -124,7 +123,7 @@ export function HomePage() {
               <div className="border-l-4 border-gray-300 pl-4 py-2">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
                   <span className="text-sm font-semibold text-gray-900">2026年5月31日</span>
-                  <span className="text-sm text-gray-600">Ver 0.0.3β</span>
+                  <span className="text-sm text-gray-600">Ver 0.0.3</span>
                 </div>
                 <p className="text-gray-700 text-sm leading-relaxed">
                  2004年問題例、2015年試作問題、2004年一部追試験解答、2015年一部追試験の追加
@@ -133,7 +132,7 @@ export function HomePage() {
               <div className="border-l-4 border-gray-300 pl-4 py-2">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
                   <span className="text-sm font-semibold text-gray-900">2026年5月2日</span>
-                  <span className="text-sm text-gray-600">Ver 0.0.2β</span>
+                  <span className="text-sm text-gray-600">Ver 0.0.2</span>
                 </div>
                 <p className="text-gray-700 text-sm leading-relaxed">
                  昭和50,51,52,63年の試行、平成30年記述提供方式、令和3年サンプルの追加
@@ -142,10 +141,10 @@ export function HomePage() {
              <div className="border-l-4 border-gray-300 pl-4 py-2">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
                   <span className="text-sm font-semibold text-gray-900">2026年4月19日</span>
-                  <span className="text-sm text-gray-600">Ver 0.0.1β</span>
+                  <span className="text-sm text-gray-600">Ver 0.0.1</span>
                 </div>
                 <p className="text-gray-700 text-sm leading-relaxed">
-                  ベータ版を公開
+                  初版を公開
                 </p>
               </div>
 

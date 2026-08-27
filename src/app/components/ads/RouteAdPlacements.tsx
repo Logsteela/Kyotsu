@@ -4,6 +4,7 @@ import { useLocation } from 'react-router';
 import { ADMAX, AdMaxType } from '@/app/config/admax';
 import { AdSection } from '@/app/components/ads/AdSection';
 import { MobileAdSection } from '@/app/components/ads/MobileAdSection';
+import { getEnhancedDatabase, SLUG_TO_CATEGORY } from '@/app/data/testDatabase';
 
 type Placement = {
   key: string;
@@ -13,8 +14,27 @@ type Placement = {
   mobileOnly?: boolean;
 };
 
-function isTableRoute(pathname: string) {
-  return pathname === '/overview' || pathname.startsWith('/year/') || pathname.startsWith('/subject/');
+function isValidTableRoute(pathname: string) {
+  const normalizedPathname = pathname === '/' ? '/' : pathname.replace(/\/+$/, '');
+  if (normalizedPathname === '/overview') return true;
+
+  const database = getEnhancedDatabase();
+
+  if (normalizedPathname.startsWith('/year/')) {
+    const rawYear = decodeURIComponent(normalizedPathname.slice('/year/'.length));
+    if (!rawYear) return false;
+    const yearValue = Number.isNaN(Number(rawYear)) ? rawYear : Number(rawYear);
+    return database.some((record) => record.year === yearValue);
+  }
+
+  if (normalizedPathname.startsWith('/subject/')) {
+    const slug = decodeURIComponent(normalizedPathname.slice('/subject/'.length));
+    const categorySubject = SLUG_TO_CATEGORY[slug];
+    if (!categorySubject) return false;
+    return database.some((record) => record.categorySubject === categorySubject);
+  }
+
+  return false;
 }
 
 function makeHost(key: string) {
@@ -32,7 +52,7 @@ export function RouteAdPlacements() {
     const next: Placement[] = [];
     const createdHosts: HTMLDivElement[] = [];
 
-    if (isTableRoute(location.pathname)) {
+    if (isValidTableRoute(location.pathname)) {
       const makeupSection = document.getElementById('makeup-section');
       if (makeupSection?.parentElement) {
         const betweenHost = makeHost('table-between-mobile');

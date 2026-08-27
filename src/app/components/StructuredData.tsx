@@ -41,6 +41,16 @@ function toAbsoluteUrl(pathOrUrl = '/'): string {
   return `${BASE_URL}${normalizedPath}`;
 }
 
+function toPageAbsoluteUrl(pathOrUrl = '/'): string {
+  const url = new URL(toAbsoluteUrl(pathOrUrl));
+  if (url.pathname !== '/' && !url.pathname.endsWith('/')) {
+    url.pathname = `${url.pathname}/`;
+  }
+  url.search = '';
+  url.hash = '';
+  return url.toString();
+}
+
 function removeEmptyValues<T>(value: T): T {
   if (Array.isArray(value)) {
     return value
@@ -115,7 +125,7 @@ export function StructuredData({
     '@type': 'WebPage',
     name: pageTitle,
     description: pageDescription,
-    url: toAbsoluteUrl(effectivePagePath),
+    url: toPageAbsoluteUrl(effectivePagePath),
     inLanguage: 'ja-JP',
     isPartOf: siteEntity,
     publisher: organizationEntity,
@@ -135,7 +145,7 @@ export function StructuredData({
         '@type': 'ListItem',
         position: index + 2,
         name: item.name,
-        item: item.url ? toAbsoluteUrl(item.url) : toAbsoluteUrl(effectivePagePath),
+        item: item.url ? toPageAbsoluteUrl(item.url) : toPageAbsoluteUrl(effectivePagePath),
       })),
     ],
   });
@@ -167,7 +177,7 @@ export function StructuredData({
       '@type': 'ListItem',
       position: index + 1,
       name: item.name,
-      url: toAbsoluteUrl(item.url),
+      url: toPageAbsoluteUrl(item.url),
     })),
   });
 

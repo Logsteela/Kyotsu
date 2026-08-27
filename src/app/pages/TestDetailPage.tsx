@@ -20,7 +20,7 @@ import {
   LucideIcon,
 } from 'lucide-react';
 
-const SITE_ORIGIN = 'https://kyotsutest.vercel.app';
+const SITE_ORIGIN = 'https://kyotsu.org';
 
 function isGustMode(): boolean {
   if (typeof window === 'undefined') return false;
@@ -160,13 +160,21 @@ export function TestDetailPage() {
 
   if (!testRecord) {
     return (
-      <div className="p-4 lg:p-6">
-        <h1 className="text-xl lg:text-2xl font-bold text-gray-900 mb-4">試験が見つかりません</h1>
-        <p className="text-gray-600 mb-4">指定された試験情報が見つかりませんでした。</p>
-        <Link to="/">
-          <Button variant="outline">ホームに戻る</Button>
-        </Link>
-      </div>
+      <>
+        <SEOMeta
+          title="試験が見つかりません - 共通テスト過去問総集"
+          description="指定された試験情報は見つかりませんでした。"
+          path={questionPdf ? `/test/${encodeURIComponent(questionPdf)}/` : '/test/'}
+          noIndex
+        />
+        <div className="p-4 lg:p-6">
+          <h1 className="text-xl lg:text-2xl font-bold text-gray-900 mb-4">試験が見つかりません</h1>
+          <p className="text-gray-600 mb-4">指定された試験情報が見つかりませんでした。</p>
+          <Link to="/">
+            <Button variant="outline">ホームに戻る</Button>
+          </Link>
+        </div>
+      </>
     );
   }
 
@@ -181,19 +189,19 @@ export function TestDetailPage() {
   const testTypeLabel = testRecord.testType === 'main' ? '本試験' : '追試験';
   const testTypeSuffix = testRecord.testType === 'main' ? '' : ' (追)';
   const displayTestName = `${formattedYear} ${displaySubject}${testTypeSuffix}`;
-  const yearPath = `/year/${encodeURIComponent(String(testRecord.year))}`;
+  const yearPath = `/year/${encodeURIComponent(String(testRecord.year))}/`;
   const subjectSlug = testRecord.categorySubject
     ? getSubjectSlug(testRecord.categorySubject)
     : null;
-  const subjectPath = subjectSlug ? `/subject/${subjectSlug}` : '';
+  const subjectPath = subjectSlug ? `/subject/${subjectSlug}/` : '';
   const subjectFilteredPath = subjectPath
     ? `${subjectPath}?subject=${encodeURIComponent(testRecord.essentialSubject || displaySubject)}`
     : '';
-  const pagePath = `/test/${encodeURIComponent(decodedPdf)}`;
+  const pagePath = `/test/${encodeURIComponent(decodedPdf)}/`;
 
   const pageTitle = `${displayTestName}｜問題・解答PDF｜共通テスト過去問総集`;
 
-  const description = `${displayTestName}の問題PDF・解答PDFを掲載。平均点、受験者数、試験時間、配点などの試験情報も確認できます。`;
+  const description = `${displayTestName}の問題・解答を掲載し、年度、試験区分、試験時間、配点、平均点、受験者数などの情報を整理しています。`;
 
   const breadcrumbItems = [
     { name: formattedYear, url: yearPath },
@@ -347,21 +355,6 @@ export function TestDetailPage() {
           pagePath={pagePath}
           breadcrumbs={breadcrumbItems}
         />
-        <StructuredData
-          type="Dataset"
-          name={displayTestName}
-          description={description}
-          url={getPdfUrlPath(testRecord.questionPdf)}
-          keywords={[
-            '共通テスト',
-            '過去問',
-            formattedYear,
-            displaySubject,
-            testTypeLabel,
-            '問題PDF',
-            '解答PDF',
-          ]}
-        />
 
         <div className="flex flex-col gap-6">
           <div className="border-b border-gray-200 pb-4">
@@ -371,6 +364,9 @@ export function TestDetailPage() {
             <p className="text-lg text-gray-600 mt-2">
               {testTypeLabel}
               {typeof testRecord.year === 'number' && ` （${getEraDisplay(testRecord.year)}）`}
+            </p>
+            <p className="text-sm text-gray-600 leading-relaxed mt-3">
+              {displayTestName}の問題・解答資料です。年度・試験区分・教科に加え、利用可能な場合は実施日、試験時間、配点、受験者数、得点統計などの公表情報を整理して掲載しています。
             </p>
           </div>
 

@@ -219,7 +219,7 @@ export function PDFTableWithFilter({
 
   const renderSubject = (item: EnhancedTestRecord) => {
     const label = getDisplaySubject(item.subject);
-    const detailPageUrl = `/test/${encodeURIComponent(item.questionPdf)}`;
+    const detailPageUrl = `/test/${encodeURIComponent(item.questionPdf)}/`;
 
     return (
       <Link

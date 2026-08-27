@@ -64,17 +64,18 @@ export function SubjectPage() {
   const breadcrumbs = useMemo(() => {
     if (!categorySubject) return [];
     return [
-      { name: '総覧', url: '/overview' },
-      { name: title, url: `/subject/${subjectSlug}` },
+      { name: '総覧', url: '/overview/' },
+      { name: title, url: `/subject/${subjectSlug}/` },
     ];
   }, [categorySubject, title, subjectSlug]);
 
   const pagePath = `/subject/${subjectSlug ?? ''}`;
+  const noIndex = !categorySubject || filteredPDFs.length === 0;
 
   const itemListItems = useMemo(() => {
     return filteredPDFs.map((record) => ({
       name: `${record.year} ${getDisplaySubject(record.subject)} ${record.testType === 'main' ? '本試験' : '追試験'}`,
-      url: `/test/${encodeURIComponent(record.questionPdf)}`,
+      url: `/test/${encodeURIComponent(record.questionPdf)}/`,
     }));
   }, [filteredPDFs]);
 
@@ -86,19 +87,20 @@ export function SubjectPage() {
         path={pagePath}
         keywords={keywords}
         type="article"
+        noIndex={noIndex}
       />
-      <StructuredData
+      {!noIndex && <StructuredData
         type="WebPage"
         pageTitle={pageTitle}
         pageDescription={description}
         pagePath={pagePath}
         breadcrumbs={breadcrumbs}
-      />
-      <StructuredData
+      />}
+      {!noIndex && <StructuredData
         type="ItemList"
         itemListName={title}
         items={itemListItems}
-      />
+      />}
       <Breadcrumbs items={breadcrumbs} />
       <PDFTableWithFilter 
         items={filteredPDFs} 

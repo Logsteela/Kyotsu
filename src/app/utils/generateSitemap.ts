@@ -14,14 +14,11 @@ interface SitemapUrl {
 
 export function generateSitemapXML(): string {
   const baseUrl = 'https://kyotsu.org'; // 本番環境のURLに変更してください
-  const today = new Date().toISOString().split('T')[0];
-  
   const urls: SitemapUrl[] = [];
 
   // トップページ（総覧）
   urls.push({
-    loc: baseUrl,
-    lastmod: today,
+    loc: `${baseUrl}/`,
     changefreq: 'weekly',
     priority: 1.0,
   });
@@ -30,8 +27,7 @@ export function generateSitemapXML(): string {
   const years = getYearList();
   years.forEach((year) => {
     urls.push({
-      loc: `${baseUrl}/year/${year}`,
-      lastmod: today,
+      loc: `${baseUrl}/year/${year}/`,
       changefreq: 'monthly',
       priority: 0.8,
     });
@@ -41,8 +37,7 @@ export function generateSitemapXML(): string {
   const subjects = getSubjectList();
   subjects.forEach((subject) => {
     urls.push({
-      loc: `${baseUrl}/subject/${subject.slug}`,
-      lastmod: today,
+      loc: `${baseUrl}/subject/${subject.slug}/`,
       changefreq: 'monthly',
       priority: 0.8,
     });

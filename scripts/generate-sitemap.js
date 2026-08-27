@@ -69,31 +69,29 @@ function sortYears(years) {
   });
 }
 
-function addUrl(urls, loc, lastmod, changefreq, priority) {
+function addUrl(urls, loc, changefreq, priority) {
   urls.push({
     loc,
-    lastmod,
     changefreq,
     priority,
   });
 }
 
 function buildUrls() {
-  const today = new Date().toISOString().split('T')[0];
   const records = extractRecords();
   const urls = [];
 
-  addUrl(urls, BASE_URL, today, 'weekly', 1.0);
-  addUrl(urls, `${BASE_URL}/overview`, today, 'weekly', 0.9);
-  addUrl(urls, `${BASE_URL}/archives`, today, 'monthly', 0.7);
+  addUrl(urls, `${BASE_URL}/`, 'weekly', 1.0);
+  addUrl(urls, `${BASE_URL}/overview/`, 'weekly', 0.9);
+  addUrl(urls, `${BASE_URL}/archives/`, 'monthly', 0.7);
 
   const years = sortYears(new Set(records.map((record) => record.year)));
   years.forEach((year) => {
-    addUrl(urls, `${BASE_URL}/year/${encodeURIComponent(year)}`, today, 'monthly', 0.8);
+    addUrl(urls, `${BASE_URL}/year/${encodeURIComponent(year)}/`, 'monthly', 0.8);
   });
 
   SUBJECT_SLUGS.forEach((subject) => {
-    addUrl(urls, `${BASE_URL}/subject/${subject}`, today, 'monthly', 0.8);
+    addUrl(urls, `${BASE_URL}/subject/${subject}/`, 'monthly', 0.8);
   });
 
   const questionPdfs = [...new Set(records.map((record) => record.questionPdf))].sort((a, b) =>
@@ -101,7 +99,7 @@ function buildUrls() {
   );
 
   questionPdfs.forEach((questionPdf) => {
-    addUrl(urls, `${BASE_URL}/test/${encodeURIComponent(questionPdf)}`, today, 'yearly', 0.6);
+    addUrl(urls, `${BASE_URL}/test/${encodeURIComponent(questionPdf)}/`, 'yearly', 0.6);
   });
 
   return urls;
@@ -111,7 +109,6 @@ function generateSitemapXML(urls) {
   const urlElements = urls
     .map((url) => `  <url>
     <loc>${escapeXml(url.loc)}</loc>
-    <lastmod>${escapeXml(url.lastmod)}</lastmod>
     <changefreq>${escapeXml(url.changefreq)}</changefreq>
     <priority>${url.priority}</priority>
   </url>`)
