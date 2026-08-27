@@ -233,6 +233,41 @@ function buildYearStaticBody({ year, title, era, records }) {
     </article>`;
 }
 
+function buildOverviewStaticBody(records) {
+  const uniqueRecords = Array.from(
+    new Map(records.map((record) => [record.questionPdf, record])).values(),
+  );
+  const years = sortYears(new Set(uniqueRecords.map((record) => record.year));
+  const summary = `共通テスト、センター試験、共通一次などの問題・解答を年度・教科・試験区分ごとに整理した総覧です。全${uniqueRecords.length}件の試験資料を収録しています。`;
+
+  const sections = years.map((year) => {
+    const items = uniqueRecords.filter((record) => record.year === year);
+    const yearLabel = Number.isNaN(Number(year))
+      ? String(year)
+      : `${year}年度（${getEraDisplay(year)}）`;
+
+    const listItems = items.map((record) => {
+      const href = `/test/${encodeURIComponent(record.questionPdf)}`;
+      const subjectName = normalizeSubject(record.subject);
+      const testType = getTestTypeLabel(record.examType);
+      return `<li><a href="${escapeHtml(href)}">${escapeHtml(`${subjectName} ${testType}`)}</a></li>`;
+    }).join('');
+
+    return `
+      <section>
+        <h2 class="text-lg font-semibold text-gray-800">${escapeHtml(yearLabel)}</h2>
+        <ul class="list-disc pl-6 space-y-1">${listItems}</ul>
+      </section>`;
+  }).join('');
+
+  return `
+    <article data-static-fallback="overview" class="p-4 lg:p-6 flex flex-col gap-4">
+      <h1 class="text-xl lg:text-2xl font-bold text-gray-900">総覧</h1>
+      <p class="text-sm text-gray-600 leading-relaxed">${escapeHtml(summary)}</p>
+      <div class="flex flex-col gap-6">${sections}</div>
+    </article>`;
+}
+
 function buildSubjectStaticBody({ subject, records, categoryMap }) {
   const subjectRecords = records.filter((record) => {
     const category = categoryMap.get(record.subject) || 'その他';
@@ -426,6 +461,7 @@ function buildPages(records) {
     description: '共通テスト、センター試験、共通一次の問題・解答を、年度、教科、本試験・追試験ごとに整理した一覧です。',
     keywords: '共通テスト,過去問,一覧,総覧,センター試験,共通一次,大学入試,問題,解答,PDF,ダウンロード,本試験,追試験,特例追試験',
     breadcrumbs: [{ name: '総覧', url: `${BASE_URL}/overview` }],
+    staticBody: buildOverviewStaticBody(records),
   });
   add({
     path: '/archives',
