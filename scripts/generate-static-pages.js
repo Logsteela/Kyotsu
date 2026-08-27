@@ -233,6 +233,46 @@ function buildYearStaticBody({ year, title, era, records }) {
     </article>`;
 }
 
+function buildHomeStaticBody() {
+  return `
+    <main data-static-fallback="home" class="flex-1 bg-gray-100 px-4 sm:px-6 py-6 lg:py-8">
+      <div class="w-full">
+        <section class="bg-white rounded-lg border border-[var(--color-table-border)] p-6 lg:p-8 mb-6">
+          <h1 class="sr-only">共通テスト過去問総集</h1>
+          <p class="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">唯一の共通テスト全集</p>
+          <p class="text-gray-700 leading-relaxed mb-4">
+            このサイトでは、共通テストの問題・解答をすべて収録し、無料で閲覧・ダウンロードできます。また、旧センター試験、旧共通一次試験も収集しています。旧センター試験・旧共通一次試験については、入手できた資料を順次整理・追加しています。
+          </p>
+          <p class="text-gray-700 leading-relaxed">
+            年度別・教科別で閲覧する機能を使って、必要な過去問を素早く見つけることができます。
+          </p>
+        </section>
+
+        <section class="bg-white rounded-lg border border-[var(--color-table-border)] p-6 lg:p-8 mb-6">
+          <h2 class="text-xl font-bold text-gray-900 mb-4">クイックアクセス</h2>
+          <ul class="space-y-2">
+            <li><a href="/overview">総覧 — すべてのテストを一覧表示</a></li>
+            <li><a href="/year/2026">最新年度（2026年度）— 令和8年度の過去問へ</a></li>
+          </ul>
+        </section>
+
+        <section class="bg-white rounded-lg border border-[var(--color-table-border)] p-6 lg:p-8 mb-6">
+          <h2 class="text-xl font-bold text-gray-900 mb-4">このサイトについて</h2>
+          <h3 class="font-semibold text-gray-900 mb-2">目的</h3>
+          <p class="text-gray-700 leading-relaxed">
+            大学入学共通テストの過去問は、過去三年分は大学入試センターから発表されますが、それ以前は非公開となります。また、予備校が発表する過去問は、速報を基盤としていることから、追試が欠落していることが多いです。
+          </p>
+          <p class="text-gray-700 leading-relaxed mt-3">
+            このように、非常に高い公的性質を持つテストにもかかわらず、その過去の状況がつかみづらく、また演習を重ねたい人にとって利用しづらい環境となっています。そこで、直近の物から順に共通テスト・センター試験・共通一次試験の問題を収集し、年度別・教科別に整理しています。
+          </p>
+          <p class="text-gray-700 leading-relaxed mt-3">
+            共通テストの過去問はすべて揃えています。
+          </p>
+        </section>
+      </div>
+    </main>`;
+}
+
 function buildOverviewStaticBody(records) {
   const uniqueRecords = Array.from(
     new Map(records.map((record) => [record.questionPdf, record])).values(),
@@ -454,6 +494,7 @@ function buildPages(records) {
     title: '共通テスト過去問総集｜PDFダウンロード',
     description: DEFAULT_DESCRIPTION,
     keywords: '共通テスト,過去問,センター試験,共通一次,一覧,全部,大学入試,問題,解答,PDF,ダウンロード,ホーム',
+    staticBody: buildHomeStaticBody(),
   });
   add({
     path: '/overview',
