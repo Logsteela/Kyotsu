@@ -169,6 +169,42 @@ function buildTestStaticBody({
     </article>`;
 }
 
+function buildYearStaticBody({ year, title, era, records }) {
+  const mainRecords = records.filter((record) => record.examType === 'main');
+  const makeupRecords = records.filter((record) => record.examType !== 'main');
+  const total = records.length;
+  const summary = [
+    `${title}の問題・解答を教科ごとに整理した年度別一覧です。`,
+    `本試験${mainRecords.length}件${makeupRecords.length > 0 ? `、追試験${makeupRecords.length}件` : ''}、合計${total}件を収録しています。`,
+  ].join('');
+
+  const renderList = (items, heading) => {
+    if (items.length === 0) return '';
+
+    const listItems = items.map((record) => {
+      const subject = normalizeSubject(record.subject);
+      const href = `/test/${encodeURIComponent(record.questionPdf)}`;
+      return `<li><a href="${escapeHtml(href)}">${escapeHtml(subject)}</a></li>`;
+    }).join('');
+
+    return `
+      <section>
+        <h2 class="text-lg font-semibold text-gray-800">${escapeHtml(heading)}</h2>
+        <ul class="list-disc pl-6 space-y-1">${listItems}</ul>
+      </section>`;
+  };
+
+  return `
+    <article data-static-fallback="year" class="p-4 lg:p-6 flex flex-col gap-4">
+      <h1 class="text-xl lg:text-2xl font-bold text-gray-900">${escapeHtml(title)}</h1>
+      <p class="text-sm text-gray-600 leading-relaxed">${escapeHtml(summary)}</p>
+      <div class="flex flex-col gap-6">
+        ${renderList(mainRecords, '本試験')}
+        ${renderList(makeupRecords, '追試験')}
+      </div>
+    </article>`;
+}
+
 function pageJsonLd(meta) {
   const graph = [
     {
@@ -333,6 +369,9 @@ function buildPages(records) {
   for (const year of sortYears(new Set(records.map((record) => record.year)))) {
     const isNumeric = !Number.isNaN(Number(year));
     const era = isNumeric ? getEraDisplay(year) : '';
+    const yearTitle = isNumeric ? `${year}年度一覧` : `${year}一覧`;
+    const yearRecords = records.filter((record) => record.year === year);
+
     add({
       path: `/year/${encodeURIComponent(year)}`,
       title: isNumeric
@@ -345,8 +384,14 @@ function buildPages(records) {
       type: 'article',
       breadcrumbs: [
         { name: '総覧', url: `${BASE_URL}/overview` },
-        { name: isNumeric ? `${year}年度一覧` : `${year}一覧`, url: `${BASE_URL}/year/${encodeURIComponent(year)}` },
+        { name: yearTitle, url: `${BASE_URL}/year/${encodeURIComponent(year)}` },
       ],
+      staticBody: buildYearStaticBody({
+        year,
+        title: yearTitle,
+        era,
+        records: yearRecords,
+      }),
     });
   }
 
