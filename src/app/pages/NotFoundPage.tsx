@@ -55,7 +55,7 @@ export function NotFoundPage() {
             <ul className="space-y-2 text-left">
               <li>
                 <Link
-                  to="/year/2025"
+                  to="/year/2025/"
                   className="text-[var(--color-brand-green)] hover:underline"
                 >
                   → 2025年度（令和7年）過去問
@@ -63,7 +63,7 @@ export function NotFoundPage() {
               </li>
               <li>
                 <Link
-                  to="/year/2024"
+                  to="/year/2024/"
                   className="text-[var(--color-brand-green)] hover:underline"
                 >
                   → 2024年度（令和6年）過去問
@@ -71,15 +71,15 @@ export function NotFoundPage() {
               </li>
               <li>
                 <Link
-                  to="/subject/english"
+                  to="/subject/eigo-reading/"
                   className="text-[var(--color-brand-green)] hover:underline"
                 >
-                  → 英語の過去問一覧
+                  → 英語リーディングの過去問一覧
                 </Link>
               </li>
               <li>
                 <Link
-                  to="/subject/math1"
+                  to="/subject/math1/"
                   className="text-[var(--color-brand-green)] hover:underline"
                 >
                   → 数学ⅠAの過去問一覧
