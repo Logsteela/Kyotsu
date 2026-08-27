@@ -8,7 +8,7 @@ import { ADMAX } from '@/app/config/admax';
 
 export function HomePage() {
   const title = '共通テスト過去問総集｜PDFダウンロード';
-  const description = '共通テスト、センター試験、共通一次、追試験、特例追試験の問題、解答の過去問PDFを年度別、教科別掲載。';
+  const description = '共通テスト、センター試験、共通一次、追試験、特例追試験の問題・解答を、年度別・教科別に整理した過去問アーカイブです。';
 
   return (
     <>
@@ -124,7 +124,7 @@ export function HomePage() {
               <div className="border-l-4 border-gray-300 pl-4 py-2">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
                   <span className="text-sm font-semibold text-gray-900">2026年5月31日</span>
-                  <span className="text-sm text-gray-600">Ver 0.0.3β</span>
+                  <span className="text-sm text-gray-600">Ver 0.0.3</span>
                 </div>
                 <p className="text-gray-700 text-sm leading-relaxed">
                  2004年問題例、2015年試作問題、2004年一部追試験解答、2015年一部追試験の追加
@@ -133,7 +133,7 @@ export function HomePage() {
               <div className="border-l-4 border-gray-300 pl-4 py-2">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
                   <span className="text-sm font-semibold text-gray-900">2026年5月2日</span>
-                  <span className="text-sm text-gray-600">Ver 0.0.2β</span>
+                  <span className="text-sm text-gray-600">Ver 0.0.2</span>
                 </div>
                 <p className="text-gray-700 text-sm leading-relaxed">
                  昭和50,51,52,63年の試行、平成30年記述提供方式、令和3年サンプルの追加
@@ -142,10 +142,10 @@ export function HomePage() {
              <div className="border-l-4 border-gray-300 pl-4 py-2">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
                   <span className="text-sm font-semibold text-gray-900">2026年4月19日</span>
-                  <span className="text-sm text-gray-600">Ver 0.0.1β</span>
+                  <span className="text-sm text-gray-600">Ver 0.0.1</span>
                 </div>
                 <p className="text-gray-700 text-sm leading-relaxed">
-                  ベータ版を公開
+                  初版を公開
                 </p>
               </div>
 
