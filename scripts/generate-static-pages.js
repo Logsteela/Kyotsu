@@ -750,12 +750,11 @@ function verifyPageDefinitions(pages, records, archivesTables) {
     countOccurrences(archives.staticBody, /<tbody>[\s\S]*?<\/tbody>/g) === archivesTables.length,
     '記録資料集の tbody 数が表数と一致しません',
   );
-  const flattenedArchiveRows = archivesTables.flatMap((table) =>
-    Array.isArray(table.data) ? table.data : [],
-  );
+  const renderedArchiveRows =
+    countOccurrences(archives.staticBody, /<tr>/g) - archivesTables.length;
   assertStatic(
-    flattenedArchiveRows.length === archiveRows,
-    `記録資料集の元データ行数が不一致です: expected=${archiveRows} actual=${flattenedArchiveRows.length}`,
+    renderedArchiveRows === archiveRows,
+    `記録資料集の生成行数が不一致です: expected=${archiveRows} actual=${renderedArchiveRows}`,
   );
 
   const home = pages.find((page) => page.path === '/');
