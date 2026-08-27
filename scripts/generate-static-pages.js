@@ -9,6 +9,7 @@ const BASE_URL = 'https://kyotsu.org';
 const SITE_NAME = '共通テスト過去問総集';
 const DIST_DIR = join(__dirname, '../dist');
 const DIST_INDEX = join(DIST_DIR, 'index.html');
+const DIST_404 = join(DIST_DIR, '404.html');
 const DATABASE_PATH = join(__dirname, '../src/app/data/testDatabase.ts');
 const ARCHIVES_TABLES_PATH = join(__dirname, '../src/app/components/archivesTables.json');
 
@@ -511,6 +512,46 @@ function injectStaticBody(html, meta) {
   return html.replace(rootPattern, `<div id="root">${meta.staticBody}</div>`);
 }
 
+function buildNotFoundHtml(baseHtml) {
+  const cleaned = cleanHead(baseHtml);
+  const head = `
+    <title>ページが見つかりません｜共通テスト過去問総集</title>
+    <meta name="description" content="指定されたページは見つかりませんでした。" />
+    <meta name="robots" content="noindex, nofollow, noarchive" />
+    <meta name="googlebot" content="noindex, nofollow, noarchive" />
+    <meta name="bingbot" content="noindex, nofollow, noarchive" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />`;
+
+  const withHead = cleaned.replace('</head>', `${head}\n  </head>`);
+  const rootPattern = /<div\s+id=["']root["']>\s*<\/div>/i;
+
+  if (!rootPattern.test(withHead)) {
+    throw new Error('404.html を生成できませんでした: #root が見つかりません');
+  }
+
+  const staticBody = `
+    <main data-static-fallback="not-found" class="p-4 lg:p-6">
+      <h1 class="text-xl lg:text-2xl font-bold text-gray-900 mb-4">ページが見つかりません</h1>
+      <p class="text-gray-600 mb-4">指定されたページは見つかりませんでした。</p>
+      <p><a href="/">ホームに戻る</a></p>
+    </main>`;
+
+  return withHead.replace(rootPattern, `<div id="root">${staticBody}</div>`);
+}
+
+function verifyNotFoundHtml(html) {
+  assertStatic(html.includes('data-static-fallback="not-found"'), '404.html に静的本文がありません');
+  assertStatic(html.includes('noindex, nofollow, noarchive'), '404.html に noindex がありません');
+  assertStatic(
+    !/<link\s+rel=["']canonical["']/i.test(html),
+    '404.html に canonical を出力してはいけません',
+  );
+  assertStatic(
+    !/<div\s+id=["']root["']>\s*<\/div>/i.test(html),
+    '404.html の #root が空です',
+  );
+}
+
 function writeFileEnsuringDir(filePath, content) {
   mkdirSync(dirname(filePath), { recursive: true });
   writeFileSync(filePath, content, 'utf8');
@@ -815,6 +856,10 @@ function main() {
   const baseHtml = readFileSync(DIST_INDEX, 'utf8');
   let fileCount = 0;
 
+  const notFoundHtml = buildNotFoundHtml(baseHtml);
+  verifyNotFoundHtml(notFoundHtml);
+  writeFileEnsuringDir(DIST_404, notFoundHtml);
+
   for (const page of pages) {
     const html = injectStaticBody(injectMeta(baseHtml, page), page);
     verifyRenderedHtml(page, html);
@@ -825,6 +870,7 @@ function main() {
   }
 
   console.log(`✅ 静的HTML整合性チェックに合格しました: ${pages.length} routes`);
+  console.log('✅ top-level 404.html を生成しました');
   console.log(`✅ 静的HTMLメタ情報を生成しました: ${pages.length} routes / ${fileCount} files`);
 }
 
