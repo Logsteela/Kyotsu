@@ -15,16 +15,16 @@ const DEFAULT_DESCRIPTION =
   '共通テスト、センター試験、共通一次、追試験、特例追試験の問題・解答を、年度別・教科別に整理した過去問アーカイブです。';
 
 const SUBJECTS = [
-  { slug: 'eigo-reading', label: '英語（Reading）', titleLabel: '英語リーディング' },
-  { slug: 'eigo-listening', label: '英語（Listening）', titleLabel: '英語リスニング' },
-  { slug: 'math1', label: '数学①', titleLabel: '数学①' },
-  { slug: 'math2', label: '数学②', titleLabel: '数学②' },
-  { slug: 'kokugo', label: '国語', titleLabel: '国語' },
-  { slug: 'rika-kiso', label: '理科基礎', titleLabel: '理科基礎' },
-  { slug: 'rika', label: '理科', titleLabel: '理科' },
-  { slug: 'joho', label: '情報', titleLabel: '情報' },
-  { slug: 'shakai', label: '地理歴史・公民', titleLabel: '地理歴史・公民' },
-  { slug: 'sonota', label: 'その他', titleLabel: 'その他' },
+  { slug: 'eigo-reading', category: '英語（Reading）', label: '英語（Reading）', titleLabel: '英語リーディング' },
+  { slug: 'eigo-listening', category: '英語（Listening）', label: '英語（Listening）', titleLabel: '英語リスニング' },
+  { slug: 'math1', category: '数学①', label: '数学①', titleLabel: '数学①' },
+  { slug: 'math2', category: '数学②', label: '数学②', titleLabel: '数学②' },
+  { slug: 'kokugo', category: '国語', label: '国語', titleLabel: '国語' },
+  { slug: 'rika-kiso', category: '理科基礎', label: '理科基礎', titleLabel: '理科基礎' },
+  { slug: 'rika', category: '理科', label: '理科', titleLabel: '理科' },
+  { slug: 'joho', category: '情報', label: '情報', titleLabel: '情報' },
+  { slug: 'shakai', category: '社会', label: '地理歴史・公民', titleLabel: '地理歴史・公民' },
+  { slug: 'sonota', category: 'その他', label: 'その他', titleLabel: 'その他' },
 ];
 
 function escapeHtml(value) {
@@ -236,7 +236,7 @@ function buildYearStaticBody({ year, title, era, records }) {
 function buildSubjectStaticBody({ subject, records, categoryMap }) {
   const subjectRecords = records.filter((record) => {
     const category = categoryMap.get(record.subject) || 'その他';
-    return category === subject.label;
+    return category === subject.category;
   });
 
   const uniqueRecords = Array.from(
