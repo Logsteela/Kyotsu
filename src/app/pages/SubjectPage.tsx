@@ -70,6 +70,7 @@ export function SubjectPage() {
   }, [categorySubject, title, subjectSlug]);
 
   const pagePath = `/subject/${subjectSlug ?? ''}`;
+  const noIndex = !categorySubject || filteredPDFs.length === 0;
 
   const itemListItems = useMemo(() => {
     return filteredPDFs.map((record) => ({
@@ -86,19 +87,20 @@ export function SubjectPage() {
         path={pagePath}
         keywords={keywords}
         type="article"
+        noIndex={noIndex}
       />
-      <StructuredData
+      {!noIndex && <StructuredData
         type="WebPage"
         pageTitle={pageTitle}
         pageDescription={description}
         pagePath={pagePath}
         breadcrumbs={breadcrumbs}
-      />
-      <StructuredData
+      />}
+      {!noIndex && <StructuredData
         type="ItemList"
         itemListName={title}
         items={itemListItems}
-      />
+      />}
       <Breadcrumbs items={breadcrumbs} />
       <PDFTableWithFilter 
         items={filteredPDFs} 
