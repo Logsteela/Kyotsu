@@ -656,6 +656,154 @@ function buildPages(records, archivesTables = readArchivesTables()) {
   return pages;
 }
 
+
+function countOccurrences(text, pattern) {
+  return (String(text).match(pattern) || []).length;
+}
+
+function assertStatic(condition, message) {
+  if (!condition) {
+    throw new Error(`静的HTML整合性チェック失敗: ${message}`);
+  }
+}
+
+function countTestLinks(staticBody) {
+  return countOccurrences(staticBody, /href=["']\/test\//g);
+}
+
+function verifyPageDefinitions(pages, records, archivesTables) {
+  const paths = pages.map((page) => page.path);
+  assertStatic(new Set(paths).size === paths.length, '重複したroute pathがあります');
+
+  const uniqueQuestionPdfs = new Set(records.map((record) => record.questionPdf));
+  assertStatic(
+    uniqueQuestionPdfs.size === records.length,
+    `questionPdf が重複しています: records=${records.length}, unique=${uniqueQuestionPdfs.size}`,
+  );
+
+  const testPages = pages.filter((page) => page.path.startsWith('/test/'));
+  assertStatic(
+    testPages.length === uniqueQuestionPdfs.size,
+    `個別試験route数がDBと一致しません: pages=${testPages.length}, records=${uniqueQuestionPdfs.size}`,
+  );
+
+  const years = sortYears(new Set(records.map((record) => record.year)));
+  const yearPages = pages.filter((page) => page.path.startsWith('/year/'));
+  assertStatic(
+    yearPages.length === years.length,
+    `年度route数がDBと一致しません: pages=${yearPages.length}, years=${years.length}`,
+  );
+
+  for (const year of years) {
+    const page = pages.find((candidate) => candidate.path === `/year/${encodeURIComponent(year)}`);
+    const expected = records.filter((record) => record.year === year).length;
+    assertStatic(Boolean(page), `年度ページがありません: ${year}`);
+    assertStatic(
+      countTestLinks(page.staticBody) === expected,
+      `年度ページの試験リンク数が不一致です: ${year} expected=${expected} actual=${countTestLinks(page.staticBody)}`,
+    );
+  }
+
+  const categoryMap = extractSubjectCategoryMap();
+  const knownCategories = new Set(SUBJECTS.map((subject) => subject.category));
+  const usedCategories = new Set(
+    records.map((record) => categoryMap.get(record.subject) || 'その他'),
+  );
+
+  for (const category of usedCategories) {
+    assertStatic(
+      knownCategories.has(category),
+      `SUBJECTS に未定義のカテゴリがあります: ${category}`,
+    );
+  }
+
+  for (const subject of SUBJECTS) {
+    const page = pages.find((candidate) => candidate.path === `/subject/${subject.slug}`);
+    const expected = records.filter(
+      (record) => (categoryMap.get(record.subject) || 'その他') === subject.category,
+    ).length;
+    assertStatic(Boolean(page), `教科ページがありません: ${subject.slug}`);
+    assertStatic(
+      countTestLinks(page.staticBody) === expected,
+      `教科ページの試験リンク数が不一致です: ${subject.slug} expected=${expected} actual=${countTestLinks(page.staticBody)}`,
+    );
+  }
+
+  const overview = pages.find((page) => page.path === '/overview');
+  assertStatic(Boolean(overview), '総覧ページがありません');
+  assertStatic(
+    countTestLinks(overview.staticBody) === uniqueQuestionPdfs.size,
+    `総覧の試験リンク数が不一致です: expected=${uniqueQuestionPdfs.size} actual=${countTestLinks(overview.staticBody)}`,
+  );
+
+  const archives = pages.find((page) => page.path === '/archives');
+  const archiveRows = archivesTables.reduce(
+    (sum, table) => sum + (Array.isArray(table.data) ? table.data.length : 0),
+    0,
+  );
+  assertStatic(Boolean(archives), '記録資料集ページがありません');
+  assertStatic(
+    countOccurrences(archives.staticBody, /<table>/g) === archivesTables.length,
+    `記録資料集の表数が不一致です: expected=${archivesTables.length} actual=${countOccurrences(archives.staticBody, /<table>/g)}`,
+  );
+  assertStatic(
+    countOccurrences(archives.staticBody, /<tbody>[\s\S]*?<\/tbody>/g) === archivesTables.length,
+    '記録資料集の tbody 数が表数と一致しません',
+  );
+  assertStatic(
+    countOccurrences(
+      archivesTables.flatMap((table) => table.data || []).map((row) => row.item1).join('\n'),
+      /^/gm,
+    ) - 1 === archiveRows,
+    '記録資料集の元データ行数を計算できません',
+  );
+
+  const home = pages.find((page) => page.path === '/');
+  assertStatic(Boolean(home), 'トップページがありません');
+  assertStatic(home.staticBody.includes('唯一の共通テスト全集'), 'トップの主要訴求が静的HTMLから欠落しています');
+  assertStatic(home.staticBody.includes('共通テストの問題・解答をすべて収録'), 'トップの全収録説明が静的HTMLから欠落しています');
+
+  const contentPages = pages.filter(
+    (page) =>
+      page.path === '/' ||
+      page.path === '/overview' ||
+      page.path === '/archives' ||
+      page.path.startsWith('/year/') ||
+      page.path.startsWith('/subject/') ||
+      page.path.startsWith('/test/'),
+  );
+
+  for (const page of contentPages) {
+    assertStatic(Boolean(page.staticBody), `静的本文が空です: ${page.path}`);
+    assertStatic(
+      page.staticBody.includes('data-static-fallback='),
+      `静的本文マーカーがありません: ${page.path}`,
+    );
+  }
+}
+
+function verifyRenderedHtml(page, html) {
+  assertStatic(
+    html.includes(`<link rel="canonical" href="${escapeHtml(page.url)}" />`),
+    `canonical が不一致です: ${page.path}`,
+  );
+  assertStatic(
+    html.includes(`<meta name="prerendered-route" content="${escapeHtml(page.path)}" />`),
+    `prerendered-route が不一致です: ${page.path}`,
+  );
+
+  if (page.staticBody) {
+    assertStatic(
+      !/<div\s+id=["']root["']>\s*<\/div>/i.test(html),
+      `#root が空のままです: ${page.path}`,
+    );
+    assertStatic(
+      html.includes('data-static-fallback='),
+      `生成HTMLに静的本文マーカーがありません: ${page.path}`,
+    );
+  }
+}
+
 function main() {
   if (!existsSync(DIST_INDEX)) {
     throw new Error(`dist/index.html が見つかりません: ${DIST_INDEX}`);
@@ -664,17 +812,20 @@ function main() {
   const records = extractRecords();
   const archivesTables = readArchivesTables();
   const pages = buildPages(records, archivesTables);
+  verifyPageDefinitions(pages, records, archivesTables);
   const baseHtml = readFileSync(DIST_INDEX, 'utf8');
   let fileCount = 0;
 
   for (const page of pages) {
     const html = injectStaticBody(injectMeta(baseHtml, page), page);
+    verifyRenderedHtml(page, html);
     for (const filePath of pathToFilePaths(page.path)) {
       writeFileEnsuringDir(filePath, html);
       fileCount += 1;
     }
   }
 
+  console.log(`✅ 静的HTML整合性チェックに合格しました: ${pages.length} routes`);
   console.log(`✅ 静的HTMLメタ情報を生成しました: ${pages.length} routes / ${fileCount} files`);
 }
 
