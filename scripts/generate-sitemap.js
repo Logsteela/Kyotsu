@@ -81,7 +81,7 @@ function buildUrls() {
   const records = extractRecords();
   const urls = [];
 
-  addUrl(urls, BASE_URL, 'weekly', 1.0);
+  addUrl(urls, `${BASE_URL}/`, 'weekly', 1.0);
   addUrl(urls, `${BASE_URL}/overview/`, 'weekly', 0.9);
   addUrl(urls, `${BASE_URL}/archives/`, 'monthly', 0.7);
 
