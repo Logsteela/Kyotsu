@@ -10,6 +10,7 @@ const SITE_NAME = '共通テスト過去問総集';
 const DIST_DIR = join(__dirname, '../dist');
 const DIST_INDEX = join(DIST_DIR, 'index.html');
 const DATABASE_PATH = join(__dirname, '../src/app/data/testDatabase.ts');
+const ARCHIVES_TABLES_PATH = join(__dirname, '../src/app/components/archivesTables.json');
 
 const DEFAULT_DESCRIPTION =
   '共通テスト、センター試験、共通一次、追試験、特例追試験の問題・解答を、年度別・教科別に整理した過去問アーカイブです。';
@@ -45,6 +46,15 @@ function escapeJsonForHtml(value) {
 
 function readDatabaseSource() {
   return readFileSync(DATABASE_PATH, 'utf8');
+}
+
+function readArchivesTables() {
+  const content = readFileSync(ARCHIVES_TABLES_PATH, 'utf8');
+  const parsed = JSON.parse(content);
+  if (!Array.isArray(parsed)) {
+    throw new Error('archivesTables.json の形式が不正です');
+  }
+  return parsed;
 }
 
 function extractRecords() {
@@ -231,6 +241,49 @@ function buildYearStaticBody({ year, title, era, records }) {
         ${renderList(makeupRecords, '追試験')}
       </div>
     </article>`;
+}
+
+function buildArchivesStaticBody(tables) {
+  const totalRows = tables.reduce(
+    (sum, table) => sum + (Array.isArray(table.data) ? table.data.length : 0),
+    0,
+  );
+  const summary = `共通テスト・センター試験・共通一次試験の得点記録を整理した資料集です。全${tables.length}種類のランキング、${totalRows}件の記録を掲載しています。`;
+
+  const renderedTables = tables.map((table) => {
+    const rows = Array.isArray(table.data) && table.data.length > 0
+      ? table.data.map((item) => `
+          <tr>
+            <td>${escapeHtml(item.rank)}</td>
+            <td>${escapeHtml(item.item1)}</td>
+            <td>${escapeHtml(item.item2)}</td>
+          </tr>`).join('')
+      : '<tr><td colspan="3">データなし</td></tr>';
+
+    return `
+      <section>
+        <h2>${escapeHtml(table.title || '')}</h2>
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">順位</th>
+              <th scope="col">教科</th>
+              <th scope="col">点数</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </section>`;
+  }).join('');
+
+  return `
+    <main data-static-fallback="archives" class="flex-1 bg-gray-100 px-4 sm:px-6 py-6 lg:py-8">
+      <div class="w-full max-w-none mx-auto">
+        <h1 class="text-xl lg:text-2xl font-bold text-gray-900 mb-6">記録資料集</h1>
+        <p class="text-sm text-gray-600 leading-relaxed mb-6">${escapeHtml(summary)}</p>
+        <div class="flex flex-wrap gap-6 items-start">${renderedTables}</div>
+      </div>
+    </main>`;
 }
 
 function buildHomeStaticBody() {
@@ -473,7 +526,7 @@ function pathToFilePaths(pathname) {
   return decodedPath === rawPath ? [decodedPath] : [decodedPath, rawPath];
 }
 
-function buildPages(records) {
+function buildPages(records, archivesTables = readArchivesTables()) {
   const pages = [];
   const add = ({ path, title, description, keywords, type = 'website', breadcrumbs = [], staticBody = '' }) => {
     const normalizedPath = path === '/' ? '/' : `/${path.replace(/^\//, '').replace(/\/$/, '')}`;
@@ -510,6 +563,7 @@ function buildPages(records) {
     description: '共通テスト、センター試験、共通一次試験の記録資料集。',
     keywords: '共通テスト,センター試験,共通一次,記録資料集,平均点,得点,順位',
     breadcrumbs: [{ name: '記録資料集', url: `${BASE_URL}/archives` }],
+    staticBody: buildArchivesStaticBody(archivesTables),
   });
 
   for (const year of sortYears(new Set(records.map((record) => record.year)))) {
@@ -608,7 +662,8 @@ function main() {
   }
 
   const records = extractRecords();
-  const pages = buildPages(records);
+  const archivesTables = readArchivesTables();
+  const pages = buildPages(records, archivesTables);
   const baseHtml = readFileSync(DIST_INDEX, 'utf8');
   let fileCount = 0;
 
