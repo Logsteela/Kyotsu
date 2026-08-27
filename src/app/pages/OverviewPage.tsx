@@ -16,13 +16,13 @@ export function OverviewPage() {
   const description = '共通テスト、センター試験、共通一次の問題PDF、解答PDF、本試験、追試験、特例追試験。';
 
   const breadcrumbItems = [
-    { name: '総覧', url: '/overview' }
+    { name: '総覧', url: '/overview/' }
   ];
 
   const itemListItems = useMemo(() => {
     return filteredPDFs.slice(0, 200).map((record) => ({
       name: `${record.year} ${getDisplaySubject(record.subject)} ${record.testType === 'main' ? '本試験' : '追試験'}`,
-      url: `/test/${encodeURIComponent(record.questionPdf)}`,
+      url: `/test/${encodeURIComponent(record.questionPdf)}/`,
     }));
   }, [filteredPDFs]);
 
