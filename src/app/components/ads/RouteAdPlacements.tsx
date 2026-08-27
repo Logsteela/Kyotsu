@@ -15,19 +15,20 @@ type Placement = {
 };
 
 function isValidTableRoute(pathname: string) {
-  if (pathname === '/overview') return true;
+  const normalizedPathname = pathname === '/' ? '/' : pathname.replace(/\/+$/, '');
+  if (normalizedPathname === '/overview') return true;
 
   const database = getEnhancedDatabase();
 
-  if (pathname.startsWith('/year/')) {
-    const rawYear = decodeURIComponent(pathname.slice('/year/'.length)).replace(/\/$/, '');
+  if (normalizedPathname.startsWith('/year/')) {
+    const rawYear = decodeURIComponent(normalizedPathname.slice('/year/'.length));
     if (!rawYear) return false;
     const yearValue = Number.isNaN(Number(rawYear)) ? rawYear : Number(rawYear);
     return database.some((record) => record.year === yearValue);
   }
 
-  if (pathname.startsWith('/subject/')) {
-    const slug = decodeURIComponent(pathname.slice('/subject/'.length)).replace(/\/$/, '');
+  if (normalizedPathname.startsWith('/subject/')) {
+    const slug = decodeURIComponent(normalizedPathname.slice('/subject/'.length));
     const categorySubject = SLUG_TO_CATEGORY[slug];
     if (!categorySubject) return false;
     return database.some((record) => record.categorySubject === categorySubject);
