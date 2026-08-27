@@ -108,8 +108,8 @@ export function MobileSidebar({ subjects, years }: MobileSidebarProps) {
             <div className="flex flex-col gap-1 max-h-64 overflow-y-auto">
               {years.map((year) => {
                 const rawYearPath = `/year/${String(year)}`;
-                const yearPath = `/year/${encodeURIComponent(String(year))}`;
-                const isActive = currentPath === yearPath || decodedCurrentPath === rawYearPath;
+                const yearPath = `/year/${encodeURIComponent(String(year))}/`;
+                const isActive = normalizedCurrentPath === yearPath.replace(/\/$/, '') || decodedCurrentPath === rawYearPath;
                 const label = typeof year === 'number' ? `${year}年度（${getEraDisplay(year)}）` : String(year);
                 return (
                   <Link key={year} to={yearPath} aria-current={isActive ? 'page' : undefined}>
@@ -133,8 +133,8 @@ export function MobileSidebar({ subjects, years }: MobileSidebarProps) {
             <div className="flex flex-col gap-1 max-h-64 overflow-y-auto">
               {subjects.map((subject) => {
                 const slug = CATEGORY_TO_SLUG[subject] || 'sonota';
-                const subjectPath = `/subject/${slug}`;
-                const isActive = currentPath === subjectPath;
+                const subjectPath = `/subject/${slug}/`;
+                const isActive = normalizedCurrentPath === subjectPath.replace(/\/$/, '');
                 return (
                   <Link key={subject} to={subjectPath} aria-current={isActive ? 'page' : undefined}>
                     <Button
