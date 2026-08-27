@@ -12,7 +12,7 @@ const DIST_INDEX = join(DIST_DIR, 'index.html');
 const DATABASE_PATH = join(__dirname, '../src/app/data/testDatabase.ts');
 
 const DEFAULT_DESCRIPTION =
-  '共通テスト、センター試験、共通一次、追試験、特例追試験の問題、解答の過去問PDFを年度別、教科別掲載。';
+  '共通テスト、センター試験、共通一次、追試験、特例追試験の問題・解答を、年度別・教科別に整理した過去問アーカイブです。';
 
 const SUBJECTS = [
   { slug: 'eigo-reading', label: '英語（Reading）', titleLabel: '英語リーディング' },
@@ -240,7 +240,7 @@ function buildPages(records) {
   add({
     path: '/overview',
     title: '共通テスト過去問一覧｜全年度・全教科',
-    description: '共通テスト、センター試験、共通一次の問題PDF、解答PDF、本試験、追試験、特例追試験。',
+    description: '共通テスト、センター試験、共通一次の問題・解答を、年度、教科、本試験・追試験ごとに整理した一覧です。',
     keywords: '共通テスト,過去問,一覧,総覧,センター試験,共通一次,大学入試,問題,解答,PDF,ダウンロード,本試験,追試験,特例追試験',
     breadcrumbs: [{ name: '総覧', url: `${BASE_URL}/overview` }],
   });
@@ -261,8 +261,8 @@ function buildPages(records) {
         ? `${year}年度（${era}）共通テスト過去問｜問題・解答PDF`
         : `${year}｜問題・解答PDF｜共通テスト過去問総集`,
       description: isNumeric
-        ? `${year}年度（${era}）共通テストの問題PDF、解答PDF、本試験、追試験。`
-        : `${year}の問題PDF、解答PDF、本試験、追試験。`,
+        ? `${year}年度（${era}）の問題・解答を、本試験・追試験、教科ごとに整理した年度別一覧です。`
+        : `${year}の問題・解答を、試験区分と教科ごとに整理した一覧です。`,
       keywords: `共通テスト,${year}年度,${era},過去問,問題,解答,PDF,ダウンロード,本試験,追試験,センター試験`,
       type: 'article',
       breadcrumbs: [
@@ -276,7 +276,7 @@ function buildPages(records) {
     add({
       path: `/subject/${subject.slug}`,
       title: `共通テスト ${subject.titleLabel} 過去問｜問題・解答PDF`,
-      description: `共通テスト ${subject.titleLabel}の問題PDF、解答PDF、本試験、追試験、年度別一覧。`,
+      description: `共通テスト ${subject.titleLabel}の問題・解答を、本試験・追試験、年度ごとに整理した教科別一覧です。`,
       keywords: `共通テスト,${subject.titleLabel},過去問,問題,解答,PDF,ダウンロード,センター試験,大学入試,本試験,追試験`,
       type: 'article',
       breadcrumbs: [
@@ -301,7 +301,7 @@ function buildPages(records) {
     add({
       path: testPath,
       title: `${formattedYear} ${subject} ${testType}｜問題・解答PDF｜共通テスト過去問総集`,
-      description: `${formattedYear} ${subject} ${testType}の問題PDF、解答PDF、平均点、受験者数。`,
+      description: `${formattedYear} ${subject} ${testType}の問題・解答と、年度、試験区分、試験時間、配点、平均点、受験者数などの情報を整理したページです。`,
       keywords: `共通テスト,過去問,${formattedYear},${era},${subject},${testType},問題,解答,PDF,平均点,受験者数`,
       type: 'article',
       breadcrumbs: [
