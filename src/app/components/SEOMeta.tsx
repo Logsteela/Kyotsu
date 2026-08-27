@@ -103,9 +103,13 @@ export function SEOMeta({
       <meta name="bingbot" content={robotsContent} />
       <meta name="referrer" content="strict-origin-when-cross-origin" />
 
-      <link rel="canonical" href={fullUrl} />
-      <link rel="alternate" hrefLang="ja-JP" href={fullUrl} />
-      <link rel="alternate" hrefLang="x-default" href={fullUrl} />
+      {!noIndex && (
+        <>
+          <link rel="canonical" href={fullUrl} />
+          <link rel="alternate" hrefLang="ja-JP" href={fullUrl} />
+          <link rel="alternate" hrefLang="x-default" href={fullUrl} />
+        </>
+      )}
 
       <meta property="og:type" content={type} />
       <meta property="og:title" content={title} />
