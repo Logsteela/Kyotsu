@@ -82,16 +82,16 @@ function buildUrls() {
   const urls = [];
 
   addUrl(urls, BASE_URL, 'weekly', 1.0);
-  addUrl(urls, `${BASE_URL}/overview`, 'weekly', 0.9);
-  addUrl(urls, `${BASE_URL}/archives`, 'monthly', 0.7);
+  addUrl(urls, `${BASE_URL}/overview/`, 'weekly', 0.9);
+  addUrl(urls, `${BASE_URL}/archives/`, 'monthly', 0.7);
 
   const years = sortYears(new Set(records.map((record) => record.year)));
   years.forEach((year) => {
-    addUrl(urls, `${BASE_URL}/year/${encodeURIComponent(year)}`, 'monthly', 0.8);
+    addUrl(urls, `${BASE_URL}/year/${encodeURIComponent(year)}/`, 'monthly', 0.8);
   });
 
   SUBJECT_SLUGS.forEach((subject) => {
-    addUrl(urls, `${BASE_URL}/subject/${subject}`, 'monthly', 0.8);
+    addUrl(urls, `${BASE_URL}/subject/${subject}/`, 'monthly', 0.8);
   });
 
   const questionPdfs = [...new Set(records.map((record) => record.questionPdf))].sort((a, b) =>
@@ -99,7 +99,7 @@ function buildUrls() {
   );
 
   questionPdfs.forEach((questionPdf) => {
-    addUrl(urls, `${BASE_URL}/test/${encodeURIComponent(questionPdf)}`, 'yearly', 0.6);
+    addUrl(urls, `${BASE_URL}/test/${encodeURIComponent(questionPdf)}/`, 'yearly', 0.6);
   });
 
   return urls;
