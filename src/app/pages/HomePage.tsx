@@ -19,7 +19,6 @@ export function HomePage() {
         keywords="共通テスト,過去問,センター試験,共通一次,一覧,特例追試験,追試験,再試験,大学入試,問題,解答,PDF,ダウンロード,ホーム"
       />
       <StructuredData type="WebSite" />
-      <StructuredData type="EducationalOccupationalProgram" />
 
       <div className="flex-1 bg-gray-100 px-4 sm:px-6 py-6 lg:py-8">
         <div className="w-full">
