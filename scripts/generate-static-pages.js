@@ -237,7 +237,7 @@ function buildOverviewStaticBody(records) {
   const uniqueRecords = Array.from(
     new Map(records.map((record) => [record.questionPdf, record])).values(),
   );
-  const years = sortYears(new Set(uniqueRecords.map((record) => record.year));
+  const years = sortYears(new Set(uniqueRecords.map((record) => record.year)));
   const summary = `共通テスト、センター試験、共通一次などの問題・解答を年度・教科・試験区分ごとに整理した総覧です。全${uniqueRecords.length}件の試験資料を収録しています。`;
 
   const sections = years.map((year) => {
