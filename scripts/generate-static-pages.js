@@ -286,7 +286,27 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
       '</tbody></table><p>*高校教員による「難易度の適正さ」の評価であり、4が難しいという意味ではありません。</p><h2>科目別に何が分かるか</h2>' +
       summarized.map(r => '<h3>' + escapeHtml(r.subject) + '</h3><p>' + escapeHtml(r.overview) +
         ' <a href="/test/' + encodeURIComponent(r.pdf) + '">詳細の分析を見る</a></p>').join('');
-    content += '<h2>外国語4科目の出題と評価</h2><p>得点率の大問別原数値を未照合のため、以下は教師評価に基づく質的な分析です。</p>' +
+    const availableComparisons = Object.entries(priorResearch).flatMap(([subject, prior]) => {
+      const recent = questionResearch[subject];
+      const exam = records.find(r=>r.year === '2026' && r.examType === 'main' && r.subject === subject);
+      if (!recent || !exam) return [];
+      const pairs = prior.groups.flatMap(old => {
+        const now = recent.parts.find(p => p.number === old.number && p.points === old.points);
+        return now ? [{ number: old.number, delta: now.scoreRate - old.previousRate,
+          contribution: old.points * (now.scoreRate - old.previousRate) / 100 }] : [];
+      });
+      if (pairs.length !== prior.groups.length) return [];
+      const max = pairs.reduce((a,b)=>Math.abs(a.delta)>=Math.abs(b.delta)?a:b);
+      return [{ subject, exam, prior, pairs, max }];
+    });
+    content += '<h2>2025年度と大問別得点率を比較できる科目</h2><p>大問番号・配点が対応する11科目の比較。選択式の数学Ⅱ・B・Cは平均点への寄与を算出できません。</p>' +
+      '<table><thead><tr><th>科目</th><th>比較大問数</th><th>前年差が最大の大問</th><th>得点率差</th><th>平均点への寄与</th></tr></thead><tbody>' +
+      availableComparisons.map(r => '<tr><td><a href="/test/' + encodeURIComponent(r.exam.questionPdf) + '">' +
+        escapeHtml(r.subject) + '</a></td><td>' + r.pairs.length + '</td><td>第' + r.max.number + '問</td><td>' +
+        (r.max.delta>=0?'+':'') + r.max.delta.toFixed(2) + 'pt</td><td>' +
+        (r.prior.nonAdditive ? '—（選択）' : (r.max.contribution>=0?'+':'') + r.max.contribution.toFixed(2) + '点') +
+        '</td></tr>').join('') + '</tbody></table>';
+        content += '<h2>外国語4科目の出題と評価</h2><p>得点率の大問別原数値を未照合のため、以下は教師評価に基づく質的な分析です。</p>' +
       Object.entries(foreignResearch).map(([subject, review]) => {
         const exam = records.find(r => r.year === '2026' && r.examType === 'main' && r.subject === subject);
         return exam ? '<h3><a href="/test/' + encodeURIComponent(exam.questionPdf) + '">' + escapeHtml(subject) +

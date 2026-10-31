@@ -4,6 +4,7 @@ import { SEOMeta } from '@/app/components/SEOMeta';
 import { getEnhancedDatabase } from '@/app/data/testDatabase';
 import { getTestDetails } from '@/app/data/testDetailsDatabase';
 import { COMMON_TEST_2026_RESEARCH } from '@/app/data/commonTest2026Research';
+import { COMMON_TEST_GROUP_COMPARISONS } from '@/app/data/commonTest2025GroupComparison';
 import { COMMON_TEST_2026_FOREIGN_LANGUAGES } from '@/app/data/commonTest2026ForeignLanguages';
 import { getDifficultyAppropriateness } from '@/app/data/commonTest2026Evaluations';
 import { SortHeader } from '@/app/components/SortHeader';
@@ -36,6 +37,21 @@ export function CommonTest2026AnalysisPage() {
     }
     return list;
   }, []);
+  const groupChanges = Object.entries(COMMON_TEST_GROUP_COMPARISONS).map(([subject, prior]) => {
+    const recent = COMMON_TEST_2026_RESEARCH[subject];
+    if (!recent) return null;
+    const pairs = prior.groups.flatMap(old => {
+      const now = recent.parts.find(p => p.number === old.number && p.points === old.points);
+      if (!now) return [];
+      const delta = now.scoreRate - old.previousRate;
+      return [{ number: old.number, points: old.points, delta, contribution: old.points * delta / 100 }];
+    });
+    if (pairs.length !== prior.groups.length) return null;
+    const largest = pairs.reduce((a,b)=>Math.abs(a.delta) >= Math.abs(b.delta) ? a : b);
+    const nowRec = getEnhancedDatabase().find(r=>r.year===2026 && r.testType==='main' && r.subject===subject);
+    if (!nowRec) return null;
+    return { subject, largest, paired: pairs.length, nonAdditive:Boolean(prior.nonAdditive), url:`/test/${encodeURIComponent(nowRec.questionPdf)}` };
+  }).filter((x): x is NonNullable<typeof x> => x !== null);
   const [name, setName] = useState('');
   const selection = all.filter(v => v.subject.includes(name));
   const { sorted, sortKey, direction, sortBy } = useSortedRows(selection, 'subject', 'asc');
@@ -88,6 +104,21 @@ export function CommonTest2026AnalysisPage() {
             </div>;
           })}
         </div>
+        <h2 className="text-lg font-semibold mt-7 mb-2">2025年度と大問別で比較できる科目</h2>
+        <p className="text-sm mb-3">11科目について、両年度の大問番号・配点が一致する部分の得点率を照合しました。「最大変化」は絶対値が最も大きい大問の得点率差です。大問の内容は年度ごとに異なり、同じ問題の成績比較ではありません。</p>
+        <div className="overflow-x-auto mb-6">
+          <table className="w-full text-sm text-left">
+            <thead><tr className="bg-gray-50 border-b"><th className="p-3">科目</th><th className="p-3">比較大問数</th><th className="p-3">変化最大の大問</th><th className="p-3">前年差</th><th className="p-3">平均点への寄与</th></tr></thead>
+            <tbody>{groupChanges.map(entry=><tr key={entry.subject} className="border-b">
+              <th className="p-3"><Link className="underline text-[var(--color-brand-green)]" to={entry.url}>{entry.subject}</Link></th>
+              <td className="p-3">{entry.paired}</td>
+              <td className="p-3">第{entry.largest.number}問</td>
+              <td className="p-3 tabular-nums">{entry.largest.delta > 0 ? '+' : ''}{entry.largest.delta.toFixed(2)}pt</td>
+              <td className="p-3 tabular-nums">{entry.nonAdditive ? '—（選択式）' : `${entry.largest.contribution > 0 ? '+' : ''}${entry.largest.contribution.toFixed(2)}点`}</td>
+            </tr>)}</tbody>
+          </table>
+        </div>
+        <p className="text-xs text-gray-600 mb-6">数学Ⅱ・B・Cは選択大問を含むため、得点率差を平均点差に換算していません。その他も受験者集団や課程の違いを考慮する必要があります。</p>
         <h2 className="text-lg font-semibold mt-7 mb-2">全科目の大問の差を横断して読む</h2>
         <p className="text-sm mb-3">
           例えば英語リーディングでは第4問の79.92%と第7問の48.25%で31.67ポイント差、
