@@ -189,7 +189,7 @@ function loadDetails() {
 }
 
 function staticNavigation() {
-  return '<nav aria-label="サイト案内"><a href="/">ホーム</a> ｜ <a href="/overview">全試験一覧</a> ｜ <a href="/statistics">平均点の推移</a> ｜ <a href="/year-statistics">年度別統計</a> ｜ <a href="/coverage">収録状況</a> ｜ <a href="/guide">資料の使い方</a> ｜ <a href="/about">サイトについて</a> ｜ <a href="/privacy">プライバシーポリシー</a></nav>';
+  return '<nav aria-label="サイト案内"><a href="/">ホーム</a> ｜ <a href="/overview">全試験一覧</a> ｜ <a href="/statistics">平均点の推移</a> ｜ <a href="/year-statistics">年度別統計</a> ｜ <a href="/coverage">収録状況</a> ｜ <a href="/sources">資料の出典</a> ｜ <a href="/guide">資料の使い方</a> ｜ <a href="/about">サイトについて</a> ｜ <a href="/privacy">プライバシーポリシー</a></nav>';
 }
 
 function buildStaticBody(page, records, details, subjectCategories, archives) {
@@ -213,6 +213,18 @@ function buildStaticBody(page, records, details, subjectCategories, archives) {
       return '<tr><td><a href="/year/' + encodeURIComponent(year) + '">' + escapeHtml(year) + '</a></td><td>' + entries.length + '</td><td>' + stats + '</td><td>' + documented + '</td></tr>';
     }).join('');
     content = '<h2>年度・資料群ごとの記録</h2><p>登録済みの試験データを自動集計しています。数値は試験レコード数であり、PDFファイル数や現物の閲覧可否を保証するものではありません。</p><table><thead><tr><th>年度・資料群</th><th>登録</th><th>平均点・満点あり</th><th>出典記録あり</th></tr></thead><tbody>' + tableRows + '</tbody></table>';
+  } else if (page.path === '/sources') {
+    const sourceCounts = new Map();
+    for (const r of records) {
+      const note = details.get(r.questionPdf)?.specialNotes ?? '';
+      for (const match of note.matchAll(/(問題|解答|音源)：([^　\\n]+)/g)) {
+        const key = match[1] + '：' + match[2].trim();
+        sourceCounts.set(key, (sourceCounts.get(key) ?? 0) + 1);
+      }
+    }
+    const sorted = [...sourceCounts.entries()].sort((a, b) => b[1] - a[1]);
+    content = '<h2>問題・解答・音源の出典</h2><p>サイトの試験詳細にある出典の記載を集計しました。出典の記載は資料の転載・再利用許諾を意味しません。記載がない資料について提供元を推定していません。</p><table><thead><tr><th>出典記録</th><th>登録件数</th></tr></thead><tbody>' +
+      sorted.map(([source, count]) => '<tr><td>' + escapeHtml(source) + '</td><td>' + count + '</td></tr>').join('') + '</tbody></table>';
   } else if (page.path === '/archives') {
     content = '<h2>入試の記録比較</h2><p>収録された統計をもとに、平均得点率や各種得点記録の順位を整理した一覧です。年度や受験者集団による違いを考慮し、順位だけで難易度を判断しないでください。</p>' +
       archives.map(t => '<section><h3>' + escapeHtml(t.title) + '</h3><ol>' +
@@ -377,6 +389,7 @@ function buildPages(records) {
     ['/privacy', 'プライバシーポリシー｜共通テスト過去問総集', '広告とCookie等の利用について説明します。'],
     ['/statistics', '科目別平均点の年度推移｜共通テスト過去問総集', '本試験の科目別平均点と満点、平均得点率を比較します。'],
     ['/coverage', '収録状況・資料の確認状況｜共通テスト過去問総集', '登録資料数・平均点と出典の記載状況を年度ごとに照合します。'],
+    ['/sources', '収録資料の出典一覧・来歴｜共通テスト過去問総集', '問題・解答・音源の記載上の出典を集計しています。'],
     ['/year-statistics', '年度別・教科別の平均得点率比較｜共通テスト過去問総集', '年度別に平均得点率や前年との差を比較します。'],
   ]) add({ path, title, description });
   add({
