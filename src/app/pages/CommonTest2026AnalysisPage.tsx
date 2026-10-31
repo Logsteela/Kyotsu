@@ -38,11 +38,11 @@ export function CommonTest2026AnalysisPage() {
   const { sorted, sortKey, direction, sortBy } = useSortedRows(selection, 'subject', 'asc');
   return <>
     <SEOMeta path="/common-test-2026-analysis" title="2026年度共通テスト本試験・大問別正答率と出題分析"
-      description="2026年度共通テスト本試験の18科目を横断比較。大問別得点率・正答率と問題評価の独自分析から個別試験ページへ移動。" />
+      description="2026年度共通テスト本試験の23科目を横断比較。大問別得点率・正答率と問題評価の独自分析から個別試験ページへ移動。" />
     <main className="flex-1 bg-gray-100 px-4 sm:px-6 py-6 lg:py-8">
       <article className="bg-white rounded-lg border border-[var(--color-table-border)] p-6 lg:p-8 max-w-6xl text-gray-800 leading-relaxed">
         <h1 className="text-2xl font-bold mb-4">2026年度共通テスト本試験・大問別の成績と分析</h1>
-        <p className="mb-3">18科目について、大学入試センターの設問別得点率・正答率表に基づく大問別の集計値を比較します。各科目名を開くと、出題内容と問題評価報告書を照らし合わせた分析、大問別の数値表、得点分布の分析（資料のある科目）を読むことができます。</p>
+        <p className="mb-3">23科目について、大学入試センターの設問別得点率・正答率表に基づく大問別の集計値を比較します。各科目名を開くと、出題内容と問題評価報告書を照らし合わせた分析、大問別の数値表、得点分布の分析（資料のある科目）を読むことができます。</p>
         <p className="mb-5 text-sm">大問間の差は同じ科目の得点率が高い大問と低い大問の差です。大問の配点が異なる科目同士の難易度順位を示すものではありません。小問の正答率や考察は各詳細ページにまとめています。</p>
         <label htmlFor="analysis-search" className="block font-semibold mb-1">科目を絞り込み</label>
         <input id="analysis-search" value={name} onChange={e=>setName(e.target.value)}
