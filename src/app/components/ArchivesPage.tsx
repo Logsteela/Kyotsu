@@ -37,7 +37,7 @@ function RankingTable({ title, data }: RankingTableProps) {
     else if (sortKey === 'item1') diff = a.item1.localeCompare(b.item1, 'ja', { numeric: true });
     else {
       const read = (value: string) => {
-        const m = value.match(/[-+]?\\d+(?:\\.\\d+)?/);
+        const m = value.match(/[-+]?\d+(?:\.\d+)?/);
         return m ? Number(m[0]) : null;
       };
       const va = read(a.item2), vb = read(b.item2);
