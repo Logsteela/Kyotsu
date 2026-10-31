@@ -45,9 +45,6 @@ export function OverviewPage() {
         type="WebSite"
       />
       <StructuredData
-        type="EducationalOccupationalProgram"
-      />
-      <StructuredData
         type="ItemList"
         itemListName="総覧"
         items={itemListItems}
