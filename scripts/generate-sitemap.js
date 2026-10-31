@@ -112,9 +112,6 @@ function generateSitemapXML(urls) {
   const urlElements = urls
     .map((url) => `  <url>
     <loc>${escapeXml(url.loc)}</loc>
-    <lastmod>${escapeXml(url.lastmod)}</lastmod>
-    <changefreq>${escapeXml(url.changefreq)}</changefreq>
-    <priority>${url.priority}</priority>
   </url>`)
     .join('\n');
 
