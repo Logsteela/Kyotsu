@@ -85,7 +85,6 @@ export function SubjectPage() {
         description={description}
         path={pagePath}
         keywords={keywords}
-        type="article"
       />
       <StructuredData
         type="WebPage"
