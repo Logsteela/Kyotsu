@@ -211,8 +211,9 @@ export function TestDetailPage() {
     const sameType = relatedCandidates.filter(r => typeof r.year === 'number' && r.testType === testRecord.testType);
     const older = sameType.filter(r => (r.year as number) < activeYear).sort((a,b) => (b.year as number) - (a.year as number))[0];
     const newer = sameType.filter(r => (r.year as number) > activeYear).sort((a,b) => (a.year as number) - (b.year as number))[0];
-    if (older) related.push({ name: `以前の同科目（${older.year}年度）`, url: `/test/${encodeURIComponent(older.questionPdf)}` });
+    // 左から新しい年度、古い年度の順で表示する。
     if (newer) related.push({ name: `次の同科目（${newer.year}年度）`, url: `/test/${encodeURIComponent(newer.questionPdf)}` });
+    if (older) related.push({ name: `以前の同科目（${older.year}年度）`, url: `/test/${encodeURIComponent(older.questionPdf)}` });
   }
   const paired = relatedCandidates.find(r => r.year === testRecord.year && r.testType !== testRecord.testType);
   if (paired) related.push({ name: `同年度の${paired.testType === 'main' ? '本試験' : '追試験'}`, url: `/test/${encodeURIComponent(paired.questionPdf)}` });
