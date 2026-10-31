@@ -46,7 +46,7 @@ for (const [subject, entry] of Object.entries(research)) {
     seen.add(part.number);
     if (!(part.points > 0) || !Number.isFinite(part.points) ||
         !(part.scoreRate >= 0 && part.scoreRate <= 100) || !Number.isFinite(part.scoreRate) ||
-        !(part.correctRate >= 0 && part.correctRate <= 100) || !Number.isFinite(part.correctRate) ||
+        (part.correctRate !== null && (!(part.correctRate >= 0 && part.correctRate <= 100) || !Number.isFinite(part.correctRate))) ||
         !part.topic?.trim()) problems.push(subject + ': invalid group ' + part.number);
     weighted += part.points * part.scoreRate / 100;
     assigned += part.points;
