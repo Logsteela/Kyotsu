@@ -17,6 +17,18 @@ export function GuidePage() {
           <p className="mb-5"><Link className="underline text-[var(--color-brand-green)]" to="/statistics">科目別平均点の年度推移</Link>では、試験情報として保有する平均点と満点を照合できます。得点率を示していても、受験者の学力や問題難易度の変化を直接示すものではありません。</p>
           <h2 className="text-xl font-semibold mb-2">出典と資料の扱い</h2>
           <p className="mb-5">各試験の詳細ページに記載された特記事項には、資料の提供元などが含まれる場合があります。欠損や誤記は修正対象です。問題文・解答・音声などの権利は、それぞれの権利者に帰属します。利用時は原資料や公表元も確認してください。</p>
+
+          <h2 className="text-xl font-semibold mb-2">目的別の探し方</h2>
+          <div className="space-y-3 mb-5">
+            <p><strong>一つの年度をまとめて演習する場合：</strong><Link className="underline text-[var(--color-brand-green)]" to="/year/2026">2026年度の一覧</Link>など年度ページから、本試験・追試験の資料を探せます。科目によっては問題・解答・音声のそれぞれが別ファイルです。</p>
+            <p><strong>同じ科目を複数年分比較したい場合：</strong><Link className="underline text-[var(--color-brand-green)]" to="/subject/eigo-listening">英語リスニングの一覧</Link>のように教科別で表示すると、年度をまたいで確認できます。</p>
+            <p><strong>統計を比較したい場合：</strong><Link className="underline text-[var(--color-brand-green)]" to="/statistics">科目別の年度推移</Link>と<Link className="underline text-[var(--color-brand-green)]" to="/year-statistics">同年度の科目比較</Link>を使い分けてください。平均得点率は得点の比率であって、難易度の直接的な指標ではありません。</p>
+            <p><strong>資料そのものが揃っているか確認したい場合：</strong><Link className="underline text-[var(--color-brand-green)]" to="/coverage">収録状況</Link>で、年度ごとのレコード数、統計・出典の登録状況を確認できます。</p>
+          </div>
+          <h2 className="text-xl font-semibold mb-2">よくある疑問</h2>
+          <p className="mb-3"><strong>追試験の平均点が「—」なのはなぜ？</strong> 公開された記録が見当たらないなど、データが未登録の場合があります。「—」は0点ではありません。</p>
+          <p className="mb-3"><strong>試行・試作問題は実際の本試験と同じ？</strong> いいえ。制度設計中の試験やサンプル問題は、実施条件や対象者が異なる場合があり、年度ページでも別資料群として扱います。</p>
+          <p className="mb-5"><strong>資料が開けない場合は？</strong> ファイル名やリンク、掲載情報に誤りがある可能性があります。閲覧先にアクセスできるか確認し、必要ならページ名・年度・科目を添えてサイト右下のヘルプから報告してください。</p>
           <p><Link className="underline text-[var(--color-brand-green)]" to="/about">収録方針とサイト情報を見る</Link></p>
         </article>
       </div>
