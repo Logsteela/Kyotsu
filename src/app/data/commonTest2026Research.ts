@@ -2,7 +2,7 @@
 // 元データの所在地・定義・検証上の注意は /sources に集約する。
 // 数値は大問単位の得点率・正答率（%）。正答率は解答番号ごとの完全正答率の平均。
 // 英語・数学等の選択問題や部分点によって値の意味が異なるため、平均点と取り違えない。
-export type MainQuestionGroup = { number: number; points: number; scoreRate: number; correctRate: number; topic: string };
+export type MainQuestionGroup = { number: number; points: number; scoreRate: number; correctRate: number | null; topic: string };
 export type MainExamResearch = {
   parts: MainQuestionGroup[];
   observation: string;
@@ -757,5 +757,173 @@ export const COMMON_TEST_2026_RESEARCH: Record<string, MainExamResearch> = {
     "observation": "第1問73.53%、第2問72.99%と比較して、第5問53.36%、第6問55.84%は17～20ポイント低い。公共との共通問題2問より、地方財政や国際課題の具体的な資料分析で差が出た。",
     "review": "第5問では自治体合併、水道事業、宿泊税など人口減少下の公共サービスを扱い、第6問では開発と環境の両立を含む国際問題を扱った。制度名を覚えているだけではなく、複数の政策指標を踏まえて判断する形式が中心。",
     "detail": "第6問は問4を除く複数の設問が高校教員の評価でやや難しいとされている。ただし大問得点率が最低なのは第5問であり、報告書の評価と実測の得点率は同一の指標ではない。"
+  },
+  "数学Ⅰ": {
+    "parts": [
+      {
+        "number": 1,
+        "points": 20,
+        "scoreRate": 41.03,
+        "correctRate": null,
+        "topic": "集合・論証・数と式"
+      },
+      {
+        "number": 2,
+        "points": 30,
+        "scoreRate": 28.85,
+        "correctRate": null,
+        "topic": "図形と計量"
+      },
+      {
+        "number": 3,
+        "points": 30,
+        "scoreRate": 20.74,
+        "correctRate": null,
+        "topic": "2次関数"
+      },
+      {
+        "number": 4,
+        "points": 20,
+        "scoreRate": 27.24,
+        "correctRate": null,
+        "topic": "データの分析"
+      }
+    ],
+    "observation": "第3問の得点率20.74%が最も低く、第1問41.03%のほぼ半分だった。4大問が全て必答で、数学Ⅰ・Aと混同しないことが重要。",
+    "review": "2026年度は2025年度と同じ配点（20・30・30・20）。第3問は2次関数などの数学Ⅰの内容に関する問題で、4大問のなかで平均点が最も低かった。前年の第3問も15.82%と低く、低得点率が2年連続している。",
+    "detail": "第3問の得点率は2025年度15.82%から2026年度20.74%へ4.92ポイント上昇した。一方、第1問は57.89%から41.03%へ16.86ポイント低下。科目平均点は28.08点→28.53点とほぼ横ばいでも、大問ごとの動きは異なる。"
+  },
+  "地学": {
+    "parts": [
+      {
+        "number": 1,
+        "points": 18,
+        "scoreRate": 43.43,
+        "correctRate": null,
+        "topic": "地球の変遷・重力・年代測定"
+      },
+      {
+        "number": 2,
+        "points": 15,
+        "scoreRate": 48.53,
+        "correctRate": null,
+        "topic": "地球の形状・地震・プレート"
+      },
+      {
+        "number": 3,
+        "points": 28,
+        "scoreRate": 40.07,
+        "correctRate": null,
+        "topic": "地球資源・火山・地質構造"
+      },
+      {
+        "number": 4,
+        "points": 21,
+        "scoreRate": 44.21,
+        "correctRate": null,
+        "topic": "気象・海洋・前線"
+      },
+      {
+        "number": 5,
+        "points": 18,
+        "scoreRate": 48.26,
+        "correctRate": null,
+        "topic": "銀河・恒星・HR図"
+      }
+    ],
+    "observation": "全5大問の得点率が40～49%に集中する一方、配点28点の第3問が40.07%と最低。配点の大きな大問の成績が試験平均に与える影響が大きい。",
+    "review": "第1問は化石・年代測定や地球の内部構造、第2問は地震・津波、第3問は地質図と岩石、第4問は気象と海洋、第5問は宇宙・恒星の物理的性質を扱う。1分野に集中することなく、地学の広い領域を跨ぐ構成だった。",
+    "detail": "第2問の解答番号7は77.86%だが、同じ大問の番号9は14.81%。第3問の番号10は18.81%、第4問の番号20は22.14%。大問平均が4割台でも、同一大問内の設問間で大きな差がある。"
+  },
+  "地理総合": {
+    "parts": [
+      {
+        "number": 1,
+        "points": 13,
+        "scoreRate": 49.24,
+        "correctRate": null,
+        "topic": "地理的視点・地域の多様性"
+      },
+      {
+        "number": 2,
+        "points": 12,
+        "scoreRate": 50.44,
+        "correctRate": null,
+        "topic": "地球環境・資料の読み取り"
+      },
+      {
+        "number": 3,
+        "points": 13,
+        "scoreRate": 44.56,
+        "correctRate": null,
+        "topic": "地域の人口・産業資料"
+      },
+      {
+        "number": 4,
+        "points": 12,
+        "scoreRate": 50.16,
+        "correctRate": null,
+        "topic": "持続可能な地域社会"
+      }
+    ],
+    "observation": "4大問の得点率は44.56～50.44%で差は5.88ポイント。2026年度の地理総合・歴史総合・公共の3領域では、地理総合の50点換算平均は24.27点。",
+    "review": "この地理総合は、地理総合／歴史総合／公共という1つの試験冊子に含まれる50点の範囲である。3領域から2つを選択する形式なので、個々の領域の平均点を100点満点の総科目平均と混同しない。",
+    "detail": "第3問44.56%が4大問中で最も低い。第1問49.24%、第2問50.44%、第4問50.16%は約5割で近い。"
+  },
+  "歴史総合": {
+    "parts": [
+      {
+        "number": 1,
+        "points": 25,
+        "scoreRate": 53.45,
+        "correctRate": null,
+        "topic": "歴史総合の大問1"
+      },
+      {
+        "number": 2,
+        "points": 25,
+        "scoreRate": 46.49,
+        "correctRate": null,
+        "topic": "歴史総合の大問2"
+      }
+    ],
+    "observation": "第1問53.45%、第2問46.49%で差は6.96ポイント。両者が25点ずつの50点分野で、平均点は24.98点だった。",
+    "review": "単独100点科目ではなく、地理総合／歴史総合／公共の試験冊子内の選択可能な50点領域。大問1の内部でも解答番号ごとに正答率の開きが大きく、領域全体の平均だけでは特徴を把握しづらい。",
+    "detail": "第1問内の解答番号103の得点率は15.79%、番号108は71.19%。同じ25点の大問でも個別設問には大幅な差が見られた。"
+  },
+  "公共": {
+    "parts": [
+      {
+        "number": 1,
+        "points": 12,
+        "scoreRate": 58.65,
+        "correctRate": null,
+        "topic": "社会保障・社会生活"
+      },
+      {
+        "number": 2,
+        "points": 13,
+        "scoreRate": 70.89,
+        "correctRate": null,
+        "topic": "多様性・文化・宗教"
+      },
+      {
+        "number": 3,
+        "points": 12,
+        "scoreRate": 53.93,
+        "correctRate": null,
+        "topic": "現代社会の課題"
+      },
+      {
+        "number": 4,
+        "points": 13,
+        "scoreRate": 50.31,
+        "correctRate": null,
+        "topic": "社会の制度と判断"
+      }
+    ],
+    "observation": "第2問70.89%と第4問50.31%の差は20.58ポイント。3領域の中では公共の平均が29.27/50点で最も高かった。",
+    "review": "地理総合／歴史総合／公共の試験冊子の中で選択する50点の公共の領域。別科目の『公共，倫理』『公共，政治・経済』の冒頭大問との関係があり、得点率を比べる場合は受験者集団の違いにも注意が必要。",
+    "detail": "第4問の解答番号113は得点率19.37%、第2問の番号112は86.11%。同じ50点領域の中でも設問単位のばらつきは非常に大きい。"
   }
 };
