@@ -244,7 +244,7 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
       const documented = entries.filter(r => /(?:問題|解答|音源)：/.test(details.get(r.questionPdf)?.specialNotes ?? '')).length;
       return '<tr><td><a href="/year/' + encodeURIComponent(year) + '">' + escapeHtml(year) + '</a></td><td>' + entries.length + '</td><td>' + stats + '</td><td>' + documented + '</td></tr>';
     }).join('');
-    content = '<h2>年度・資料群ごとの記録</h2><p>登録済みの試験データを自動集計しています。数値は試験レコード数であり、PDFファイル数や現物の閲覧可否を保証するものではありません。</p><table><thead><tr><th>年度・資料群</th><th>登録</th><th>平均点・満点あり</th><th>出典記録あり</th></tr></thead><tbody>' + tableRows + '</tbody></table>';
+    content = '<h2>年度・資料群ごとの記録</h2><p>登録済みの試験データを自動集計しています。数値は試験レコード数であり、PDFファイル数や現物の閲覧可否を保証するものではありません。</p><table><thead><tr><th>年度・資料群</th><th>登録</th><th>平均点・満点あり</th><th>出典記録あり</th></tr></thead><tbody>' + tableRows + '</tbody></table>' + (priorYear.nonAdditive ? '<p>選択大問を含むため全大問の得点を合計しても科目平均になりません。</p>' : '');
   } else if (page.path === '/sources') {
     const sourceCounts = new Map();
     for (const r of records) {
@@ -407,8 +407,8 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
                 paired.map(x => {
                   const diff=x.after.scoreRate-x.before.previousRate;
                   return '<tr><td>第'+x.before.number+'問</td><td>'+x.before.previousRate.toFixed(2)+'%</td><td>'+x.after.scoreRate.toFixed(2)+'%</td><td>'+
-                    (diff>=0?'+':'')+diff.toFixed(2)+'pt</td><td>'+(diff>=0?'+':'')+(diff*x.after.points/100).toFixed(2)+'点</td></tr>';
-                }).join('') + '</tbody></table><p>' + escapeHtml(comparison.comment) + '</p>';
+                    (diff>=0?'+':'')+diff.toFixed(2)+'pt</td><td>'+(comparison.nonAdditive?'—（選択）':(diff>=0?'+':'')+(diff*x.after.points/100).toFixed(2)+'点')+'</td></tr>';
+                }).join('') + '</tbody></table>' + (comparison.nonAdditive?'<p>第4～7問は4問から3問を選択する方式であり、単純な合計・科目平均点への換算はできません。</p>':'') + '<p>' + escapeHtml(comparison.comment) + '</p>';
             }
           }
           if (r.subject === '数学Ⅱ，数学Ｂ，数学Ｃ') content += '<p>数学Ⅱ・B・Cは必答52点と16点ずつ4問から3問選択で100点満点。表中の全7大問を足すと116点になるため、単純な加算はできません。</p>';

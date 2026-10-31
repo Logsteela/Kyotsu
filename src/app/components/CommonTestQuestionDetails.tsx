@@ -118,6 +118,7 @@ function ExamQuestionTable({parts}:{parts:Part[]}) {
 type ChangeRow = { number:number; topic:string; points:number; previousRate:number; currentRate:number; delta:number; averageContribution:number };
 function PriorYearGroupComparison({ subject, parts }: { subject: string; parts: Part[] }) {
   const baseline = COMMON_TEST_GROUP_COMPARISONS[subject];
+  const optional = Boolean(baseline?.nonAdditive);
   const rows: ChangeRow[] = baseline ? baseline.groups.flatMap(g => {
     const now = parts.find(p => p.number === g.number && p.points === g.points);
     if (!now) return [];
@@ -131,7 +132,9 @@ function PriorYearGroupComparison({ subject, parts }: { subject: string; parts: 
     <h3 className="text-base font-semibold mb-2">2025年度との大問別得点率比較</h3>
     <p className="text-sm mb-3 leading-relaxed">
       両年度で大問番号・配点が対応する科目について、2025年度と2026年度の得点率を比べました。
-      「科目平均点への寄与」は大問の配点×得点率の差から計算した値です。同じ番号でも問題の内容は違います。
+      同じ番号でも問題の内容は違います。{optional
+        ? 'この科目は4つの選択大問から3つを選ぶため、平均点への寄与を一律に算出できません。'
+        : '「科目平均点への寄与」は大問の配点×得点率の差から計算した値です。'}
     </p>
     <div className="overflow-x-auto mb-3"><table className="w-full text-sm text-left">
       <thead><tr className="bg-gray-50 border-b">
@@ -139,13 +142,14 @@ function PriorYearGroupComparison({ subject, parts }: { subject: string; parts: 
         <SortHeader label="2025年" column="previousRate" {...{sortKey,direction}} onSort={sortBy} />
         <SortHeader label="2026年" column="currentRate" {...{sortKey,direction}} onSort={sortBy} />
         <SortHeader label="変化" column="delta" {...{sortKey,direction}} onSort={sortBy} />
-        <SortHeader label="平均点への寄与" column="averageContribution" {...{sortKey,direction}} onSort={sortBy} />
+        {optional ? <th className="p-3">科目平均点への寄与</th>
+          : <SortHeader label="平均点への寄与" column="averageContribution" {...{sortKey,direction}} onSort={sortBy} />}
       </tr></thead><tbody>{sorted.map(p => <tr key={p.number} className="border-b">
         <th className="p-3 font-medium">第{p.number}問</th>
         <td className="p-3 tabular-nums">{p.previousRate.toFixed(2)}%</td>
         <td className="p-3 tabular-nums">{p.currentRate.toFixed(2)}%</td>
         <td className="p-3 tabular-nums">{p.delta > 0 ? '+' : ''}{p.delta.toFixed(2)}pt</td>
-        <td className="p-3 tabular-nums">{p.averageContribution > 0 ? '+' : ''}{p.averageContribution.toFixed(2)}点</td>
+        <td className="p-3 tabular-nums">{optional ? '—（選択）' : `${p.averageContribution > 0 ? '+' : ''}${p.averageContribution.toFixed(2)}点`}</td>
       </tr>)}</tbody>
     </table></div>
     <p className="text-sm leading-relaxed">{baseline.comment}</p>

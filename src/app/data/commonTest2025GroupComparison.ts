@@ -2,7 +2,7 @@
 // 2025年度の得点率は大学入試センターの本試験データを用いた再集計値。
 // 出典・定義は /sources に集約。
 export type PriorGroupRate = { number: number; points: number; previousRate: number; topic: string };
-export type GroupComparison = { previousYear: number; groups: PriorGroupRate[]; comment: string };
+export type GroupComparison = { previousYear: number; groups: PriorGroupRate[]; comment: string; nonAdditive?: boolean };
 export const COMMON_TEST_GROUP_COMPARISONS: Record<string, GroupComparison> = {
   "国語": {
     "previousYear": 2025,
@@ -99,5 +99,54 @@ export const COMMON_TEST_GROUP_COMPARISONS: Record<string, GroupComparison> = {
       }
     ],
     "comment": "第1問の得点率は16.86ポイント低下しましたが、第2問が5.93ポイント、第3問が4.92ポイント、第4問が2.82ポイント上昇しました。こうした大問別の上下がほぼ相殺され、科目平均点は2025年度28.08点から2026年度28.53点へ0.45点の上昇にとどまりました。"
+  },
+  "数学Ⅱ，数学Ｂ，数学Ｃ": {
+    "previousYear": 2025,
+    "nonAdditive": true,
+    "groups": [
+      {
+        "number": 1,
+        "points": 15,
+        "previousRate": 50.83,
+        "topic": "三角関数"
+      },
+      {
+        "number": 2,
+        "points": 15,
+        "previousRate": 53.42,
+        "topic": "指数関数・対数関数"
+      },
+      {
+        "number": 3,
+        "points": 22,
+        "previousRate": 61.66,
+        "topic": "微分積分"
+      },
+      {
+        "number": 4,
+        "points": 16,
+        "previousRate": 46.86,
+        "topic": "数列（選択）"
+      },
+      {
+        "number": 5,
+        "points": 16,
+        "previousRate": 36.95,
+        "topic": "統計的な推測（選択）"
+      },
+      {
+        "number": 6,
+        "points": 16,
+        "previousRate": 49.14,
+        "topic": "ベクトル（選択）"
+      },
+      {
+        "number": 7,
+        "points": 16,
+        "previousRate": 54.09,
+        "topic": "複素数平面（選択）"
+      }
+    ],
+    "comment": "第5問（統計的な推測）の得点率は2025年度36.95%から2026年度44.80%へ7.85ポイント上昇。第4問（数列）は46.86%から50.56%、第6問（ベクトル）は49.14%から56.05%、第7問（複素数平面）は54.09%から56.96%となった。ただし第4～7問は4つから3つを選ぶ方式であり、選択した受験者の違いがある。各大問の差を単純合計して科目平均点の変化と見なしてはならない。"
   }
 };
