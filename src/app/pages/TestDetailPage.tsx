@@ -5,6 +5,7 @@ import { StructuredData } from '@/app/components/StructuredData';
 import { Breadcrumbs } from '@/app/components/Breadcrumbs';
 import { CommonTestMainInsights } from '@/app/components/CommonTestMainInsights';
 import { ExamScoreCalculator } from '@/app/components/ExamScoreCalculator';
+import { HistoricalExamContext } from '@/app/components/HistoricalExamContext';
 import { getEnhancedDatabase, SLUG_TO_CATEGORY } from '@/app/data/testDatabase';
 import { getTestDetails } from '@/app/data/testDetailsDatabase';
 import { getEraDisplay } from '@/app/utils/era';
@@ -22,7 +23,7 @@ import {
   LucideIcon,
 } from 'lucide-react';
 
-const SITE_ORIGIN = 'https://kyotsutest.vercel.app';
+const SITE_ORIGIN = 'https://kyotsu.org';
 
 function isGustMode(): boolean {
   if (typeof window === 'undefined') return false;
@@ -544,6 +545,13 @@ export function TestDetailPage() {
             year={testRecord.year}
             subject={testRecord.subject}
             examType={testRecord.testType}
+            questionPdf={testRecord.questionPdf}
+          />
+
+          <HistoricalExamContext
+            year={testRecord.year}
+            subject={testRecord.subject}
+            testType={testRecord.testType}
             questionPdf={testRecord.questionPdf}
           />
 

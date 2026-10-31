@@ -364,6 +364,38 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
       if (d?.examinees != null) list.push(['受験者数', d.examinees + '人']);
       content = '<h2>試験情報</h2><dl>' + list.map(([k,v]) => '<dt>' + escapeHtml(k) + '</dt><dd>' + escapeHtml(v) + '</dd>').join('') + '</dl>';
       if (d?.specialNotes) content += '<h2>資料の注記・出典</h2><p>' + escapeHtml(d.specialNotes) + '</p>';
+      const archiveYear = Number(r.year);
+      if (/^[0-9]{4}$/.test(r.year) && archiveYear < 2021 && r.examType === 'main') {
+        const regime = n => n < 1979 ? '試行・実地研究' : n < 1990 ? '共通第一次学力試験' : 'センター試験';
+        const max = d?.totalScore;
+        const byYear = new Map();
+        for (const entry of records) {
+          const candidateYear = Number(entry.year);
+          if (!/^[0-9]{4}$/.test(entry.year) || candidateYear >= 2021 ||
+              regime(candidateYear) !== regime(archiveYear) || entry.examType !== 'main' ||
+              entry.subject !== r.subject || (max > 0 && details.get(entry.questionPdf)?.totalScore !== max)) continue;
+          const detailsForYear = details.get(entry.questionPdf);
+          const item = { year:candidateYear, pdf:entry.questionPdf,
+            average:detailsForYear?.averageScore,
+            max:detailsForYear?.totalScore, examinees:detailsForYear?.examinees };
+          byYear.set(candidateYear,[...(byYear.get(candidateYear)??[]),item]);
+        }
+        const unique = [...byYear.values()].filter(items=>items.length===1).map(items=>items[0])
+          .sort((a,b)=>a.year-b.year);
+        const previous=unique.filter(x=>x.year<archiveYear).slice(-2);
+        const subsequent=unique.filter(x=>x.year>archiveYear).slice(0,2);
+        const own=unique.find(x=>x.pdf===pdf);
+        const neighbors=[...previous,...(own?[own]:[]),...subsequent];
+        if (neighbors.length>=2) {
+          content += '<h2>同じ科目・試験制度の前後年度比較</h2><p>この資料は' +
+            escapeHtml(regime(archiveYear)) + 'の' + archiveYear + '年度本試験。同じ科目名・同じ満点・同じ制度の前後年度を並べています。得点率だけで難易度を判断するものではありません。</p>' +
+            '<table><thead><tr><th>年度</th><th>平均点</th><th>平均得点率</th><th>受験者数</th></tr></thead><tbody>' +
+            neighbors.map(x => '<tr><td><a href="/test/' + encodeURIComponent(x.pdf) + '">' + x.year +
+              '年度</a></td><td>' + (x.average ?? '—') + '</td><td>' +
+              (x.average != null && x.max > 0 ? (x.average/x.max*100).toFixed(2)+'%' : '—') +
+              '</td><td>' + (x.examinees ?? '—') + '</td></tr>').join('') + '</tbody></table>';
+        }
+      }
       // The same fact-based comparison must also be available without executing React.
       const examYear = Number(r.year);
       if (/^[0-9]{4}$/.test(r.year) && examYear >= 2021 && examYear <= 2026 && r.examType === 'main') {
