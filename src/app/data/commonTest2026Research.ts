@@ -213,47 +213,47 @@ export const COMMON_TEST_2026_RESEARCH: Record<string, MainExamResearch> = {
         "points": 28,
         "scoreRate": 62.87,
         "correctRate": 64.87,
-        "topic": "第1問"
+        "topic": "短文発話の内容・イラスト照合"
       },
       {
         "number": 2,
         "points": 12,
         "scoreRate": 65.7,
         "correctRate": 65.7,
-        "topic": "第2問"
+        "topic": "短い対話とイラスト"
       },
       {
         "number": 3,
         "points": 18,
         "scoreRate": 54.55,
         "correctRate": 54.55,
-        "topic": "第3問"
+        "topic": "一度読みの対話・質問"
       },
       {
         "number": 4,
         "points": 12,
         "scoreRate": 57.07,
         "correctRate": 65.59,
-        "topic": "第4問"
+        "topic": "図表への記入と問いへの回答"
       },
       {
         "number": 5,
         "points": 16,
         "scoreRate": 35.46,
         "correctRate": 33.93,
-        "topic": "第5問"
+        "topic": "講義・討論とワークシート"
       },
       {
         "number": 6,
         "points": 14,
         "scoreRate": 48.74,
         "correctRate": 48.21,
-        "topic": "第6問"
+        "topic": "長い会話・意見や図表"
       }
     ],
     "observation": "第5問の得点率35.46%は第2問65.70%を30.24ポイント下回る。試験全体の平均点だけでなく、後半の情報処理がどれほど負担になったかを切り分けられる。",
-    "review": "",
-    "detail": "第4問は得点率57.07%と大問内の平均正答率65.59%が一致しない。配点や部分点処理の違いを考慮する必要がある。"
+    "review": "第1・2問では短い発話や対話を聞いて内容・イラストを選び、第3問以降は音声を原則一度だけ聞く。第4問は図表完成、第5問は講義・討論からワークシートを完成させ、第6問は長い会話の意見と図表の照合を扱う。第5問の得点率35.46%は大問内最低で、聞き取った複数情報を目的に沿って整理する作業の負荷が大きかったと考えられる。",
+    "detail": "第5問は第2問65.70%より30.24ポイント低い。短い発話の理解と、議論の内容を保持しながら複数の選択肢に対応付けることは別の能力を要求するため、全体の平均点のみでは差が見えにくい。"
   },
   "情報Ⅰ": {
     "parts": [
@@ -374,40 +374,39 @@ export const COMMON_TEST_2026_RESEARCH: Record<string, MainExamResearch> = {
         "points": 20,
         "scoreRate": 48.61,
         "correctRate": 48.61,
-        "topic": "第1問"
+        "topic": "人類進化と遺伝情報"
       },
       {
         "number": 2,
         "points": 20,
         "scoreRate": 59.85,
         "correctRate": 55.55,
-        "topic": "第2問"
+        "topic": "真核細胞の構造と機能"
       },
       {
         "number": 3,
         "points": 20,
         "scoreRate": 37.99,
         "correctRate": 38.22,
-        "topic": "第3問"
+        "topic": "ショウジョウバエの発生"
       },
       {
         "number": 4,
         "points": 20,
         "scoreRate": 57.18,
         "correctRate": 57.71,
-        "topic": "第4問"
+        "topic": "生物の環境応答"
       },
       {
         "number": 5,
         "points": 20,
         "scoreRate": 71.39,
         "correctRate": 71.38,
-        "topic": "第5問"
+        "topic": "生態と環境"
       }
     ],
     "observation": "第3問37.99%と第5問71.39%の差は33.40ポイント。どちらも20点配点であるため、大問間の得点差が特に大きい。",
-    "review": "",
-    "detail": "第2問は得点率59.85%に対し完全正答率の平均55.55%。部分得点を含むかで数字が変わる。"
+    "review": "人類進化を題材とする第1問は進化・遺伝子操作・遺伝子頻度、第2問は真核細胞、第3問はショウジョウバエの発生、第4問は生物の環境応答、第5問は生態と環境を扱う。最高の第5問71.39%と最低の第3問37.99%の開きが大きい。実験や観察の結果から説明を組み立てる問いでは、知識だけでなく条件整理が求められる。"
   },
   "物理基礎": {
     "parts": [
@@ -416,26 +415,26 @@ export const COMMON_TEST_2026_RESEARCH: Record<string, MainExamResearch> = {
         "points": 16,
         "scoreRate": 65.81,
         "correctRate": 65.81,
-        "topic": "第1問"
+        "topic": "浮力・抵抗・放射線・波"
       },
       {
         "number": 2,
         "points": 16,
         "scoreRate": 78.79,
         "correctRate": 78.79,
-        "topic": "第2問"
+        "topic": "スマートフォンを使う台車実験"
       },
       {
         "number": 3,
         "points": 18,
         "scoreRate": 64.16,
         "correctRate": 64.16,
-        "topic": "第3問"
+        "topic": "蒸発熱・電気回路・比熱測定"
       }
     ],
     "observation": "最も高い第2問78.79%と、最も低い第3問64.16%の差は14.63ポイント。いずれも5割を超えた。",
-    "review": "",
-    "detail": ""
+    "review": "第2問はスマートフォンによる磁場測定を使って台車の運動を追い、第3問は蒸発を含む熱量計算と、電気回路による比熱測定を組み合わせている。第2問は得点率78.79%と高く、現実的な実験場面が難しいことを必ずしも意味しない。第3問は64.16%で、第2問より14.63ポイント低い。",
+    "detail": "第3問では予備測定と本測定で測定対象の熱容量が異なる点に気付く必要がある。電気と熱の変換や蒸発を扱う際は、まずエネルギーが出入りする対象と測定条件を区別することが重要。"
   },
   "化学基礎": {
     "parts": [
@@ -465,26 +464,26 @@ export const COMMON_TEST_2026_RESEARCH: Record<string, MainExamResearch> = {
         "points": 16,
         "scoreRate": 60.49,
         "correctRate": 59.25,
-        "topic": "第1問"
+        "topic": "細胞・代謝・DNA複製"
       },
       {
         "number": 2,
         "points": 18,
         "scoreRate": 77.77,
         "correctRate": 77.77,
-        "topic": "第2問"
+        "topic": "体温調節と免疫"
       },
       {
         "number": 3,
         "points": 16,
         "scoreRate": 79.89,
         "correctRate": 80.73,
-        "topic": "第3問"
+        "topic": "植生の変化と生態系"
       }
     ],
     "observation": "第2・3問の得点率はともに約8割で、第1問の60.49%より高い。大問ごとに正答の集中度が異なる。",
-    "review": "",
-    "detail": ""
+    "review": "第1問では菌類に依存するラン科植物の代謝とDNAの半保存的複製、第2問では体温変化やワクチン接種と免疫、第3問では標高による植生の違いや外来種が在来種に与える影響を扱った。大問では第2・3問の得点率が約8割に達する一方、第1問は60.49%で差がある。",
+    "detail": "大問の内容だけでなく、実験結果をどの条件と対応付けるかが重要である。特に第1問では知識の記憶問題と実験考察が混在しており、大問の得点率だけでは弱点を一つの単元に限定できない。"
   },
   "地学基礎": {
     "parts": [
@@ -493,33 +492,33 @@ export const COMMON_TEST_2026_RESEARCH: Record<string, MainExamResearch> = {
         "points": 20,
         "scoreRate": 54.14,
         "correctRate": 54.36,
-        "topic": "第1問"
+        "topic": "地球内部・地震・火山・地質"
       },
       {
         "number": 2,
         "points": 10,
         "scoreRate": 54.56,
         "correctRate": 58,
-        "topic": "第2問"
+        "topic": "大気と海洋"
       },
       {
         "number": 3,
         "points": 10,
         "scoreRate": 56.25,
         "correctRate": 57,
-        "topic": "第3問"
+        "topic": "宇宙・太陽系"
       },
       {
         "number": 4,
         "points": 10,
         "scoreRate": 62.66,
         "correctRate": 65.74,
-        "topic": "第4問"
+        "topic": "自然環境と災害"
       }
     ],
     "observation": "第1～3問は得点率が54～56%台で近く、第4問は62.66%。大問別の得点率の幅は8.52ポイント。",
-    "review": "",
-    "detail": ""
+    "review": "第1問は地震波の到達時刻、火山や変成岩などを含み、第2問は気象と海洋、第3問は太陽・宇宙、第4問は自然災害を扱う。得点率は第1～3問が54～56%台、第4問が62.66%で、大問ごとの極端な偏りより、幅広い分野で5～6割台となったことが特徴。",
+    "detail": "第1問の地震の計算では、初期微動継続時間と震源距離の比例を用い、時刻差の情報と合わせる必要がある。知識を選ぶ問題と、既知の関係式から現象を読み取る問題の双方が出題された。"
   },
   "地理総合，地理探究": {
     "parts": [
