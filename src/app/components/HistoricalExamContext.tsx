@@ -23,7 +23,8 @@ export function HistoricalExamContext({
     if (typeof year !== 'number' || year >= 2021 || testType !== 'main') return [];
     const same = new Map<string,Item>();
     const current = getTestDetails(questionPdf);
-    const max = typeof current?.totalScore === 'number' ? current.totalScore : null;
+    const max = typeof current?.totalScore === 'number' && current.totalScore > 0 ? current.totalScore : null;
+    if (max === null) return []; // A matching scoring scale cannot be asserted if the maximum is unknown.
     for (const entry of getEnhancedDatabase()) {
       if (typeof entry.year !== 'number' || entry.testType !== 'main' ||
           regimeOf(entry.year)!==regimeOf(year) || entry.subject !== subject ||

@@ -374,8 +374,8 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
       content = '<h2>試験情報</h2><dl>' + list.map(([k,v]) => '<dt>' + escapeHtml(k) + '</dt><dd>' + escapeHtml(v) + '</dd>').join('') + '</dl>';
       if (d?.specialNotes) content += '<h2>資料の注記・出典</h2><p>' + escapeHtml(d.specialNotes) + '</p>';
       const archiveYear = Number(r.year);
-      if (/^[0-9]{4}$/.test(r.year) && archiveYear < 2021 && r.examType === 'main') {
-        const regime = n => n < 1979 ? '試行・実地研究' : n < 1990 ? '共通第一次学力試験' : 'センター試験';
+      if (/^[0-9]{4}$/.test(r.year) && archiveYear < 2021 && r.examType === 'main' && d?.totalScore > 0) {
+        const regime = n => n < 1979 ? '試行・実地研究' : n < 1990 ? '共通第1次学力試験' : 'センター試験';
         const max = d?.totalScore;
         const byYear = new Map();
         for (const entry of records) {

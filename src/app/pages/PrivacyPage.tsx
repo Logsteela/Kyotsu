@@ -12,7 +12,7 @@ export function PrivacyPage() {
           <h2 className="text-xl font-semibold mb-2">外部サイト・資料の閲覧</h2>
           <p className="mb-5">PDFや音声は外部のファイル配信基盤を経由して提供される場合があります。外部サービスではそれぞれの規約・プライバシーポリシーが適用されます。</p>
           <h2 className="text-xl font-semibold mb-2">お問い合わせ</h2>
-          <p className="mb-5">プライバシーに関するお問い合わせは、サイト右下の「ヘルプ」に記載された窓口へお願いします。</p>
+          <p className="mb-5">プライバシーに関するお問い合わせは、サイト運営者のDiscordアカウント <strong>loading_0318</strong> へお願いします。サイト右下の「ヘルプ」にも同じ連絡先を掲載しています。</p>
           <p className="text-sm text-gray-600">制定：2026年10月31日</p>
         </article>
       </div>

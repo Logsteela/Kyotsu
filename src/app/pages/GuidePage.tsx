@@ -27,6 +27,7 @@ export function GuidePage() {
           </div>
           <p className="mb-5"><strong>共通テスト本試験の前年との差が気になる場合：</strong><Link className="underline text-[var(--color-brand-green)]" to="/common-test-changes">2021年度以降の科目別前年差一覧</Link>で、同名・同満点の科目に絞って確認できます。</p>
           <p className="mb-5"><strong>2026年度の大問や正答率を調べたい場合：</strong><Link className="underline text-[var(--color-brand-green)]" to="/common-test-2026-analysis">本試験23科目の大問別得点率と外国語4科目の出題分析</Link>から各試験ページに進めます。</p>
+          <p className="mb-5"><strong>センター試験や共通一次の前後年度を比較する場合：</strong>各本試験の詳細ページでは、同じ科目名・満点・制度で比較可能な近い年度の平均点、平均得点率、受験者数を表示しています。資料が不足する場合は無理に補いません。</p>
           <h2 className="text-xl font-semibold mb-2">よくある疑問</h2>
           <p className="mb-3"><strong>追試験の平均点が「—」なのはなぜ？</strong> 公開された記録が見当たらないなど、データが未登録の場合があります。「—」は0点ではありません。</p>
           <p className="mb-3"><strong>試行・試作問題は実際の本試験と同じ？</strong> いいえ。制度設計中の試験やサンプル問題は、実施条件や対象者が異なる場合があり、年度ページでも別資料群として扱います。</p>
