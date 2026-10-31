@@ -96,7 +96,7 @@ export function CommonTestChangesPage() {
           <p className="text-sm mb-3">同じ年度の同名科目に複数の本試験記録がある場合、どれを通常日程として扱うか確認できないため自動比較から除外します。満点や科目名が変わった場合も強引に統合しません。</p>
           <p className="text-sm mb-4">2025年度は新課程に対応した科目構成となり、2026年度は大学入試センターが得点調整を実施しないと公表しています。異なる年度を比較する際は制度上の違いも確認してください。</p>
           <div className="flex flex-wrap gap-4 text-sm">
-            <a href="https://www.dnc.ac.jp/kyotsu/suii/R3_.html" className="text-[var(--color-brand-green)] underline" target="_blank" rel="noopener noreferrer">公式の平均点・受験者数推移</a>
+            <Link to="/sources#research-methods" className="text-[var(--color-brand-green)] underline">統計データの出典と集計方法</Link>
             <Link to="/statistics" className="text-[var(--color-brand-green)] underline">科目ごとの長期推移</Link>
           </div>
         </article>
