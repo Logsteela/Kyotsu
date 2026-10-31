@@ -8,6 +8,7 @@ export type GroupComparison = {
   comment: string;
   nonAdditive?: boolean; // 選択式のため科目平均点への寄与を算定不可
   nonComparable?: boolean; // 年度間で配点体系が異なるため大問別の寄与を算定不可
+  mixedCurriculum?: boolean; // 2025年度化学：旧課程は第5・第6問を選択するため、全体平均を復元不可
 };
 export const COMMON_TEST_GROUP_COMPARISONS: Record<string, GroupComparison> = {
   "国語": {
@@ -564,5 +565,43 @@ export const COMMON_TEST_GROUP_COMPARISONS: Record<string, GroupComparison> = {
       }
     ],
     "comment": "2025年度の大問配点は20・15・25・21・19点で、2026年度の18・15・28・21・18点とは異なる。2025年度は第4問43.58%が最高、第2問39.57%が最低で、大問別の得点率が約4割前後に集まった。2026年度は第3問40.07%が最低で第2問48.53%が最高となっている。得点率の数値は比較できるが、配点が異なるため、同番号の得点率差をそのまま科目平均点の寄与に換算しない。"
+  },
+  "化学": {
+    "previousYear": 2025,
+    "nonComparable": true,
+    "mixedCurriculum": true,
+    "groups": [
+      {
+        "number": 1,
+        "points": 20,
+        "previousRate": 41.68,
+        "topic": "物質の構成・状態"
+      },
+      {
+        "number": 2,
+        "points": 20,
+        "previousRate": 42.87,
+        "topic": "反応速度と化学平衡"
+      },
+      {
+        "number": 3,
+        "points": 20,
+        "previousRate": 49.11,
+        "topic": "無機化学"
+      },
+      {
+        "number": 4,
+        "points": 20,
+        "previousRate": 47.8,
+        "topic": "有機化合物"
+      },
+      {
+        "number": 5,
+        "points": 20,
+        "previousRate": 44.67,
+        "topic": "新課程の高分子・総合問題"
+      }
+    ],
+    "comment": "2025年度化学は、新課程履修者は第1～5問を必答、旧課程履修者等は第1～4問を必答として第5問と第6問のうち1問を選択した。第1～5問の得点率は41.68%、42.87%、49.11%、47.80%、44.67%。旧課程の第6問は52.66%だった。第5問と第6問の受験者が異なるため、ここに掲載した第1～5問の配点加重平均45.23点は、科目全体の公表平均45.34点と一致しない。この差をデータの誤りと扱わず、2026年度との平均点寄与の計算も行わない。"
   }
 };

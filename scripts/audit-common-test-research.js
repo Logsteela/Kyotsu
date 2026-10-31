@@ -78,7 +78,7 @@ for (const [subject, entry] of Object.entries(previousResearch)) {
   const maximum = Number(line.match(/totalScore:([0-9.]+)/)?.[1]);
   const points = entry.groups.reduce((sum,g)=>sum+g.points,0);
   const weighted = entry.groups.reduce((sum,g)=>sum+g.points*g.previousRate/100,0);
-  if (!(maximum>0) || (!entry.nonAdditive && (points!==maximum || Math.abs(weighted-mean)>0.06)) || (entry.nonAdditive && points<=maximum) || !Number.isFinite(mean)) {
+  if (!(maximum>0) || (!entry.nonAdditive && (points!==maximum || (!entry.mixedCurriculum && Math.abs(weighted-mean)>0.06))) || (entry.nonAdditive && points<=maximum) || !Number.isFinite(mean)) {
     problems.push(subject + ': previous-year group sum does not match published mean: '+weighted.toFixed(3)+' vs '+mean);
   }
   for(const g of entry.groups) {
