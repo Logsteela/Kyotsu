@@ -26,11 +26,11 @@ export function YearPage() {
         filtered.map((record) => [
           [
             record.year,
-            record.examType,
+            record.testType,
             record.subject,
             record.questionPdf,
             record.answerPdf,
-            record.audioFile ?? '',
+            record.audio ?? '',
           ].join('::'),
           record,
         ])
