@@ -158,7 +158,7 @@ function loadSubjectCategories() {
   const end = source.indexOf('// 分類用教科名からスラッグ', begin);
   const section = source.slice(begin, end);
   const categories = new Map();
-  for (const match of section.matchAll(/'([^']+)':\\s*\\{\\s*category:\\s*'([^']+)'/g)) {
+  for (const match of section.matchAll(/'([^']+)':\s*\{\s*category:\s*'([^']+)'/g)) {
     categories.set(match[1], match[2]);
   }
   return categories;
