@@ -75,7 +75,6 @@ export function Root() {
             <Link to="/about" className="hover:underline text-[var(--color-brand-green)]">サイト・資料について</Link>
             <Link to="/privacy" className="hover:underline text-[var(--color-brand-green)]">プライバシーポリシー</Link>
           </nav>
-          <p>共通テスト過去問総集は大学入試センターの公式サイトではありません。</p>
         </footer>
       </main>
 
