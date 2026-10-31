@@ -18,6 +18,7 @@ export function AboutPage() {
           <h2 className="text-xl font-semibold mb-2">資料情報の整理・訂正について</h2>
           <p className="mb-5">試験レコードは年度、科目、本試験・追試験の区分、PDFファイル名を一組として管理します。対応する統計記録に実施日や平均点が含まれる場合は、その資料の詳細画面と紐付けて表示します。数値が見つからない場合は推定で補完せず、未登録として扱います。</p>
           <p className="mb-5">文字表記の差や制度の変更があるため、教科の分類は閲覧しやすいカテゴリーにまとめています。ただし「平均点の推移」などの統計比較では、無条件に異なる名称の科目を合算していません。<Link className="underline text-[var(--color-brand-green)]" to="/statistics">実際の統計と集計方法はこちら</Link>から確認できます。</p>
+          <p className="mb-5">問題・解答・音源それぞれの出典表記は、<Link className="underline text-[var(--color-brand-green)]" to="/sources">資料の出典記録一覧</Link>から確認できます。</p>
           <h2 className="text-xl font-semibold mb-2">情報の限界</h2>
           <p className="mb-5">一部資料では問題・解答・音源のどれかが欠けている場合があり、記録の出典が未確認の項目もあります。<Link className="underline text-[var(--color-brand-green)]" to="/coverage">年度別の登録・照合状況</Link>を公開しています。古い試行試験の記録は、現在の共通テストの運用を表すものではありません。</p>
           <h2 className="text-xl font-semibold mb-2">掲載資料と著作権</h2>
