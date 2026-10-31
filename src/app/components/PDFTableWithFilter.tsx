@@ -91,6 +91,44 @@ export function PDFTableWithFilter({
     items.some(item => item.categorySubject === '英語（Listening）');
 
   const [selectedFilters, setSelectedFilters] = useState<Record<string, boolean>>({});
+  type ArchiveSortKey = 'year' | 'subject' | 'questionExists' | 'answerExists' | 'audioExists';
+  const [archiveSort, setArchiveSort] = useState<{ key: ArchiveSortKey; direction: 'asc' | 'desc' } | null>(null);
+  const chooseSort = (key: ArchiveSortKey) => {
+    setArchiveSort(previous => previous?.key === key
+      ? { key, direction: previous.direction === 'asc' ? 'desc' : 'asc' }
+      : { key, direction: key === 'year' ? 'desc' : 'asc' });
+  };
+  const ariaSort = (key: ArchiveSortKey): 'ascending' | 'descending' | 'none' => (
+    archiveSort?.key !== key ? 'none' : archiveSort.direction === 'asc' ? 'ascending' : 'descending'
+  );
+  const sortTitle = (key: ArchiveSortKey, label: string) => (
+    <button type="button" title={`${label}で並び替える`} onClick={() => chooseSort(key)}
+      className="inline-flex items-center justify-center gap-1 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2">
+      {label}<span aria-hidden="true" className="text-[10px] opacity-60">
+        {archiveSort?.key === key ? archiveSort.direction === 'asc' ? '▲' : '▼' : '↕'}
+      </span>
+    </button>
+  );
+  const sortRows = (rows: EnhancedTestRecord[]) => {
+    if (!archiveSort) return rows;
+    const { key, direction } = archiveSort;
+    return [...rows].sort((a, b) => {
+      let diff = 0;
+      if (key === 'year') {
+        const ay = typeof a.year === 'number' ? a.year : null;
+        const by = typeof b.year === 'number' ? b.year : null;
+        if (ay === null && by !== null) return 1;
+        if (by === null && ay !== null) return -1;
+        diff = ay !== null && by !== null ? ay - by : String(a.year).localeCompare(String(b.year), 'ja');
+      } else if (key === 'subject') {
+        diff = getDisplaySubject(a.subject).localeCompare(getDisplaySubject(b.subject), 'ja', { numeric: true });
+      } else {
+        diff = Number(Boolean(a[key])) - Number(Boolean(b[key]));
+      }
+      return direction === 'asc' ? diff : -diff;
+    });
+  };
+
 
   const manifestMap = BUNDLED_MANIFEST_MAP;
 
@@ -272,56 +310,56 @@ export function PDFTableWithFilter({
               <tr>
                 {isOverviewMode ? (
                   <>
-                    <th scope="col" className="text-left p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 border-r border-[var(--color-table-border)] w-[15%] md:w-[18%]">
-                      年度
+                    <th scope="col" aria-sort={ariaSort("year")} className="text-left p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 border-r border-[var(--color-table-border)] w-[15%] md:w-[18%]">
+                      {sortTitle("year", "年度")}
                     </th>
-                    <th scope="col" className="text-left p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 border-r border-[var(--color-table-border)] w-[15%] md:w-[18%]">
-                      教科
+                    <th scope="col" aria-sort={ariaSort("subject")} className="text-left p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 border-r border-[var(--color-table-border)] w-[15%] md:w-[18%]">
+                      {sortTitle("subject", "教科")}
                     </th>
                   </>
                 ) : viewMode === 'bySubject' ? (
                   <>
-                    <th scope="col" className="text-left p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 border-r border-[var(--color-table-border)] w-[15%] md:w-[18%]">
-                      年度
+                    <th scope="col" aria-sort={ariaSort("year")} className="text-left p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 border-r border-[var(--color-table-border)] w-[15%] md:w-[18%]">
+                      {sortTitle("year", "年度")}
                     </th>
-                    <th scope="col" className="text-left p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 border-r border-[var(--color-table-border)] w-[15%] md:w-[18%]">
-                      教科
+                    <th scope="col" aria-sort={ariaSort("subject")} className="text-left p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 border-r border-[var(--color-table-border)] w-[15%] md:w-[18%]">
+                      {sortTitle("subject", "教科")}
                     </th>
                   </>
                 ) : (
-                  <th scope="col" className="text-left p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 border-r border-[var(--color-table-border)] w-[20%] md:w-[22%]">
-                    教科
+                  <th scope="col" aria-sort={ariaSort("subject")} className="text-left p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 border-r border-[var(--color-table-border)] w-[20%] md:w-[22%]">
+                    {sortTitle("subject", "教科")}
                   </th>
                 )}
 
-                <th scope="col" className={`text-center p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 ${
+                <th scope="col" aria-sort={ariaSort("questionExists")} className={`text-center p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 ${
                   isListening
                     ? (isOverviewMode || viewMode === 'bySubject' ? 'w-[23.33%] md:w-[21.33%]' : 'w-[26.67%] md:w-[26%]')
                     : (isOverviewMode || viewMode === 'bySubject' ? 'w-[35%] md:w-[32%]' : 'w-[40%] md:w-[39%]')
                 } border-r border-[var(--color-table-border)]`}>
-                  問題
+                  {sortTitle("questionExists", "問題")}
                 </th>
 
-                <th scope="col" className={`text-center p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 ${
+                <th scope="col" aria-sort={ariaSort("answerExists")} className={`text-center p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 ${
                   isListening
                     ? (isOverviewMode || viewMode === 'bySubject' ? 'w-[23.33%] md:w-[21.33%] border-r border-[var(--color-table-border)]' : 'w-[26.67%] md:w-[26%] border-r border-[var(--color-table-border)]')
                     : (isOverviewMode || viewMode === 'bySubject' ? 'w-[35%] md:w-[32%]' : 'w-[40%] md:w-[39%]')
                 }`}>
-                  解答
+                  {sortTitle("answerExists", "解答")}
                 </th>
 
                 {isListening && (
-                  <th scope="col" className={`text-center p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 ${
+                  <th scope="col" aria-sort={ariaSort("audioExists")} className={`text-center p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 ${
                     isOverviewMode || viewMode === 'bySubject' ? 'w-[23.33%] md:w-[21.33%]' : 'w-[26.67%] md:w-[26%]'
                   }`}>
-                    音声
+                    {sortTitle("audioExists", "音声")}
                   </th>
                 )}
               </tr>
             </thead>
 
             <tbody>
-              {tests.map((item, index) => (
+              {sortRows(tests).map((item, index) => (
                 <tr
                   key={`${item.year}-${item.subject}-${item.testType}-${index}`}
                   className={`border-b border-[var(--color-table-border)] last:border-b-0 ${getPdfStateHoverColor(item.pdfState)} ${getPdfStateBgColor(item.pdfState, index % 2 === 0)}`}
