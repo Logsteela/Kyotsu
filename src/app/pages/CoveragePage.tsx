@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
 import { SEOMeta } from '@/app/components/SEOMeta';
+import { SortHeader } from '@/app/components/SortHeader';
+import { useSortedRows } from '@/app/utils/useSortedRows';
 import { testDatabase } from '@/app/data/testDatabase';
 import { getTestDetails } from '@/app/data/testDetailsDatabase';
 import pdfManifest from '@/app/data/pdfManifest.json';
@@ -39,6 +41,7 @@ export function CoveragePage() {
   }, []);
   const [onlyNumeric, setOnlyNumeric] = useState(false);
   const rows = onlyNumeric ? data.years.filter(y => typeof y.year === 'number') : data.years;
+  const { sorted, sortKey, direction, sortBy } = useSortedRows(rows, 'year');
   const count = (fn: (v: Entry) => boolean) => data.items.filter(fn).length;
   const main = count(v => v.examType === 'main');
   const makeup = count(v => v.examType === 'makeup');
@@ -78,10 +81,16 @@ export function CoveragePage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
               <thead><tr className="bg-gray-50 border-b">
-                <th className="p-2">年度・資料群</th><th className="p-2">登録</th><th className="p-2">本試験</th><th className="p-2">追試等</th>
-                <th className="p-2">問題台帳</th><th className="p-2">解答台帳</th><th className="p-2">平均点</th><th className="p-2">出典記録</th>
+                <SortHeader label="年度・資料群" column="year" className="p-2" {...{sortKey,direction}} onSort={sortBy} />
+                <SortHeader label="登録" column="records" className="p-2" {...{sortKey,direction}} onSort={sortBy} />
+                <SortHeader label="本試験" column="main" className="p-2" {...{sortKey,direction}} onSort={sortBy} />
+                <SortHeader label="追試等" column="makeup" className="p-2" {...{sortKey,direction}} onSort={sortBy} />
+                <SortHeader label="問題台帳" column="questions" className="p-2" {...{sortKey,direction}} onSort={sortBy} />
+                <SortHeader label="解答台帳" column="answers" className="p-2" {...{sortKey,direction}} onSort={sortBy} />
+                <SortHeader label="平均点" column="score" className="p-2" {...{sortKey,direction}} onSort={sortBy} />
+                <SortHeader label="出典記録" column="source" className="p-2" {...{sortKey,direction}} onSort={sortBy} />
               </tr></thead>
-              <tbody>{rows.map(y => (
+              <tbody>{sorted.map(y => (
                 <tr key={String(y.year)} className="border-b">
                   <th className="p-2 font-medium"><Link className="text-[var(--color-brand-green)] underline" to={`/year/${encodeURIComponent(String(y.year))}`}>{formatYear(y.year)}</Link></th>
                   <td className="p-2">{y.records}</td><td className="p-2">{y.main}</td><td className="p-2">{y.makeup}</td>
