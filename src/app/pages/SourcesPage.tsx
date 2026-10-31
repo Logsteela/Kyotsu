@@ -111,6 +111,13 @@ export function SourcesPage() {
             </ul>
             <h3 className="font-semibold mb-2">外国語4科目の問題評価の利用について</h3>
             <p className="text-sm mb-4">2026年度のドイツ語・フランス語・中国語・韓国語は、大学入試センターの問題評価・分析委員会報告書にある各科目の「高等学校教科担当教員からの評価」を読み、当サイト独自の説明として大問の構成、時間的負荷、設問評価を整理しています。原資料は上の2026年度報告書ページから各言語を選べます。大問ごとの実測得点率は数値未照合のため掲載していません。</p>
+            <h3 className="font-semibold mb-2">2025年度・50点選択領域の大問分析</h3>
+            <p className="text-sm mb-3">2025年度の地理総合・歴史総合・公共の大問構成と題材は、2025年度問題講評を照合して短い解説にまとめました。正答率の原数値を未照合のため、他科目で共通する大問があっても正答率を流用していません。</p>
+            <ul className="list-disc pl-5 text-sm space-y-2 mb-4">
+              <li><a href="https://www.kawai-juku.ac.jp/nyushi/kyotsutest/25/analysis/5140/" target="_blank" rel="noopener noreferrer" className="text-[var(--color-brand-green)] underline">河合塾・2025年度地理総合の大問別出題分析</a></li>
+              <li><a href="https://www.kawai-juku.ac.jp/nyushi/kyotsutest/25/analysis/5145/" target="_blank" rel="noopener noreferrer" className="text-[var(--color-brand-green)] underline">河合塾・2025年度歴史総合の大問別出題分析</a></li>
+              <li><a href="https://www.kawai-juku.ac.jp/nyushi/kyotsutest/25/analysis/5150/" target="_blank" rel="noopener noreferrer" className="text-[var(--color-brand-green)] underline">河合塾・2025年度公共の大問別出題分析</a></li>
+            </ul>
             <h3 className="font-semibold mb-2">地理・歴史・公民の得点分布の照合</h3>
             <p className="text-sm mb-3">2026年度の地理探究・日本史探究・世界史探究・公共・倫理・公共・政治経済の得点分布は、大学入試センターの「科目別成績分布（1点刻みの人数）」から80点・90点以上の割合を求め、5分位境界の公表値と照合しました。2025年度との比較値は確認できた3科目のみ掲載しています。</p>
             <ul className="list-disc pl-5 text-sm space-y-2 mb-4">

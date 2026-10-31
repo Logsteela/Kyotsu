@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { CommonTestQuestionDetails } from '@/app/components/CommonTestQuestionDetails';
 import { CommonTest2025QuestionDetails } from '@/app/components/CommonTest2025QuestionDetails';
+import { CommonTest2025SocialReview } from '@/app/components/CommonTest2025SocialReview';
 import { CommonTestForeignLanguageReview } from '@/app/components/CommonTestForeignLanguageReview';
 import { Link } from 'react-router';
 import { getEnhancedDatabase } from '@/app/data/testDatabase';
@@ -99,6 +100,7 @@ export function CommonTestMainInsights({ year, subject, examType, questionPdf }:
       )}
       <CommonTestQuestionDetails year={year} subject={subject} />
       <CommonTest2025QuestionDetails year={year} subject={subject} />
+      <CommonTest2025SocialReview year={year} subject={subject} />
       <CommonTestForeignLanguageReview year={year} subject={subject} />
       <p className="text-xs text-gray-600 leading-relaxed mt-4">
         注：平均点や得点率は受験者集団・科目構成・得点調整等の影響を受けます。同じ科目名でも年度により出題範囲や方式が異なる場合があります。

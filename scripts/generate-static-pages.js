@@ -15,6 +15,7 @@ const QUESTION_RESEARCH_PATH = join(__dirname, '../src/app/data/commonTest2026Re
 const PRIOR_RESEARCH_PATH = join(__dirname, '../src/app/data/commonTest2025GroupComparison.ts');
 const FOREIGN_RESEARCH_PATH = join(__dirname, '../src/app/data/commonTest2026ForeignLanguages.ts');
 const SOCIAL_DISTRIBUTION_PATH = join(__dirname, '../src/app/data/commonTest2026SocialDistribution.ts');
+const SOCIAL_2025_PATH = join(__dirname, '../src/app/data/commonTest2025SocialAreas.ts');
 const ARCHIVES_PATH = join(__dirname, '../src/app/components/archivesTables.json');
 const R2_ORIGIN = 'https://pub-43d2006e555442dca4a107e7bc0d01bb.r2.dev';
 
@@ -181,6 +182,14 @@ function difficultyAppropriateness(subject) {
   return ['物理','生物','地学','生物基礎','地学基礎','フランス語','韓国語'].includes(subject) ? 3 : 4;
 }
 
+function loadSocial2025() {
+  const source = readFileSync(SOCIAL_2025_PATH, 'utf8');
+  const marker = 'COMMON_TEST_2025_SOCIAL_AREAS: Record<string,SocialAreaReview> = ';
+  const at = source.indexOf(marker);
+  if (at < 0) throw new Error('2025 social subject report unavailable');
+  return JSON.parse(source.slice(at + marker.length).trim().replace(/;$/, ''));
+}
+
 function loadSocialDistribution() {
   const source = readFileSync(SOCIAL_DISTRIBUTION_PATH, 'utf8');
   const marker = 'COMMON_TEST_SOCIAL_DISTRIBUTION: Record<string,Distribution> = ';
@@ -233,7 +242,7 @@ function staticNavigation() {
   return '<nav aria-label="サイト案内"><a href="/">ホーム</a> ｜ <a href="/overview">全試験一覧</a> ｜ <a href="/statistics">平均点の推移</a> ｜ <a href="/year-statistics">年度別統計</a> ｜ <a href="/coverage">収録状況</a> ｜ <a href="/sources">資料の出典</a> ｜ <a href="/guide">資料の使い方</a> ｜ <a href="/about">サイトについて</a> ｜ <a href="/privacy">プライバシーポリシー</a></nav>';
 }
 
-function buildStaticBody(page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution) {
+function buildStaticBody(page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution, social2025) {
   const heading = '<h1>' + escapeHtml(page.title) + '</h1>';
   const intro = '<p>' + escapeHtml(page.description) + '</p>';
   let content = '';
@@ -425,6 +434,14 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
               '</a></td><td>' + x.info.averageScore + '</td><td>' + x.rate.toFixed(2) + '%</td><td>' +
               (x.info.examinees ?? '—') + '</td></tr>').join('') + '</tbody></table>';
         }
+        const socialReview = examYear === 2025 ? social2025[r.subject] : null;
+        if (socialReview) {
+          content += '<h2>2025年度・大問別の出題内容</h2><p>この科目は3領域から2つ選択するうちの50点部分です。大問の実測得点率は未確認のため掲載していません。</p>' +
+            socialReview.groups.map(g => '<h3>第' + g.number + '問：' + escapeHtml(g.topic) +
+              '（' + g.points + '点）</h3><p>' + escapeHtml(g.summary) + '</p>').join('') +
+            '<h3>出題全体の分析</h3><p>' + escapeHtml(socialReview.observation) + '</p>' +
+            '<p>' + escapeHtml(socialReview.caution) + '</p>';
+        }
         const priorYear = examYear === 2025 ? priorResearch[r.subject] : null;
         if (priorYear && priorYear.groups.length) {
           const highest = priorYear.groups.reduce((a,b)=>a.previousRate > b.previousRate ? a:b);
@@ -528,8 +545,8 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
   return '<div id="archive-static-fallback" style="max-width:1100px;margin:24px auto;padding:20px;font-family:system-ui,sans-serif;line-height:1.8">' + heading + intro + content + staticNavigation() + '</div>';
 }
 
-function injectBody(html, page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution) {
-  const fallback = buildStaticBody(page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution);
+function injectBody(html, page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution, social2025) {
+  const fallback = buildStaticBody(page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution, social2025);
   return html.replace('<div id="root"></div>', '<div id="root">' + fallback + '</div>');
 }
 
@@ -728,12 +745,13 @@ function main() {
   const priorResearch = loadPriorResearch();
   const foreignResearch = loadForeignResearch();
   const socialDistribution = loadSocialDistribution();
+  const social2025 = loadSocial2025();
   const pages = buildPages(records);
   const baseHtml = readFileSync(DIST_INDEX, 'utf8');
   let fileCount = 0;
 
   for (const page of pages) {
-    const html = injectBody(injectMeta(baseHtml, page), page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution);
+    const html = injectBody(injectMeta(baseHtml, page), page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution, social2025);
     for (const filePath of pathToFilePaths(page.path)) {
       writeFileEnsuringDir(filePath, html);
       fileCount += 1;

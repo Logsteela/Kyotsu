@@ -102,6 +102,19 @@ for (const [subject, report] of Object.entries(foreign)) {
   if (numbers.some((n,i)=>n!==i+1) || report.sections.some(x=>!x.topic?.trim()||!x.summary?.trim()))
     problems.push(subject+': malformed qualitative question-group data');
 }
+const socialFile = read('src/app/data/commonTest2025SocialAreas.ts');
+const socialMarker = 'COMMON_TEST_2025_SOCIAL_AREAS: Record<string,SocialAreaReview> = ';
+const socialAt = socialFile.indexOf(socialMarker);
+if (socialAt < 0) throw new Error('Missing 2025 social review data');
+const social2025 = JSON.parse(socialFile.slice(socialAt + socialMarker.length).trim().replace(/;$/, ''));
+for (const [subject, value] of Object.entries(social2025)) {
+  const refs=rows.filter(r=>r[0]==='2025'&&r[1]==='main'&&r[2]===subject);
+  const pts=value.groups.reduce((n,p)=>n+p.points,0);
+  if(refs.length!==1 || pts!==50 || !value.observation || !value.caution ||
+    value.groups.some((g,i)=>g.number!==i+1||!g.topic||!g.summary)) {
+    problems.push(subject+': invalid 2025 combined social review');
+  }
+}
 const count2026 = rows.filter(r => r[0] === '2026' && r[1] === 'main').length;
 if (count2026 !== report.length + Object.keys(foreign).length)
   problems.push('2026 subject analysis coverage incomplete: ' +
