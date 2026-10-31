@@ -86,5 +86,28 @@ if (existsSync(sitemap)) {
 } else {
   errors.push('sitemap.xml was not generated');
 }
-console.log(JSON.stringify({ pagesChecked: checked, tests: cases.length, errors }, null, 2));
+// Publication readiness: every footer link must lead to a generated page.
+const rootSource = readFileSync(join(root, 'src/app/pages/Root.tsx'), 'utf8');
+const footer = rootSource.split('<footer')[1]?.split('</footer>')[0] ?? '';
+const footerRoutes = [...footer.matchAll(/<Link to="(\/[^"]+)"/g)].map(m => m[1]);
+if (footerRoutes.length < 8) errors.push('Footer links could not be checked');
+for (const route of footerRoutes) {
+  const htmlPath = join(dist, route.slice(1), 'index.html');
+  if (!existsSync(htmlPath)) errors.push('Broken footer navigation: ' + route);
+}
+const detailSource = readFileSync(join(root, 'src/app/pages/TestDetailPage.tsx'), 'utf8');
+const newerIndex = detailSource.indexOf('if (newer) related.push(');
+const olderIndex = detailSource.indexOf('if (older) related.push(');
+if (newerIndex < 0 || olderIndex < 0 || newerIndex >= olderIndex) {
+  errors.push('Same-subject navigation must show next year on left and previous year on right');
+}
+// AdSense readiness: ownership code, ads.txt and sitemap directives must agree.
+const publicAds = readFileSync(join(root, 'public/ads.txt'), 'utf8');
+const siteIndex = readFileSync(join(root, 'index.html'), 'utf8');
+const robots = readFileSync(join(root, 'public/robots.txt'), 'utf8');
+if (!publicAds.includes('google.com, pub-6347877335585085, DIRECT')) errors.push('AdSense ads.txt publisher mismatch');
+if (!siteIndex.includes('ca-pub-6347877335585085')) errors.push('AdSense head verification script absent');
+if (!robots.includes('Sitemap: https://kyotsu.org/sitemap.xml')) errors.push('robots.txt sitemap address mismatch');
+
+console.log(JSON.stringify({ pagesChecked: checked, tests: cases.length, footerLinks: footerRoutes.length, errors }, null, 2));
 if (errors.length) process.exitCode = 1;

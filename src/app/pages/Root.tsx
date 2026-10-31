@@ -19,12 +19,8 @@ export function Root() {
     const currentPath = location.pathname;
     const prevPath = prevPathRef.current;
 
-    // ホームページへの遷移、またはテスト詳細ページへの遷移の場合のみスクロールをリセット
-    const shouldResetScroll =
-      currentPath === '/' || // ホームページへの遷移
-      currentPath.startsWith('/test/'); // テスト詳細ページへの遷移
-
-    if (shouldResetScroll && currentPath !== prevPath && mainRef.current) {
+    // フッター等から長い別ページへ移動しても、途中から開かないようにする。
+    if (currentPath !== prevPath && mainRef.current) {
       mainRef.current.scrollTop = 0;
     }
 
