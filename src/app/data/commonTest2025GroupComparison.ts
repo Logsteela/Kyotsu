@@ -274,5 +274,89 @@ export const COMMON_TEST_GROUP_COMPARISONS: Record<string, GroupComparison> = {
       }
     ],
     "comment": "第1問は2025年度72.19%から2026年度54.14%へ18.05ポイント、第4問は79.17%から62.66%へ16.51ポイント低下した。第2問は51.98%から54.56%へわずかに上昇しているが、科目平均は34.49点から28.17点へ6.32点下がった。"
+  },
+  "歴史総合，日本史探究": {
+    "previousYear": 2025,
+    "groups": [
+      {
+        "number": 1,
+        "points": 25,
+        "previousRate": 58.88,
+        "topic": "境界と地域の近代史"
+      },
+      {
+        "number": 2,
+        "points": 15,
+        "previousRate": 59.89,
+        "topic": "菓子の普及と社会・経済"
+      },
+      {
+        "number": 3,
+        "points": 15,
+        "previousRate": 54.19,
+        "topic": "九州北部と対外交流"
+      },
+      {
+        "number": 4,
+        "points": 15,
+        "previousRate": 58.74,
+        "topic": "鎌倉の御家人と戦国大名"
+      },
+      {
+        "number": 5,
+        "points": 15,
+        "previousRate": 67.83,
+        "topic": "近世の村落"
+      },
+      {
+        "number": 6,
+        "points": 15,
+        "previousRate": 41.15,
+        "topic": "松本清張と近現代史"
+      }
+    ],
+    "comment": "第6問の得点率は2025年度41.15%から2026年度57.30%へ16.15ポイント上昇し、15点配点なので科目平均に約+2.42点寄与した。第2問も59.89%から70.04%へ10.15ポイント上昇。一方、第3問は54.19%から54.09%でほぼ同水準であり、全大問一律の変化ではない。科目平均は56.99点から62.29点に上昇した。"
+  },
+  "公共，倫理": {
+    "previousYear": 2025,
+    "groups": [
+      {
+        "number": 1,
+        "points": 12,
+        "previousRate": 67.7,
+        "topic": "男女共同参画と公共空間"
+      },
+      {
+        "number": 2,
+        "points": 13,
+        "previousRate": 80.03,
+        "topic": "社会参画と共生"
+      },
+      {
+        "number": 3,
+        "points": 28,
+        "previousRate": 57.93,
+        "topic": "青年期・西洋思想・哲学"
+      },
+      {
+        "number": 4,
+        "points": 15,
+        "previousRate": 59.21,
+        "topic": "日本思想の変遷"
+      },
+      {
+        "number": 5,
+        "points": 16,
+        "previousRate": 41.62,
+        "topic": "現代社会と倫理的課題"
+      },
+      {
+        "number": 6,
+        "points": 16,
+        "previousRate": 59.05,
+        "topic": "環境倫理と生命倫理"
+      }
+    ],
+    "comment": "第5問の得点率は2025年度41.62%から2026年度58.18%へ16.56ポイント上昇し、16点配点なので平均点に約+2.65点寄与した。これに対し第2問は80.03%から73.47%へ6.56ポイント低下した。平均点59.74点から64.24点への上昇は、大問ごとに異なる動きを伴う。"
   }
 };
