@@ -58,12 +58,42 @@ for (const [subject, entry] of Object.entries(research)) {
   if (optional && assigned <= maximum) problems.push(subject + ': expected optional sections but assigned <= max');
   report.push({ subject, groups: entry.parts.length, points: assigned, mean, reconstructed: Number(weighted.toFixed(2)), optional });
 }
+const priorText = read('src/app/data/commonTest2025GroupComparison.ts');
+const priorMarker = 'COMMON_TEST_GROUP_COMPARISONS: Record<string, GroupComparison> = ';
+const priorPos = priorText.indexOf(priorMarker);
+if (priorPos < 0) throw new Error('prior-year research data missing');
+const previousResearch = JSON.parse(priorText.slice(priorPos + priorMarker.length).trim().replace(/;$/, ''));
+let yearOnYearVerified = 0;
+for (const [subject, entry] of Object.entries(previousResearch)) {
+  const priorRecord = rows.filter(r=>r[0]==='2025' && r[1]==='main' && r[2]===subject);
+  const currentResearch = research[subject];
+  if (priorRecord.length !== 1 || !currentResearch) {
+    problems.push(subject + ': unavailable unique baseline record or current research');
+    continue;
+  }
+  const at = details.indexOf("'" + priorRecord[0][3] + "':{");
+  if (at < 0) { problems.push(subject + ': baseline average not found'); continue; }
+  const line = details.slice(at, details.indexOf('\n', at));
+  const mean = Number(line.match(/averageScore:([0-9.]+)/)?.[1]);
+  const maximum = Number(line.match(/totalScore:([0-9.]+)/)?.[1]);
+  const points = entry.groups.reduce((sum,g)=>sum+g.points,0);
+  const weighted = entry.groups.reduce((sum,g)=>sum+g.points*g.previousRate/100,0);
+  if (!(maximum>0) || points!==maximum || !Number.isFinite(mean) || Math.abs(weighted-mean)>0.06) {
+    problems.push(subject + ': previous-year group sum does not match published mean: '+weighted.toFixed(3)+' vs '+mean);
+  }
+  for(const g of entry.groups) {
+    const now=currentResearch.parts.find(p=>p.number===g.number && p.points===g.points);
+    if (!now) problems.push(subject + ': counterpart for question '+g.number+' missing');
+  }
+  yearOnYearVerified++;
+}
 const count2026 = rows.filter(r => r[0] === '2026' && r[1] === 'main').length;
 const message = {
   tested: report.length,
   available: count2026,
   unmatched: count2026 - report.length,
   weightedMeansConfirmed: report.filter(r=>!r.optional).length,
+  yearOnYearVerified,
   optionalMeansNotAdditive: report.filter(r=>r.optional).map(r=>r.subject),
   errors: problems,
 };
