@@ -351,6 +351,8 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
             '<h3>大問別の差から分かること</h3><p>' + escapeHtml(researched.observation) + '</p>' +
             (researched.review ? '<h3>問題評価と出題内容</h3><p>' + escapeHtml(researched.review) + '</p>' : '') +
             (researched.detail ? '<h3>設問別正答率からの分析</h3><p>' + escapeHtml(researched.detail) + '</p>' : '');
+          if (r.subject === '数学Ⅱ，数学Ｂ，数学Ｃ') content += '<p>数学Ⅱ・B・Cは必答52点と16点ずつ4問から3問選択で100点満点。表中の全7大問を足すと116点になるため、単純な加算はできません。</p>';
+          if (['地理総合', '歴史総合', '公共'].includes(r.subject)) content += '<p>この科目は「地理総合／歴史総合／公共」の3領域から2つ選択する試験の50点分野です。</p>';
           if (r.subject === '国語') {
             content += '<h3>2025～2026年度の国語の得点分布</h3><p>平均点は126.67点から116.37点へ10.30点低下。' +
               '160点以上は87,139人（19.93%）から43,974人（10.04%）へ、180点以上は17,786人（4.07%）から7,215人（1.65%）へ減少。' +
@@ -501,7 +503,7 @@ function buildPages(records) {
     ['/sources', '収録資料の出典一覧・来歴｜共通テスト過去問総集', '問題・解答・音源の記載上の出典を集計しています。'],
     ['/year-statistics', '年度別・教科別の平均得点率比較｜共通テスト過去問総集', '年度別に平均得点率や前年との差を比較します。'],
     ['/common-test-changes', '共通テスト科目別の平均点前年差｜共通テスト過去問総集', '共通テスト本試験について前年と今年の科目別平均点を照合します。'],
-    ['/common-test-2026-analysis', '2026年度共通テスト本試験・大問別得点率と正答率の分析', '18科目の大問別成績と出題評価を一覧し、個別試験の分析に進めます。'],
+    ['/common-test-2026-analysis', '2026年度共通テスト本試験・大問別得点率と正答率の分析', '23科目の大問別成績と出題評価を一覧し、個別試験の分析に進めます。'],
   ]) add({ path, title, description });
   add({
     path: '/overview',
