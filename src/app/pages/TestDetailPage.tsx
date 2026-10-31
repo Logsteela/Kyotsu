@@ -202,11 +202,12 @@ export function TestDetailPage() {
   const description = `${displayTestName}の問題・解答資料。${facts.length ? facts.join('、') + '。' : '収録状況や出典情報を確認できます。'}`;
 
   const relatedCandidates = getEnhancedDatabase().filter(r => r.subject === testRecord.subject && r.questionPdf !== testRecord.questionPdf);
-  const related = [];
-  if (typeof testRecord.year === 'number') {
+  const related: Array<{ name: string; url: string }> = [];
+  const activeYear = typeof testRecord.year === 'number' ? testRecord.year : null;
+  if (activeYear !== null) {
     const sameType = relatedCandidates.filter(r => typeof r.year === 'number' && r.testType === testRecord.testType);
-    const older = sameType.filter(r => (r.year as number) < testRecord.year).sort((a,b) => (b.year as number) - (a.year as number))[0];
-    const newer = sameType.filter(r => (r.year as number) > testRecord.year).sort((a,b) => (a.year as number) - (b.year as number))[0];
+    const older = sameType.filter(r => (r.year as number) < activeYear).sort((a,b) => (b.year as number) - (a.year as number))[0];
+    const newer = sameType.filter(r => (r.year as number) > activeYear).sort((a,b) => (a.year as number) - (b.year as number))[0];
     if (older) related.push({ name: `以前の同科目（${older.year}年度）`, url: `/test/${encodeURIComponent(older.questionPdf)}` });
     if (newer) related.push({ name: `次の同科目（${newer.year}年度）`, url: `/test/${encodeURIComponent(newer.questionPdf)}` });
   }
