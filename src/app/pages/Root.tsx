@@ -1,12 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
-import { Outlet, useLocation } from 'react-router';
+import { Link, Outlet, useLocation } from 'react-router';
 import { HelpCircle } from 'lucide-react';
 import { Sidebar } from '@/app/components/Sidebar';
 import { MobileSidebar } from '@/app/components/MobileSidebar';
 import { HelpPage } from '@/app/components/HelpPage';
 import { Button } from '@/app/components/ui/button';
-import { AdSdkLoader } from '@/app/components/ads/AdSdkLoader';
-import { RouteAdPlacements } from '@/app/components/ads/RouteAdPlacements';
 import { getYearList, getSubjectList } from '@/app/data/testDatabase';
 
 export function Root() {
@@ -68,8 +66,15 @@ export function Root() {
         </div>
 
         <Outlet />
-        <RouteAdPlacements key={`placements-${location.pathname}`} />
-        <AdSdkLoader key={`admax-${location.pathname}`} />
+        <footer className="border-t border-gray-200 bg-white px-4 sm:px-6 py-6 text-sm text-gray-600">
+          <nav aria-label="サイト案内" className="flex flex-wrap gap-x-6 gap-y-3 mb-3">
+            <Link to="/guide" className="hover:underline text-[var(--color-brand-green)]">資料の使い方</Link>
+            <Link to="/statistics" className="hover:underline text-[var(--color-brand-green)]">平均点の推移</Link>
+            <Link to="/about" className="hover:underline text-[var(--color-brand-green)]">サイト・資料について</Link>
+            <Link to="/privacy" className="hover:underline text-[var(--color-brand-green)]">プライバシーポリシー</Link>
+          </nav>
+          <p>共通テスト過去問総集は大学入試センターの公式サイトではありません。</p>
+        </footer>
       </main>
 
       {/* ヘルプページ */}
