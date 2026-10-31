@@ -1,22 +1,23 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
 import { SEOMeta } from '@/app/components/SEOMeta';
-import { testDatabase, getEnhancedDatabase } from '@/app/data/testDatabase';
+import { testDatabase } from '@/app/data/testDatabase';
 import { getTestDetails } from '@/app/data/testDetailsDatabase';
+import pdfManifest from '@/app/data/pdfManifest.json';
 
-type Entry = { year: number | string; questionPdf: string; subject: string; examType: string; questionExists: boolean; answerExists: boolean; audioExists: boolean; hasAverage: boolean; hasScore: boolean; hasSource: boolean };
+type Entry = { year: number | string; questionPdf: string; subject: string; examType: string; questionRegistered: boolean; answerRegistered: boolean; questionInManifest: boolean; answerInManifest: boolean; hasAverage: boolean; hasScore: boolean; hasSource: boolean };
 const SOURCE_PATTERN = /(?:問題|解答|音源)：/;
 function formatYear(year: string | number) { return typeof year === 'number' ? `${year}年度` : year; }
 
 export function CoveragePage() {
   const data = useMemo(() => {
-    const enhanced = new Map(getEnhancedDatabase().map(r => [r.questionPdf, r]));
+    const manifestFiles = new Set(pdfManifest.files);
     const items: Entry[] = testDatabase.map(record => {
       const d = getTestDetails(record.questionPdf);
-      const e = enhanced.get(record.questionPdf);
       return {
         year: record.year, subject: record.subject, questionPdf: record.questionPdf, examType: record.testType,
-        questionExists: Boolean(e?.questionExists), answerExists: Boolean(e?.answerExists), audioExists: Boolean(e?.audioExists),
+        questionRegistered: Boolean(record.questionPdf), answerRegistered: Boolean(record.answerPdf),
+        questionInManifest: manifestFiles.has(record.questionPdf), answerInManifest: manifestFiles.has(record.answerPdf),
         hasAverage: typeof d?.averageScore === 'number', hasScore: typeof d?.averageScore === 'number' && typeof d?.totalScore === 'number' && d.totalScore > 0,
         hasSource: SOURCE_PATTERN.test(d?.specialNotes || ''),
       };
@@ -31,8 +32,8 @@ export function CoveragePage() {
         const matching = items.filter(e => e.year === year);
         return { year, records: matching.length, main: matching.filter(e => e.examType === 'main').length,
           makeup: matching.filter(e => e.examType === 'makeup').length, source: matching.filter(e => e.hasSource).length,
-          score: matching.filter(e => e.hasScore).length, questions: matching.filter(e => e.questionExists).length,
-          answers: matching.filter(e => e.answerExists).length };
+          score: matching.filter(e => e.hasScore).length, questions: matching.filter(e => e.questionInManifest).length,
+          answers: matching.filter(e => e.answerInManifest).length };
       }),
     };
   }, []);
@@ -43,8 +44,8 @@ export function CoveragePage() {
   const makeup = count(v => v.examType === 'makeup');
   const sources = count(v => v.hasSource);
   const statistical = count(v => v.hasScore);
-  const questions = count(v => v.questionExists);
-  const answers = count(v => v.answerExists);
+  const questions = count(v => v.questionInManifest);
+  const answers = count(v => v.answerInManifest);
   return (
     <>
       <SEOMeta path="/coverage" title="収録状況・資料の確認状況｜共通テスト過去問総集"
@@ -62,8 +63,8 @@ export function CoveragePage() {
               ['試験レコード', data.items.length],
               ['本試験の登録', main],
               ['追試験・特別枠の登録', makeup],
-              ['問題ファイルあり', questions],
-              ['解答ファイルあり', answers],
+              ['問題が内部台帳に掲載', questions],
+              ['解答が内部台帳に掲載', answers],
               ['平均点・満点あり', statistical],
               ['出典の記録あり', sources],
             ].map(([label, val]) => (
@@ -78,7 +79,7 @@ export function CoveragePage() {
             <table className="w-full text-sm text-left">
               <thead><tr className="bg-gray-50 border-b">
                 <th className="p-2">年度・資料群</th><th className="p-2">登録</th><th className="p-2">本試験</th><th className="p-2">追試等</th>
-                <th className="p-2">問題あり</th><th className="p-2">解答あり</th><th className="p-2">平均点</th><th className="p-2">出典記録</th>
+                <th className="p-2">問題台帳</th><th className="p-2">解答台帳</th><th className="p-2">平均点</th><th className="p-2">出典記録</th>
               </tr></thead>
               <tbody>{rows.map(y => (
                 <tr key={String(y.year)} className="border-b">
@@ -90,7 +91,7 @@ export function CoveragePage() {
             </table>
           </div>
           <h2 className="text-xl font-bold mt-7 mb-2">集計の定義</h2>
-          <p className="mb-3">「登録」は1つの試験問題ファイルを1件として数えます。英語などの異なる形式や、年度ごとの試行・試作問題も含まれます。「問題・解答あり」は登録済みのファイル一覧に基づくもので、ファイルが完全・正確であることまでは保証しません。</p>
+          <p className="mb-3">「登録」は1つの試験問題ファイルを1件として数えます。英語などの異なる形式や、年度ごとの試行・試作問題も含まれます。「問題台帳」「解答台帳」は内部ファイル台帳とのファイル名一致件数です。台帳に載っていない資料でも実際には公開されている場合があり、逆に台帳への登録はリンクの通信成功や内容の正確性を保証しません。</p>
           <p className="mb-3">「平均点」は平均点と満点の両方が数値として登録されている件数です。追試験などで統計の公表がない場合は空欄になります。「出典記録」は提供元の記載の有無であり、転載・二次利用の許諾取得を意味しません。</p>
           <p className="mb-3">試験年度や科目体系が異なるデータは単純比較できません。登録数が少ない資料群もあります。欠損や収録ミスを見つけた場合は右下のヘルプからお知らせください。</p>
           <div className="flex flex-wrap gap-4 text-[var(--color-brand-green)]">
