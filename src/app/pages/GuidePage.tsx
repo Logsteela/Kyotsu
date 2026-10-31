@@ -25,6 +25,7 @@ export function GuidePage() {
             <p><strong>統計を比較したい場合：</strong><Link className="underline text-[var(--color-brand-green)]" to="/statistics">科目別の年度推移</Link>と<Link className="underline text-[var(--color-brand-green)]" to="/year-statistics">同年度の科目比較</Link>を使い分けてください。平均得点率は得点の比率であって、難易度の直接的な指標ではありません。</p>
             <p><strong>資料そのものが揃っているか確認したい場合：</strong><Link className="underline text-[var(--color-brand-green)]" to="/coverage">収録状況</Link>で、年度ごとのレコード数、統計・出典の登録状況を確認できます。</p>
           </div>
+          <p className="mb-5"><strong>共通テスト本試験の前年との差が気になる場合：</strong><Link className="underline text-[var(--color-brand-green)]" to="/common-test-changes">2021年度以降の科目別前年差一覧</Link>で、同名・同満点の科目に絞って確認できます。</p>
           <h2 className="text-xl font-semibold mb-2">よくある疑問</h2>
           <p className="mb-3"><strong>追試験の平均点が「—」なのはなぜ？</strong> 公開された記録が見当たらないなど、データが未登録の場合があります。「—」は0点ではありません。</p>
           <p className="mb-3"><strong>試行・試作問題は実際の本試験と同じ？</strong> いいえ。制度設計中の試験やサンプル問題は、実施条件や対象者が異なる場合があり、年度ページでも別資料群として扱います。</p>
