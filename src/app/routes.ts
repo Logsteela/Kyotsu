@@ -1,5 +1,6 @@
 import { createBrowserRouter, type RouteObject } from 'react-router';
 
+import { CommonTestChangesPage } from '@/app/pages/CommonTestChangesPage';
 import { SourcesPage } from '@/app/pages/SourcesPage';
 import { YearStatisticsPage } from '@/app/pages/YearStatisticsPage';
 import { CoveragePage } from '@/app/pages/CoveragePage';
@@ -33,6 +34,7 @@ const routes: RouteObject[] = [
       { path: 'coverage', Component: CoveragePage },
       { path: 'sources', Component: SourcesPage },
       { path: 'year-statistics', Component: YearStatisticsPage },
+      { path: 'common-test-changes', Component: CommonTestChangesPage },
       { path: 'guide', Component: GuidePage },
       { path: 'about', Component: AboutPage },
       { path: 'privacy', Component: PrivacyPage },
