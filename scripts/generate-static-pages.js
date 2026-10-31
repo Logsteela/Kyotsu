@@ -155,7 +155,7 @@ function loadDetails() {
   const source = readFileSync(DETAILS_PATH, 'utf8');
   const details = new Map();
   // Only extract reliably quoted numeric fields; original source may include free-text special notes.
-  const regex = /'([^'\\n]+\\.pdf)':\\{questionPdf:'[^'\\n]*'([^\\n]*)/g;
+  const regex = /'([^'\n]+\.pdf)':\{questionPdf:'[^'\n]*'([^\n]*)/g;
   let match;
   while ((match = regex.exec(source)) !== null) {
     const props = match[2];
