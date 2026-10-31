@@ -101,13 +101,13 @@ function RankingTable({ title, data }: RankingTableProps) {
           <thead className="bg-[var(--color-table-header-bg)] border-b border-[var(--color-table-border)]">
             <tr>
               <th className="text-center p-2 text-xs sm:text-sm font-semibold text-gray-700 border-r border-[var(--color-table-border)] w-[50px] whitespace-nowrap">
-                順位
+                {headingButton('順位', 'rank')}
               </th>
               <th className="text-left p-2 text-xs sm:text-sm font-semibold text-gray-700 border-r border-[var(--color-table-border)] whitespace-nowrap">
-                教科
+                {headingButton('教科', 'item1')}
               </th>
               <th className="text-left p-2 text-xs sm:text-sm font-semibold text-gray-700 whitespace-nowrap">
-                点数
+                {headingButton('点数', 'item2')}
               </th>
             </tr>
           </thead>
