@@ -20,6 +20,15 @@ export function CommonTestQuestionDetails({ year, subject }: { year: number | st
       <p className="bg-gray-50 border rounded p-3 text-sm">得点率が最低の大問：<strong>第{lowest.number}問 {lowest.scoreRate.toFixed(2)}%</strong></p>
     </div>
     <p className="text-sm mb-4">大問間の得点率の差は<strong>{difference.toFixed(2)}ポイント</strong>。{record.observation}</p>
+    {subject === '数学Ⅱ，数学Ｂ，数学Ｃ' && <p className="text-sm mb-4 border-l-4 border-gray-300 pl-3">
+      この試験は必答3大問（計52点）と、4大問から3大問を選ぶ選択部分（各16点）で100点満点です。
+      表は選択肢を含めた7大問・計116点を掲載するため、全大問の平均点を足しても100点満点の試験平均にはなりません。
+      選択大問の得点率には、選択した受験者の構成の違いが含まれます。
+    </p>}
+    {['地理総合','歴史総合','公共'].includes(subject) && <p className="text-sm mb-4 border-l-4 border-gray-300 pl-3">
+      これは「地理総合／歴史総合／公共」の3領域から2つを選ぶ試験のうち、50点分の1領域です。
+      受験者の選択状況は領域によって異なるため、領域間の得点率をそのまま難易度の差として扱えません。
+    </p>}
     <ExamQuestionTable parts={record.parts}/>
     {record.review && <section className="mt-5">
       <h3 className="font-semibold mb-2">出題内容・問題評価から読み取れること</h3>
