@@ -74,6 +74,7 @@ export function Root() {
             <Link to="/sources" className="hover:underline text-[var(--color-brand-green)]">資料の出典</Link>
             <Link to="/year-statistics" className="hover:underline text-[var(--color-brand-green)]">年度別統計</Link>
             <Link to="/common-test-changes" className="hover:underline text-[var(--color-brand-green)]">共テ前年差</Link>
+            <Link to="/common-test-2026-analysis" className="hover:underline text-[var(--color-brand-green)]">2026本試験分析</Link>
             <Link to="/about" className="hover:underline text-[var(--color-brand-green)]">サイト・資料について</Link>
             <Link to="/privacy" className="hover:underline text-[var(--color-brand-green)]">プライバシーポリシー</Link>
           </nav>
