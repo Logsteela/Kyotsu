@@ -10,6 +10,9 @@ const SITE_NAME = '共通テスト過去問総集';
 const DIST_DIR = join(__dirname, '../dist');
 const DIST_INDEX = join(DIST_DIR, 'index.html');
 const DATABASE_PATH = join(__dirname, '../src/app/data/testDatabase.ts');
+const DETAILS_PATH = join(__dirname, '../src/app/data/testDetailsDatabase.ts');
+const R2_ORIGIN = 'https://pub-43d2006e555442dca4a107e7bc0d01bb.r2.dev';
+
 
 const DEFAULT_DESCRIPTION =
   '共通テスト、センター試験、共通一次、追試験、特例追試験の問題、解答の過去問PDFを年度別、教科別掲載。';
@@ -148,6 +151,100 @@ function pageJsonLd(meta) {
   return { '@context': 'https://schema.org', '@graph': graph };
 }
 
+function loadDetails() {
+  const source = readFileSync(DETAILS_PATH, 'utf8');
+  const details = new Map();
+  // Only extract reliably quoted numeric fields; original source may include free-text special notes.
+  const regex = /'([^'\\n]+\\.pdf)':\\{questionPdf:'[^'\\n]*'([^\\n]*)/g;
+  let match;
+  while ((match = regex.exec(source)) !== null) {
+    const props = match[2];
+    const numeric = key => {
+      const value = props.match(new RegExp('(?:^|,)' + key + ':([0-9.]+)(?:,|$)'));
+      return value ? Number(value[1]) : null;
+    };
+    details.set(match[1], {
+      averageScore: numeric('averageScore'),
+      totalScore: numeric('totalScore'),
+      examinees: numeric('examinees'),
+      testDuration: numeric('testDuration'),
+    });
+  }
+  return details;
+}
+
+function staticNavigation() {
+  return '<nav aria-label="サイト案内"><a href="/">ホーム</a> ｜ <a href="/overview">全試験一覧</a> ｜ <a href="/statistics">平均点の推移</a> ｜ <a href="/guide">資料の使い方</a> ｜ <a href="/about">サイトについて</a> ｜ <a href="/privacy">プライバシーポリシー</a></nav>';
+}
+
+function buildStaticBody(page, records, details) {
+  const heading = '<h1>' + escapeHtml(page.title) + '</h1>';
+  const intro = '<p>' + escapeHtml(page.description) + '</p>';
+  let content = '';
+  if (page.path === '/') {
+    content = '<h2>年度別・教科別に探す</h2><p>大学入学共通テスト・センター試験・共通第1次学力試験、本試験・追試験・試行問題の問題・解答資料を整理した非公式アーカイブです。</p>';
+  } else if (page.path === '/guide') {
+    content = '<h2>資料の探し方</h2><p>総覧、年度別、教科別の一覧から過去問を探せます。1979年に共通第1次学力試験、1990年にセンター試験、2021年に共通テストへ移行しました。異なる試験制度や受験者集団の得点は直接比較できない場合があります。</p>';
+  } else if (page.path === '/about') {
+    content = '<h2>独自の整理方針</h2><p>年度、教科、試験区分、実施日、試験時間、平均点などを紐付けて記録し、古い資料を見つけやすくする非公式の個人運営サイトです。各資料の出典情報は試験詳細の特記事項に記録されています。原資料の権利は各権利者に帰属します。</p>';
+  } else if (page.path === '/privacy') {
+    content = '<h2>広告とCookieについて</h2><p>Google AdSenseの利用を申請しています。広告が配信される場合はCookie等によって広告・ブラウザに関するデータが利用される可能性があります。Googleのデータ利用については https://policies.google.com/technologies/partner-sites を参照してください。</p>';
+  } else if (page.path === '/statistics') {
+    const scores = records.filter(r => r.examType === 'main' && details.get(r.questionPdf)?.averageScore !== null && details.get(r.questionPdf)?.totalScore);
+    const sample = scores.slice(0, 60).map(r => {
+      const d = details.get(r.questionPdf);
+      return '<tr><td>' + escapeHtml(r.year) + '</td><td>' + escapeHtml(r.subject) + '</td><td>' + d.averageScore + '</td><td>' + d.totalScore + '</td></tr>';
+    }).join('');
+    content = '<h2>平均点の記録（一部）</h2><p>平均得点率は平均点÷満点で計算しています。ページ内の科目選択で年度別に比較できます。</p><table><thead><tr><th>年度</th><th>科目</th><th>平均点</th><th>満点</th></tr></thead><tbody>' + sample + '</tbody></table>';
+  } else if (page.path.startsWith('/test/')) {
+    const pdf = decodeURIComponent(page.path.slice(6));
+    const r = records.find(x => x.questionPdf === pdf);
+    if (r) {
+      const d = details.get(pdf);
+      const list = [['年度', r.year], ['科目', r.subject], ['試験区分', r.examType === 'main' ? '本試験' : '追試験']];
+      if (d?.testDuration != null) list.push(['試験時間', d.testDuration + '分']);
+      if (d?.totalScore != null) list.push(['配点', d.totalScore + '点']);
+      if (d?.averageScore != null) list.push(['平均点', d.averageScore + '点']);
+      if (d?.examinees != null) list.push(['受験者数', d.examinees + '人']);
+      content = '<h2>試験情報</h2><dl>' + list.map(([k,v]) => '<dt>' + escapeHtml(k) + '</dt><dd>' + escapeHtml(v) + '</dd>').join('') + '</dl>';
+      content += '<p><a href="' + R2_ORIGIN + '/' + encodeURIComponent(pdf) + '">問題PDF</a></p>';
+      if (r.answerPdf) content += '<p><a href="' + R2_ORIGIN + '/' + encodeURIComponent(r.answerPdf) + '">解答PDF</a></p>';
+      content += '<p><a href="/year/' + encodeURIComponent(r.year) + '">同年度の試験一覧</a></p>';
+    }
+  } else {
+    let filtered = records;
+    if (page.path.startsWith('/year/')) {
+      filtered = records.filter(r => String(r.year) === decodeURIComponent(page.path.slice(6)));
+    } else if (page.path.startsWith('/subject/')) {
+      const slug = page.path.slice(9);
+      const subjectMatches = {
+        'eigo-reading': /英語.*(?:R|リーディング|筆記)/,
+        'eigo-listening': /英語.*(?:L|リスニング)/,
+        math1: /数学(?:I|Ⅰ|１|一)/,
+        math2: /数学(?:II|Ⅱ|２|二)/,
+        kokugo: /国語/,
+        'rika-kiso': /基礎理科|理科基礎|物理基礎|化学基礎|生物基礎|地学基礎/,
+        rika: /物理|化学|生物|地学|理科/,
+        joho: /情報/,
+        shakai: /歴史|地理|倫理|政治|経済|社会|現代社会/,
+      };
+      if (subjectMatches[slug]) filtered = records.filter(r => subjectMatches[slug].test(r.subject));
+    }
+    if (page.path !== '/archives') {
+      content = '<h2>収録資料一覧</h2><ul>' + filtered.slice(0, page.path === '/overview' ? 400 : 160).map(r =>
+        '<li><a href="/test/' + encodeURIComponent(r.questionPdf) + '">' +
+        escapeHtml(r.year + '年度 ' + r.subject + ' ' + (r.examType === 'main' ? '本試験' : '追試験')) +
+        '</a></li>').join('') + '</ul>';
+    }
+  }
+  return '<div id="archive-static-fallback" style="max-width:1100px;margin:24px auto;padding:20px;font-family:system-ui,sans-serif;line-height:1.8">' + heading + intro + content + staticNavigation() + '</div>';
+}
+
+function injectBody(html, page, records, details) {
+  const fallback = buildStaticBody(page, records, details);
+  return html.replace('<div id="root"></div>', '<div id="root">' + fallback + '</div>');
+}
+
 function cleanHead(html) {
   return html
     .replace(/<title>[\s\S]*?<\/title>\s*/i, '')
@@ -237,6 +334,12 @@ function buildPages(records) {
     description: DEFAULT_DESCRIPTION,
     keywords: '共通テスト,過去問,センター試験,共通一次,一覧,全部,大学入試,問題,解答,PDF,ダウンロード,ホーム',
   });
+  for (const [path, title, description] of [
+    ['/guide', '過去問資料の使い方｜共通テスト過去問総集', '本試験・追試験と試験制度の変遷、資料を探す方法を説明します。'],
+    ['/about', 'サイトについて｜共通テスト過去問総集', '資料の整理方針、出典、運営情報を説明します。'],
+    ['/privacy', 'プライバシーポリシー｜共通テスト過去問総集', '広告とCookie等の利用について説明します。'],
+    ['/statistics', '科目別平均点の年度推移｜共通テスト過去問総集', '本試験の科目別平均点と満点、平均得点率を比較します。'],
+  ]) add({ path, title, description });
   add({
     path: '/overview',
     title: '共通テスト過去問一覧｜全年度・全教科',
@@ -320,12 +423,13 @@ function main() {
   }
 
   const records = extractRecords();
+  const details = loadDetails();
   const pages = buildPages(records);
   const baseHtml = readFileSync(DIST_INDEX, 'utf8');
   let fileCount = 0;
 
   for (const page of pages) {
-    const html = injectMeta(baseHtml, page);
+    const html = injectBody(injectMeta(baseHtml, page), page, records, details);
     for (const filePath of pathToFilePaths(page.path)) {
       writeFileEnsuringDir(filePath, html);
       fileCount += 1;
