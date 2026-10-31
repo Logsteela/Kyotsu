@@ -332,40 +332,40 @@ export const COMMON_TEST_2026_RESEARCH: Record<string, MainExamResearch> = {
         "points": 20,
         "scoreRate": 62.77,
         "correctRate": 63.48,
-        "topic": "第1問"
+        "topic": "物質の状態と平衡"
       },
       {
         "number": 2,
         "points": 20,
         "scoreRate": 54.6,
         "correctRate": 54.94,
-        "topic": "第2問"
+        "topic": "反応速度・化学平衡"
       },
       {
         "number": 3,
         "points": 20,
         "scoreRate": 57.4,
         "correctRate": 58.79,
-        "topic": "第3問"
+        "topic": "無機物質"
       },
       {
         "number": 4,
         "points": 20,
         "scoreRate": 59.59,
         "correctRate": 60.06,
-        "topic": "第4問"
+        "topic": "有機化合物"
       },
       {
         "number": 5,
         "points": 20,
         "scoreRate": 49.92,
         "correctRate": 50.62,
-        "topic": "第5問"
+        "topic": "高分子を含む総合問題"
       }
     ],
     "observation": "全5大問が20点配点で、最高は第1問62.77%、最低は第5問49.92%。極端に得点率の低い一問だけでなく、各大問の得点率が5～6割前後に分布した。",
-    "review": "",
-    "detail": "第1問と第5問の得点率差は12.85ポイント。小問単位では異なるため、どの単元で落としたかは問題との照合が必要。"
+    "review": "第1問は物質の状態と平衡、第2問は反応速度・化学平衡、第3問は無機、第4問は有機、第5問はポリイミドなど身近な高分子を含む総合問題。高校教員による評価では、単なる語句の記憶ではなく実験条件や粒子の状態を判断させる設問に識別力があると指摘された。",
+    "detail": "第2問の塩の加水分解は正答率32.94%、緩衝液の判別は37.33%。第3問の金属イオン系統分離の操作の逆推論は33.35%。第5問の平衡定数の計算は30.12%。大問平均に隠れる低正答率の設問が散らばっている。"
   },
   "生物": {
     "parts": [
