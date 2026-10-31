@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router';
 import { SEOMeta } from '@/app/components/SEOMeta';
 import { StructuredData } from '@/app/components/StructuredData';
 import { Breadcrumbs } from '@/app/components/Breadcrumbs';
+import { CommonTestMainInsights } from '@/app/components/CommonTestMainInsights';
 import { getEnhancedDatabase, SLUG_TO_CATEGORY } from '@/app/data/testDatabase';
 import { getTestDetails } from '@/app/data/testDetailsDatabase';
 import { getEraDisplay } from '@/app/utils/era';
@@ -537,6 +538,13 @@ export function TestDetailPage() {
               )}
             </div>
           </div>
+
+          <CommonTestMainInsights
+            year={testRecord.year}
+            subject={testRecord.subject}
+            examType={testRecord.testType}
+            questionPdf={testRecord.questionPdf}
+          />
 
           {related.length > 0 && (
             <nav aria-label="関連試験" className="text-sm text-gray-600 flex flex-wrap gap-x-4 gap-y-2">
