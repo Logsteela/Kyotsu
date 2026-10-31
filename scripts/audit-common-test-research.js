@@ -115,6 +115,20 @@ for (const [subject, value] of Object.entries(social2025)) {
     problems.push(subject+': invalid 2025 combined social review');
   }
 }
+const foreign2025Text = read('src/app/data/commonTest2025ForeignLanguages.ts');
+const foreign2025Marker = 'COMMON_TEST_2025_FOREIGN_LANGUAGES: Record<string, ForeignLanguageAnalysis> = ';
+const f2025At = foreign2025Text.indexOf(foreign2025Marker);
+if (f2025At < 0) throw new Error('2025 foreign-language research data missing');
+const foreign2025 = JSON.parse(foreign2025Text.slice(f2025At + foreign2025Marker.length).trim().replace(/;$/, ''));
+for (const [subject, value] of Object.entries(foreign2025)) {
+  const matched = rows.filter(r => r[0] === '2025' && r[1] === 'main' && r[2] === subject);
+  if (matched.length !== 1 || previousResearch[subject] || social2025[subject] ||
+      !value.sections?.length || !value.observation?.trim() || !value.specific?.trim() || !value.caution?.trim() ||
+      value.sections.some((p,i)=>p.number!==i+1 || !p.topic?.trim() || !p.summary?.trim()))
+    problems.push(subject + ': invalid 2025 foreign-language review');
+}
+const covered2025 = Object.keys(previousResearch).length + Object.keys(social2025).length + Object.keys(foreign2025).length;
+if (covered2025 !== 27) problems.push('2025 subject analysis incomplete: ' + covered2025 + '/27');
 const count2026 = rows.filter(r => r[0] === '2026' && r[1] === 'main').length;
 if (count2026 !== report.length + Object.keys(foreign).length)
   problems.push('2026 subject analysis coverage incomplete: ' +
@@ -124,6 +138,8 @@ const message = {
   available: count2026,
   unmatched: count2026 - report.length - Object.keys(foreign).length,
   qualitativeForeignLanguages: Object.keys(foreign).length,
+  analyzed2025: covered2025,
+  qualitative2025ForeignLanguages: Object.keys(foreign2025).length,
   weightedMeansConfirmed: report.filter(r=>!r.optional).length,
   yearOnYearVerified,
   optionalMeansNotAdditive: report.filter(r=>r.optional).map(r=>r.subject),
