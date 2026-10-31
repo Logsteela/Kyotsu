@@ -218,7 +218,7 @@ function buildStaticBody(page, records, details, subjectCategories, archives) {
       archives.map(t => '<section><h3>' + escapeHtml(t.title) + '</h3><ol>' +
         t.data.map(row => '<li>' + escapeHtml(row.item1) + '：' + escapeHtml(row.item2) + '</li>').join('') + '</ol></section>').join('');
   } else if (page.path === '/year-statistics') {
-    const latestYear = Math.max(...records.filter(r => /^\\d{4}$/.test(r.year)).map(r => Number(r.year)));
+    const latestYear = Math.max(...records.filter(r => /^[0-9]{4}$/.test(r.year)).map(r => Number(r.year)));
     const sameYear = records.filter(r => Number(r.year) === latestYear && r.examType === 'main' && details.get(r.questionPdf)?.averageScore != null && details.get(r.questionPdf)?.totalScore > 0);
     content = '<h2>' + latestYear + '年度の科目別平均得点率</h2><p>同年度の平均得点率を比較します。科目ごとに受験者集団は異なり、難易度順位を示すものではありません。画面内の年度選択で他の年も比較できます。</p><table><thead><tr><th>科目</th><th>平均点</th><th>満点</th><th>平均得点率</th></tr></thead><tbody>' + sameYear.map(r => {
       const d = details.get(r.questionPdf);
