@@ -345,6 +345,18 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
               '</a></td><td>' + x.info.averageScore + '</td><td>' + x.rate.toFixed(2) + '%</td><td>' +
               (x.info.examinees ?? '—') + '</td></tr>').join('') + '</tbody></table>';
         }
+        const priorYear = examYear === 2025 ? priorResearch[r.subject] : null;
+        if (priorYear && priorYear.groups.length) {
+          const highest = priorYear.groups.reduce((a,b)=>a.previousRate > b.previousRate ? a:b);
+          const lowest = priorYear.groups.reduce((a,b)=>a.previousRate < b.previousRate ? a:b);
+          content += '<h2>2025年度本試験・大問別の得点率</h2>' +
+            '<p>最も高い得点率は第' + highest.number + '問 ' + highest.previousRate.toFixed(2) +
+            '%、最も低いのは第' + lowest.number + '問 ' + lowest.previousRate.toFixed(2) + '%。2025年度の公表された設問別得点率を大問ごとに整理しました。</p>' +
+            '<table><thead><tr><th>大問</th><th>分野</th><th>配点</th><th>得点率</th></tr></thead><tbody>' +
+            priorYear.groups.map(p => '<tr><td>第' + p.number + '問</td><td>' + escapeHtml(p.topic) +
+              '</td><td>' + p.points + '点</td><td>' + p.previousRate.toFixed(2) + '%</td></tr>').join('') +
+            '</tbody></table>';
+        }
         const researched = examYear === 2026 ? questionResearch[r.subject] : null;
         if (researched) {
           const parts = researched.parts;
