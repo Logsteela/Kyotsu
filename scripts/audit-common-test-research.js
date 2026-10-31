@@ -83,7 +83,7 @@ for (const [subject, entry] of Object.entries(previousResearch)) {
   }
   for(const g of entry.groups) {
     const now=currentResearch.parts.find(p=>p.number===g.number && p.points===g.points);
-    if (!now) problems.push(subject + ': counterpart for question '+g.number+' missing');
+    if (!now && !entry.nonComparable) problems.push(subject + ': counterpart for question '+g.number+' missing');
   }
   yearOnYearVerified++;
 }

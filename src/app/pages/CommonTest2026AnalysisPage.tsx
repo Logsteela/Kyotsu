@@ -39,7 +39,7 @@ export function CommonTest2026AnalysisPage() {
   }, []);
   const groupChanges = Object.entries(COMMON_TEST_GROUP_COMPARISONS).map(([subject, prior]) => {
     const recent = COMMON_TEST_2026_RESEARCH[subject];
-    if (!recent) return null;
+    if (!recent || prior.nonComparable) return null;
     const pairs = prior.groups.flatMap(old => {
       const now = recent.parts.find(p => p.number === old.number && p.points === old.points);
       if (!now) return [];

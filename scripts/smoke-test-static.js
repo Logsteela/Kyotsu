@@ -15,6 +15,7 @@ const cases = [
   { path: 'test/2026_数学IIBC_本試験問題.pdf/index.html', required: ['116点', '選択', '第5問', '36.95'] },
   { path: 'test/2025_数学IIBC_本試験問題.pdf/index.html', required: ['2025年度本試験・大問別', '36.95', '選択大問'] },
   { path: 'test/2025_物理_本試験問題.pdf/index.html', required: ['2025年度本試験・大問別', '52.59'] },
+  { path: 'test/2025_生物_本試験問題.pdf/index.html', required: ['2025年度本試験・大問別', '34.53', '配点'] },
   { path: 'test/2026_物理_本試験問題.pdf/index.html', required: ['2025年度との大問別得点率比較', '22.60'] },
   { path: 'test/2026_物理基礎_本試験問題.pdf/index.html', required: ['2025年度との大問別得点率比較', '32.25'] },
   { path: 'test/2026_地学_本試験問題.pdf/index.html', required: ['地球の変遷', '40.07', '大問'] },

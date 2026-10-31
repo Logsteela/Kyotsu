@@ -394,7 +394,7 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
             '<table><thead><tr><th>大問</th><th>分野</th><th>配点</th><th>得点率</th></tr></thead><tbody>' +
             priorYear.groups.map(p => '<tr><td>第' + p.number + '問</td><td>' + escapeHtml(p.topic) +
               '</td><td>' + p.points + '点</td><td>' + p.previousRate.toFixed(2) + '%</td></tr>').join('') +
-            '</tbody></table>' + (priorYear.nonAdditive ? '<p>選択大問が含まれるため、全大問を合計しても科目平均点には一致しません。</p>' : '');
+            '</tbody></table>' + (priorYear.nonAdditive ? '<p>選択大問が含まれるため、全大問を合計しても科目平均点には一致しません。</p>' : '') + (priorYear.nonComparable ? '<p>' + escapeHtml(priorYear.comment) + '</p>' : '');
         }
         const foreign = examYear === 2026 ? foreignResearch[r.subject] : null;
         if (foreign) {
@@ -419,7 +419,7 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
             (researched.review ? '<h3>問題評価と出題内容</h3><p>' + escapeHtml(researched.review) + '</p>' : '') +
             (researched.detail ? '<h3>設問別正答率からの分析</h3><p>' + escapeHtml(researched.detail) + '</p>' : '');
           const comparison = priorResearch[r.subject];
-          if (comparison && comparison.groups.length === parts.length) {
+          if (comparison && !comparison.nonComparable && comparison.groups.length === parts.length) {
             const paired = comparison.groups.map(g => ({ before:g, after:parts.find(p => p.number === g.number && p.points === g.points) }));
             if (paired.every(x => x.after)) {
               content += '<h3>2025年度との大問別得点率比較</h3><p>同じ大問番号・配点の比較です。出題内容は年度によって異なり、同一問題との比較ではありません。</p>' +

@@ -8,6 +8,7 @@ export function CommonTest2025QuestionDetails({ year, subject }: {year: number|s
   const data = year === 2025 ? COMMON_TEST_GROUP_COMPARISONS[subject] : null;
   const rates = data?.groups ?? [];
   const optional = Boolean(data?.nonAdditive);
+  const nonComparable = Boolean(data?.nonComparable);
   const { sorted, sortKey, direction, sortBy } = useSortedRows(rates, 'number', 'asc');
   if(!data || !rates.length) return null;
   const max = rates.reduce((a,b)=>a.previousRate >= b.previousRate ? a:b);
@@ -37,9 +38,10 @@ export function CommonTest2025QuestionDetails({ year, subject }: {year: number|s
           </tr>)}</tbody>
         </table>
       </div>
-      <p className="text-sm mb-3">{optional ? 'この科目は4つの選択大問から3つを選ぶ方式です。表の全大問を合計すると116点となり、100点満点の科目平均を再現できません。' : '大問の配点と得点率を掛け合わせると、科目全体の平均点を概ね再現できます。'}
+      <p className="text-sm mb-3">{optional ? 'この科目は4つの選択大問から3つを選ぶ方式です。表の全大問を合計すると116点となり、100点満点の科目平均を再現できません。' : nonComparable ? '2025年と2026年で大問配点が変更されたため、2026年との大問別平均点への寄与は算出しません。' : '大問の配点と得点率を掛け合わせると、科目全体の平均点を概ね再現できます。'}
         同じ大問番号でも2026年度は問題が変わるため、得点率の大小がそのまま難易度差を表すとは限りません。</p>
-      {next && <Link className="text-[var(--color-brand-green)] text-sm underline" to={`/test/${encodeURIComponent(next.questionPdf)}`}>2026年度の大問別得点率と前年差を見る</Link>}
+      {next && <Link className="text-[var(--color-brand-green)] text-sm underline" to={`/test/${encodeURIComponent(next.questionPdf)}`}>{nonComparable ? "2026年度の大問別得点率を見る（配点構成は異なります）" : "2026年度の大問別得点率と前年差を見る"}</Link>}
+      {nonComparable && <p className="text-sm mt-3">{data.comment}</p>}
     </section>
   );
 }

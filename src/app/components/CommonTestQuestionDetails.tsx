@@ -127,7 +127,7 @@ function PriorYearGroupComparison({ subject, parts }: { subject: string; parts: 
       currentRate:now.scoreRate, delta, averageContribution:delta * g.points / 100 }];
   }) : [];
   const { sorted, sortKey, direction, sortBy } = useSortedRows(rows, 'number', 'asc');
-  if (!baseline || rows.length !== baseline.groups.length) return null;
+  if (!baseline || baseline.nonComparable || rows.length !== baseline.groups.length) return null;
   return <section className="mt-6">
     <h3 className="text-base font-semibold mb-2">2025年度との大問別得点率比較</h3>
     <p className="text-sm mb-3 leading-relaxed">

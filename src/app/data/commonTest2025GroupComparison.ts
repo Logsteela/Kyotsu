@@ -2,8 +2,8 @@
 // 2025年度の得点率は大学入試センターの本試験データを用いた再集計値。
 // 出典・定義は /sources に集約。
 export type PriorGroupRate = { number: number; points: number; previousRate: number; topic: string };
-export type GroupComparison = { previousYear: number; groups: PriorGroupRate[]; comment: string; nonAdditive?: boolean };
-export const COMMON_TEST_GROUP_COMPARISONS: Record<string, GroupComparison> = {
+export type GroupComparison = { previousYear: number; groups: PriorGroupRate[]; comment: string; nonAdditive?: boolean; nonComparable?: boolean };
+export const COMMON_TEST_GROUP_COMPARISONS: Record<st{
   "国語": {
     "previousYear": 2025,
     "groups": [
@@ -358,5 +358,42 @@ export const COMMON_TEST_GROUP_COMPARISONS: Record<string, GroupComparison> = {
       }
     ],
     "comment": "第5問の得点率は2025年度41.62%から2026年度58.18%へ16.56ポイント上昇し、16点配点なので平均点に約+2.65点寄与した。これに対し第2問は80.03%から73.47%へ6.56ポイント低下した。平均点59.74点から64.24点への上昇は、大問ごとに異なる動きを伴う。"
+  },
+  "生物": {
+    "previousYear": 2025,
+    "nonComparable": true,
+    "groups": [
+      {
+        "number": 1,
+        "points": 18,
+        "previousRate": 34.53,
+        "topic": "苦味受容体の遺伝子変異"
+      },
+      {
+        "number": 2,
+        "points": 20,
+        "previousRate": 56.05,
+        "topic": "アミノ酸代謝と生体内の物質"
+      },
+      {
+        "number": 3,
+        "points": 20,
+        "previousRate": 65.46,
+        "topic": "森林の林床植物と光合成"
+      },
+      {
+        "number": 4,
+        "points": 18,
+        "previousRate": 56.94,
+        "topic": "両生類の胚発生と誘導"
+      },
+      {
+        "number": 5,
+        "points": 24,
+        "previousRate": 47.67,
+        "topic": "イネ・ラッカセイの環境応答"
+      }
+    ],
+    "comment": "2025年度は第1問18点、第2・3問各20点、第4問18点、第5問24点。2026年度は全5問20点ずつの配点に変わった。このため同じ大問番号の平均得点率差を科目平均点への寄与として計算することはしない。2025年の第1問34.53%が最も低く、第3問65.46%が最も高い。2026年は第3問が37.99%で最低、第5問が71.39%で最高であり、どの分野で高得点が取られたかは大きく変化した。"
   }
 };
