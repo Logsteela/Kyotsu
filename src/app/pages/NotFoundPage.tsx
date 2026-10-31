@@ -71,7 +71,7 @@ export function NotFoundPage() {
               </li>
               <li>
                 <Link
-                  to="/subject/english"
+                  to="/subject/eigo-reading"
                   className="text-[var(--color-brand-green)] hover:underline"
                 >
                   → 英語の過去問一覧

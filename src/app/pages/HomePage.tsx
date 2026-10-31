@@ -3,8 +3,6 @@ import { FileText, Calendar, ArrowRight, Clock, Info } from 'lucide-react';
 import { SEOMeta } from '@/app/components/SEOMeta';
 import { StructuredData } from '@/app/components/StructuredData';
 import { Button } from '@/app/components/ui/button';
-import { AdSection } from '@/app/components/ads/AdSection';
-import { ADMAX } from '@/app/config/admax';
 
 export function HomePage() {
   const title = '共通テスト過去問総集｜PDFダウンロード';
@@ -19,7 +17,6 @@ export function HomePage() {
         keywords="共通テスト,過去問,センター試験,共通一次,一覧,特例追試験,追試験,再試験,大学入試,問題,解答,PDF,ダウンロード,ホーム"
       />
       <StructuredData type="WebSite" />
-      <StructuredData type="EducationalOccupationalProgram" />
 
       <div className="flex-1 bg-gray-100 px-4 sm:px-6 py-6 lg:py-8">
         <div className="w-full">
@@ -27,10 +24,10 @@ export function HomePage() {
           <section className="bg-white rounded-lg border border-[var(--color-table-border)] p-6 lg:p-8 mb-6">
             <h1 className="sr-only">共通テスト過去問総集</h1>
             <p className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">
-              唯一の共通テスト全集
+              大学入試過去問の資料集
             </p>
             <p className="text-gray-700 leading-relaxed mb-4">
-              このサイトでは、全ての共通テストの問題・解答を無料で閲覧・ダウンロードできます。また、旧センター試験、旧共通一次試験も収集しています。
+              このサイトでは、収録している共通テストの問題・解答を無料で閲覧・ダウンロードできます。また、旧センター試験、旧共通一次試験も収集しています。
               すべての過去問を網羅的に収録している最中です。
             </p>
             <p className="text-gray-700 leading-relaxed">
@@ -77,8 +74,6 @@ export function HomePage() {
             </div>
           </section>
 
-          <AdSection admaxId={ADMAX.homeQuick.id} type={ADMAX.homeQuick.type} className="mb-6" />
-
           {/* サイトの目的 */}
           <section className="bg-white rounded-lg border border-[var(--color-table-border)] p-6 lg:p-8 mb-6">
             <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
@@ -89,7 +84,7 @@ export function HomePage() {
               <div>
                 <h4 className="font-semibold text-gray-900 mb-2">目的</h4>
                 <p className="leading-relaxed">
-                  大学入学共通テストの過去問は、過去三年分は大学入試センターから発表されますが、それ以前は非公開となります。また、予備校が発表する過去問は、速報を基盤としていることから、追試が欠落していることが多いです。<br/>このように、非常に高い公的性質を持つテストにもかかわらず、その過去の状況が非常につかみづらく、また演習を重ねたい人にとって非常に悪い環境となっています。<br/>そこで、これを改善すべく、直近の物から順に共通テスト・センター試験・共通一次試験の問題を収集することで、様々な用途に役立てることができると考えています。<br/>共通テストの過去問はすべて揃えているため、タイトル詐欺ではないと思います。
+                  大学入学共通テストの過去問は、過去三年分は大学入試センターから発表されますが、それ以前は非公開となります。また、予備校が発表する過去問は、速報を基盤としていることから、追試が欠落していることが多いです。<br/>このように、非常に高い公的性質を持つテストにもかかわらず、その過去の状況が非常につかみづらく、また演習を重ねたい人にとって非常に悪い環境となっています。<br/>そこで、これを改善すべく、直近の物から順に共通テスト・センター試験・共通一次試験の問題を収集することで、様々な用途に役立てることができると考えています。<br/>収録状況は資料ごとに異なります。欠損や出典が判明している場合は個別の試験情報に記録しています。
                 </p>
               </div>
               <div>
@@ -112,8 +107,6 @@ export function HomePage() {
 
 </div>
           </section>
-
-          <AdSection admaxId={ADMAX.homeAbout.id} type={ADMAX.homeAbout.type} className="mb-6" />
 
           <section className="bg-white rounded-lg border border-[var(--color-table-border)] p-6 lg:p-8 mb-6">
             <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
@@ -151,8 +144,6 @@ export function HomePage() {
 
             </div>
           </section>
-
-          <AdSection admaxId={ADMAX.homeHistory.id} type={ADMAX.homeHistory.type} />
         </div>
       </div>
     </>

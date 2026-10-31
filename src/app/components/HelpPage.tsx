@@ -87,7 +87,7 @@ export function HelpPage({ onClose }: HelpPageProps) {
           <section>
             <h3 className="text-lg font-semibold mb-2 text-gray-900">注意事項</h3>
             <p className="text-gray-700 mb-2">
-              私はこのサイトに関する一切の著作権を放棄し、また著作者人格権の不行使を確言します。
+              サイト運営者が独自に作成した文章・構成・プログラムと、掲載している第三者の問題・解答・音声等の権利は別です。第三者の著作権をサイト運営者が放棄するものではありません。掲載の訂正・権利に関する連絡は上記窓口へお願いします。
             </p>
           </section>
         </div>

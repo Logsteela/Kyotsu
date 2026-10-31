@@ -1,7 +1,7 @@
 'use client';
 
 import archivesTables from './archivesTables.json';
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { SEOMeta } from '@/app/components/SEOMeta';
 import { StructuredData } from '@/app/components/StructuredData';
 
@@ -25,6 +25,32 @@ interface RankingTableProps {
 function RankingTable({ title, data }: RankingTableProps) {
   const tableBoxRef = useRef<HTMLDivElement | null>(null);
   const [tableWidth, setTableWidth] = useState<number>(0);
+  const [sortKey, setSortKey] = useState<'rank' | 'item1' | 'item2'>('rank');
+  const [ascending, setAscending] = useState(true);
+  const changeSort = (next: 'rank' | 'item1' | 'item2') => {
+    if (next === sortKey) setAscending(prev => !prev);
+    else { setSortKey(next); setAscending(next !== 'item2'); }
+  };
+  const sortedData = useMemo(() => [...data].sort((a, b) => {
+    let diff = 0;
+    if (sortKey === 'rank') diff = a.rank - b.rank;
+    else if (sortKey === 'item1') diff = a.item1.localeCompare(b.item1, 'ja', { numeric: true });
+    else {
+      const read = (value: string) => {
+        const m = value.match(/[-+]?\d+(?:\.\d+)?/);
+        return m ? Number(m[0]) : null;
+      };
+      const va = read(a.item2), vb = read(b.item2);
+      diff = va !== null && vb !== null ? va - vb : a.item2.localeCompare(b.item2, 'ja', { numeric: true });
+    }
+    return ascending ? diff : -diff;
+  }), [data, sortKey, ascending]);
+  const headingButton = (label: string, key: 'rank' | 'item1' | 'item2') => (
+    <button type="button" className="inline-flex items-center gap-1 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
+      onClick={() => changeSort(key)} title={`${label}で並び替える`}>
+      {label}<span aria-hidden="true" className="text-xs opacity-60">{sortKey === key ? ascending ? '▲' : '▼' : '↕'}</span>
+    </button>
+  );
 
   // 表（枠）の実幅を監視して、タイトルの幅を「表幅」に固定する
   useLayoutEffect(() => {
@@ -75,13 +101,13 @@ function RankingTable({ title, data }: RankingTableProps) {
           <thead className="bg-[var(--color-table-header-bg)] border-b border-[var(--color-table-border)]">
             <tr>
               <th className="text-center p-2 text-xs sm:text-sm font-semibold text-gray-700 border-r border-[var(--color-table-border)] w-[50px] whitespace-nowrap">
-                順位
+                {headingButton('順位', 'rank')}
               </th>
               <th className="text-left p-2 text-xs sm:text-sm font-semibold text-gray-700 border-r border-[var(--color-table-border)] whitespace-nowrap">
-                教科
+                {headingButton('教科', 'item1')}
               </th>
               <th className="text-left p-2 text-xs sm:text-sm font-semibold text-gray-700 whitespace-nowrap">
-                点数
+                {headingButton('点数', 'item2')}
               </th>
             </tr>
           </thead>
@@ -94,7 +120,7 @@ function RankingTable({ title, data }: RankingTableProps) {
                 </td>
               </tr>
             ) : (
-              data.map((item, index) => (
+              sortedData.map((item, index) => (
                 <tr
                   key={`${item.rank}-${index}`}
                   className={`border-b border-[var(--color-table-border)] last:border-b-0 ${

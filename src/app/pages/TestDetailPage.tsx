@@ -3,6 +3,9 @@ import { useParams, Link } from 'react-router';
 import { SEOMeta } from '@/app/components/SEOMeta';
 import { StructuredData } from '@/app/components/StructuredData';
 import { Breadcrumbs } from '@/app/components/Breadcrumbs';
+import { CommonTestMainInsights } from '@/app/components/CommonTestMainInsights';
+import { ExamScoreCalculator } from '@/app/components/ExamScoreCalculator';
+import { HistoricalExamContext } from '@/app/components/HistoricalExamContext';
 import { getEnhancedDatabase, SLUG_TO_CATEGORY } from '@/app/data/testDatabase';
 import { getTestDetails } from '@/app/data/testDetailsDatabase';
 import { getEraDisplay } from '@/app/utils/era';
@@ -20,7 +23,7 @@ import {
   LucideIcon,
 } from 'lucide-react';
 
-const SITE_ORIGIN = 'https://kyotsutest.vercel.app';
+const SITE_ORIGIN = 'https://kyotsu.org';
 
 function isGustMode(): boolean {
   if (typeof window === 'undefined') return false;
@@ -193,7 +196,27 @@ export function TestDetailPage() {
 
   const pageTitle = `${displayTestName}｜問題・解答PDF｜共通テスト過去問総集`;
 
-  const description = `${displayTestName}の問題PDF・解答PDFを掲載。平均点、受験者数、試験時間、配点などの試験情報も確認できます。`;
+  const facts = [
+    typeof testDetails?.averageScore === 'number' ? `平均点${testDetails.averageScore}点` : '',
+    typeof testDetails?.totalScore === 'number' ? `${testDetails.totalScore}点満点` : '',
+    typeof testDetails?.examinees === 'number' ? `受験者数${testDetails.examinees.toLocaleString('ja-JP')}人` : '',
+    typeof testDetails?.testDuration === 'number' ? `試験時間${testDetails.testDuration}分` : '',
+  ].filter(Boolean);
+  const description = `${displayTestName}の問題・解答資料。${facts.length ? facts.join('、') + '。' : '収録状況や出典情報を確認できます。'}`;
+
+  const relatedCandidates = getEnhancedDatabase().filter(r => r.subject === testRecord.subject && r.questionPdf !== testRecord.questionPdf);
+  const related: Array<{ name: string; url: string }> = [];
+  const activeYear = typeof testRecord.year === 'number' ? testRecord.year : null;
+  if (activeYear !== null) {
+    const sameType = relatedCandidates.filter(r => typeof r.year === 'number' && r.testType === testRecord.testType);
+    const older = sameType.filter(r => (r.year as number) < activeYear).sort((a,b) => (b.year as number) - (a.year as number))[0];
+    const newer = sameType.filter(r => (r.year as number) > activeYear).sort((a,b) => (a.year as number) - (b.year as number))[0];
+    // 左から新しい年度、古い年度の順で表示する。
+    if (newer) related.push({ name: `次の同科目（${newer.year}年度）`, url: `/test/${encodeURIComponent(newer.questionPdf)}` });
+    if (older) related.push({ name: `以前の同科目（${older.year}年度）`, url: `/test/${encodeURIComponent(older.questionPdf)}` });
+  }
+  const paired = relatedCandidates.find(r => r.year === testRecord.year && r.testType !== testRecord.testType);
+  if (paired) related.push({ name: `同年度の${paired.testType === 'main' ? '本試験' : '追試験'}`, url: `/test/${encodeURIComponent(paired.questionPdf)}` });
 
   const breadcrumbItems = [
     { name: formattedYear, url: yearPath },
@@ -518,6 +541,36 @@ export function TestDetailPage() {
               )}
             </div>
           </div>
+
+          <CommonTestMainInsights
+            year={testRecord.year}
+            subject={testRecord.subject}
+            examType={testRecord.testType}
+            questionPdf={testRecord.questionPdf}
+          />
+
+          <HistoricalExamContext
+            year={testRecord.year}
+            subject={testRecord.subject}
+            testType={testRecord.testType}
+            questionPdf={testRecord.questionPdf}
+          />
+
+          <ExamScoreCalculator
+            year={testRecord.year}
+            subject={testRecord.subject}
+            testType={testRecord.testType}
+            average={typeof testDetails?.averageScore === 'number' ? testDetails.averageScore : undefined}
+            maxScore={typeof testDetails?.totalScore === 'number' ? testDetails.totalScore : undefined}
+            standardDeviation={typeof testDetails?.standardDeviation === 'number' ? testDetails.standardDeviation : undefined}
+          />
+
+          {related.length > 0 && (
+            <nav aria-label="関連試験" className="text-sm text-gray-600 flex flex-wrap gap-x-4 gap-y-2">
+              <span>関連資料：</span>
+              {related.map(item => <Link key={item.url} to={item.url} className="text-[var(--color-brand-green)] underline">{item.name}</Link>)}
+            </nav>
+          )}
 
           <div className="mt-4">
             <Link to={yearPath}>

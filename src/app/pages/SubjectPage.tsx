@@ -22,11 +22,11 @@ export function SubjectPage() {
         filtered.map((record) => [
           [
             record.year,
-            record.examType,
+            record.testType,
             record.subject,
             record.questionPdf,
             record.answerPdf,
-            record.audioFile ?? '',
+            record.audio ?? '',
           ].join('::'),
           record,
         ])
@@ -48,12 +48,12 @@ export function SubjectPage() {
 
   const pageTitle = useMemo(() => {
     if (!categorySubject) return '共通テスト過去問総集';
-    return `共通テスト ${categorySubject} 過去問｜問題・解答PDF`;
+    return `${categorySubject}の歴代入試過去問｜共通テスト・センター試験等の問題と解答`;
   }, [categorySubject]);
 
   const description = useMemo(() => {
     if (!categorySubject) return '';
-    return `共通テスト ${categorySubject}の問題PDF、解答PDF、本試験、追試験、年度別一覧。`;
+    return `${categorySubject}の共通テスト・センター試験・共通一次などの問題、解答、年度別一覧。`;
   }, [categorySubject]);
 
   const keywords = useMemo(() => {
@@ -85,7 +85,6 @@ export function SubjectPage() {
         description={description}
         path={pagePath}
         keywords={keywords}
-        type="article"
       />
       <StructuredData
         type="WebPage"

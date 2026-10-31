@@ -26,11 +26,11 @@ export function YearPage() {
         filtered.map((record) => [
           [
             record.year,
-            record.examType,
+            record.testType,
             record.subject,
             record.questionPdf,
             record.answerPdf,
-            record.audioFile ?? '',
+            record.audio ?? '',
           ].join('::'),
           record,
         ])
@@ -62,7 +62,8 @@ export function YearPage() {
 
     const yearNum = Number(year);
     const era = getEraDisplay(yearNum);
-    return `${yearNum}年度（${era}）共通テスト過去問｜問題・解答PDF`;
+    const examName = yearNum >= 2021 ? '共通テスト' : yearNum >= 1990 ? 'センター試験' : yearNum >= 1979 ? '共通一次試験' : '試行・実地研究試験';
+    return `${yearNum}年度（${era}）${examName}過去問｜問題・解答PDF`;
   }, [year]);
 
   const description = useMemo(() => {
@@ -74,7 +75,8 @@ export function YearPage() {
 
     const yearNum = Number(year);
     const era = getEraDisplay(yearNum);
-    return `${yearNum}年度（${era}）共通テストの問題PDF、解答PDF、本試験、追試験。`;
+    const examName = yearNum >= 2021 ? '共通テスト' : yearNum >= 1990 ? 'センター試験' : yearNum >= 1979 ? '共通一次試験' : '試行・実地研究試験';
+    return `${yearNum}年度（${era}）${examName}の問題・解答PDFと関連資料。`;
   }, [year]);
 
   const keywords = useMemo(() => {
@@ -111,7 +113,6 @@ export function YearPage() {
         description={description}
         path={pagePath}
         keywords={keywords}
-        type="article"
       />
       <StructuredData
         type="WebPage"
