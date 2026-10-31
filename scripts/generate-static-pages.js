@@ -217,7 +217,7 @@ function buildStaticBody(page, records, details, subjectCategories, archives) {
     const sourceCounts = new Map();
     for (const r of records) {
       const note = details.get(r.questionPdf)?.specialNotes ?? '';
-      for (const match of note.matchAll(/(問題|解答|音源)：([^　\\n]+)/g)) {
+      for (const match of note.matchAll(/(問題|解答|音源)：([^　\n]+)/g)) {
         const key = match[1] + '：' + match[2].trim();
         sourceCounts.set(key, (sourceCounts.get(key) ?? 0) + 1);
       }
