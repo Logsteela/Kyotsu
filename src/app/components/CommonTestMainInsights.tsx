@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { CommonTestQuestionDetails } from '@/app/components/CommonTestQuestionDetails';
 import { Link } from 'react-router';
 import { getEnhancedDatabase } from '@/app/data/testDatabase';
 import { getTestDetails } from '@/app/data/testDetailsDatabase';
@@ -44,8 +45,6 @@ export function CommonTestMainInsights({ year, subject, examType, questionPdf }:
   const currentIndex = comparisons.findIndex(c => c.questionPdf === questionPdf);
   const order = currentIndex >= 0 && comparisons.length >= 3
     ? 1 + comparisons.filter(p => p.rate > comparisons[currentIndex].rate).length : null;
-  const officialUrl = `https://www.dnc.ac.jp/kyotsu/kako_shiken_jouhou/r${year - 2018}/`;
-  const knownName = year === 2026 && subject === '国語';
   return (
     <section aria-labelledby="exam-research-title" className="mt-6 border border-[var(--color-table-border)] bg-white rounded-lg p-5 sm:p-6 text-gray-800">
       <h2 id="exam-research-title" className="text-lg font-bold mb-3">この本試験の統計と過去問比較</h2>
@@ -96,33 +95,7 @@ export function CommonTestMainInsights({ year, subject, examType, questionPdf }:
           </div>
         </>
       )}
-      <h3 className="text-base font-semibold mb-2">原資料・設問分析を確認する</h3>
-      <p className="text-sm leading-relaxed mb-3">
-        大学入試センターは、試験年度ごとの実施情報に加え、問題評価・分析委員会の報告書や、
-        年度によっては設問別正答率・成績分布等を公開しています。問題の特徴や得点率の背景を調べる際は、
-        これらの一次資料も参照してください。
-      </p>
-      <div className="flex gap-x-5 gap-y-2 flex-wrap text-sm mb-4">
-        <a href={officialUrl} target="_blank" rel="noopener noreferrer" className="text-[var(--color-brand-green)] underline">{year}年度の公式試験情報</a>
-        <a href="https://www.dnc.ac.jp/kyotsu/hyouka/" target="_blank" rel="noopener noreferrer" className="text-[var(--color-brand-green)] underline">大学入試センターの問題評価・分析資料</a>
-        <a href="https://www.dnc.ac.jp/kyotsu/suii/R3_.html" target="_blank" rel="noopener noreferrer" className="text-[var(--color-brand-green)] underline">公式の平均点・受験者数の推移</a>
-      </div>
-      {knownName && (
-        <div className="border-t pt-4 text-sm">
-          <h3 className="text-base font-semibold mb-2">2026年度国語の出題構成</h3>
-          <p className="mb-2 leading-relaxed">2026年度の国語は、2025年度に引き続き、論理的文章・文学的文章・実用的文章を扱う領域・古文・漢文の5大問でした。第3問は生徒の文章と資料を扱い、従来の文章読解に加えて資料の関連付けを要する構成です。</p>
-          <p className="mb-3 leading-relaxed">平均点が前年から低下しても、それだけで設問が一律に難化したとは判断できません。大問構成や設問別正答率を確認することで、どこに差が生じたかを調べられます。</p>
-          <a href="https://www.zkai.co.jp/kyotsu-test/bunseki/kokugo/" target="_blank" rel="noopener noreferrer" className="text-[var(--color-brand-green)] underline">2026年度国語の出題内容分析（Z会）</a>
-        </div>
-      )}
-      {year === 2026 && (subject.includes('英語') && (subject.includes('リーディング') || subject.includes('筆記'))) && (
-        <div className="border-t pt-4 text-sm">
-          <h3 className="text-base font-semibold mb-2">2026年度英語リーディングの出題構成</h3>
-          <p className="mb-2 leading-relaxed">大学入試センターが公表した高校教員による評価によると、2026年度は8大問で構成され、メッセージや物語、科学的文章などを扱いました。第4問にはニュースレターの推敲、第8問には複数の意見や図表を照合してメモを整理する設問が含まれます。</p>
-          <p className="mb-3 leading-relaxed">単一文章の読解だけでなく、形式の異なる資料の照合・整理にも注意して問題を確認できます。設問ごとの評価は公式報告書に掲載されています。</p>
-          <a href="https://www.dnc.ac.jp/kyotsu/hyouka/r8_hyouka/r8_hyoukahoukokusyo_honshiken.html" target="_blank" rel="noopener noreferrer" className="text-[var(--color-brand-green)] underline">2026年度公式・教科別評価（外国語）</a>
-        </div>
-      )}
+      <CommonTestQuestionDetails year={year} subject={subject} />
       <p className="text-xs text-gray-600 leading-relaxed mt-4">
         注：平均点や得点率は受験者集団・科目構成・得点調整等の影響を受けます。同じ科目名でも年度により出題範囲や方式が異なる場合があります。
         比較可能な年度が複数あっても、得点率だけから問題難易度の優劣は確定できません。
