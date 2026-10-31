@@ -10,10 +10,10 @@ export function useSortedRows<T extends object>(
 ) {
   const [sortKey, setSortKey] = useState<keyof T & string>(initialKey);
   const [direction, setDirection] = useState<SortDirection>(initialDirection);
-  const sortBy = (key: keyof T & string) => {
+  const sortBy = (key: string) => {
     if (key === sortKey) setDirection(d => d === 'asc' ? 'desc' : 'asc');
     else {
-      setSortKey(key);
+      setSortKey(key as keyof T & string);
       setDirection('asc');
     }
   };
