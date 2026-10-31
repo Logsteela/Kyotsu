@@ -170,7 +170,7 @@ function loadQuestionResearch() {
   const marker = 'COMMON_TEST_2026_RESEARCH: Record<string, MainExamResearch> = ';
   const at = source.indexOf(marker);
   if (at < 0) throw new Error('Question research data marker missing');
-  const block = source.slice(at + marker.length).trim().replace(/;\\s*$/, '');
+  const block = source.slice(at + marker.length).trim().replace(/;$/, '');
   return JSON.parse(block);
 }
 
