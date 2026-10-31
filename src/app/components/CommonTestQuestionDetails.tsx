@@ -12,7 +12,7 @@ export function CommonTestQuestionDetails({ year, subject }: { year: number | st
     <h3 className="text-base sm:text-lg font-semibold mb-2">大問ごとの得点状況（2026年度本試験）</h3>
     <p className="text-sm leading-relaxed mb-3">
       実際の受験者の成績から、大問の得点率と正答率を比較しました。得点率は部分点を含む平均得点の割合、
-      正答率は小問を完全に正解した割合の大問内平均です。大問の正答率は配点による重み付けをしていないため、
+      正答率は小問を完全に正解した割合の大問内平均です。未照合の正答率は「—」と表示します。大問の正答率は配点による重み付けをしていないため、
       得点率と一致しない場合があります。
     </p>
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
@@ -79,7 +79,7 @@ export function CommonTestQuestionDetails({ year, subject }: { year: number | st
   </section>;
 }
 
-type Part = { number:number; points:number; scoreRate:number; correctRate:number; topic:string };
+type Part = { number:number; points:number; scoreRate:number; correctRate:number | null; topic:string };
 function ExamQuestionTable({parts}:{parts:Part[]}) {
   const { sorted, sortKey, direction, sortBy } = useSortedRows(parts, 'number', 'asc');
   return <div className="overflow-x-auto">
@@ -96,7 +96,7 @@ function ExamQuestionTable({parts}:{parts:Part[]}) {
         <td className="p-3">{p.topic}</td>
         <td className="p-3 tabular-nums">{p.points}点</td>
         <td className="p-3 tabular-nums">{p.scoreRate.toFixed(2)}%</td>
-        <td className="p-3 tabular-nums">{p.correctRate.toFixed(2)}%</td>
+        <td className="p-3 tabular-nums">{p.correctRate === null ? '—' : `${p.correctRate.toFixed(2)}%`}</td>
       </tr>)}</tbody>
     </table>
   </div>;
