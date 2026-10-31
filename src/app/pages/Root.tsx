@@ -71,6 +71,7 @@ export function Root() {
             <Link to="/guide" className="hover:underline text-[var(--color-brand-green)]">資料の使い方</Link>
             <Link to="/statistics" className="hover:underline text-[var(--color-brand-green)]">平均点の推移</Link>
             <Link to="/coverage" className="hover:underline text-[var(--color-brand-green)]">収録状況</Link>
+            <Link to="/sources" className="hover:underline text-[var(--color-brand-green)]">資料の出典</Link>
             <Link to="/year-statistics" className="hover:underline text-[var(--color-brand-green)]">年度別統計</Link>
             <Link to="/about" className="hover:underline text-[var(--color-brand-green)]">サイト・資料について</Link>
             <Link to="/privacy" className="hover:underline text-[var(--color-brand-green)]">プライバシーポリシー</Link>
