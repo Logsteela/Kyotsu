@@ -70,6 +70,7 @@ export function Root() {
           <nav aria-label="サイト案内" className="flex flex-wrap gap-x-6 gap-y-3 mb-3">
             <Link to="/guide" className="hover:underline text-[var(--color-brand-green)]">資料の使い方</Link>
             <Link to="/statistics" className="hover:underline text-[var(--color-brand-green)]">平均点の推移</Link>
+            <Link to="/coverage" className="hover:underline text-[var(--color-brand-green)]">収録状況</Link>
             <Link to="/about" className="hover:underline text-[var(--color-brand-green)]">サイト・資料について</Link>
             <Link to="/privacy" className="hover:underline text-[var(--color-brand-green)]">プライバシーポリシー</Link>
           </nav>
