@@ -71,6 +71,28 @@ export function SourcesPage() {
       <div className="flex-1 bg-gray-100 px-4 sm:px-6 py-6 lg:py-8">
         <article className="bg-white rounded-lg border border-[var(--color-table-border)] p-6 lg:p-8 max-w-6xl text-gray-800 leading-relaxed">
           <h1 className="text-2xl font-bold mb-4">収録資料の出典記録</h1>
+          <section className="mb-8 border rounded-lg p-4 sm:p-5 bg-gray-50" id="research-methods">
+            <h2 className="text-xl font-bold mb-3">統計・問題分析に用いる資料と方法</h2>
+            <p className="mb-3 text-sm">共通テスト本試験の個別試験ページに掲載している「大問ごとの得点状況」「出題内容・問題評価」「得点分布」の出典はこちらに集約しています。試験ページから外部サイトを巡回しなくても主要な数値と分析が分かるよう、数値の比較と解釈は当サイト内に掲載します。</p>
+            <h3 className="font-semibold mb-2">大学入試センター（一次資料）</h3>
+            <ul className="list-disc pl-5 text-sm space-y-2 mb-4">
+              <li><a className="underline text-[var(--color-brand-green)]" href="https://www.dnc.ac.jp/kyotsu/hyouka/r8_hyouka/r8_data.html" target="_blank" rel="noopener noreferrer">2026年度本試験・設問別得点率と正答率／科目別成績分布</a>（CSVおよび説明書）</li>
+              <li><a className="underline text-[var(--color-brand-green)]" href="https://www.dnc.ac.jp/kyotsu/hyouka/r7_hyouka/r7_data.html" target="_blank" rel="noopener noreferrer">2025年度本試験・設問別得点率と正答率／科目別成績分布</a></li>
+              <li><a className="underline text-[var(--color-brand-green)]" href="https://www.dnc.ac.jp/kyotsu/hyouka/r8_hyouka/r8_hyoukahoukokusyo_honshiken.html" target="_blank" rel="noopener noreferrer">2026年度・問題評価・分析委員会報告書（本試験）</a>：高等学校教科担当教員、関係教育団体、問題作成部会の評価</li>
+              <li><a className="underline text-[var(--color-brand-green)]" href="https://www.dnc.ac.jp/kyotsu/suii/R3_.html" target="_blank" rel="noopener noreferrer">共通テスト本試験の受験者数・平均点の推移</a></li>
+              <li><a className="underline text-[var(--color-brand-green)]" href="https://www.dnc.ac.jp/kyotsu/hyouka/" target="_blank" rel="noopener noreferrer">過年度の問題評価報告書・試験情報データ一覧</a></li>
+            </ul>
+            <h3 className="font-semibold mb-2">数値照合・分布分析の補助資料</h3>
+            <ul className="list-disc pl-5 text-sm space-y-2 mb-4">
+              <li><a className="underline text-[var(--color-brand-green)]" href="https://eic.obunsha.co.jp/exam_info/2026/2026%E5%B9%B4-%E5%85%B1%E9%80%9A%E3%83%86%E3%82%B9%E3%83%88-%E5%B0%8F%E5%95%8F%E5%88%A5%E6%AD%A3%E7%AD%94%E7%8E%87/" target="_blank" rel="noopener noreferrer">旺文社教育情報センター・2026年の小問別正答率整理</a>：原資料の個別設問の数値の照合</li>
+              <li><a className="underline text-[var(--color-brand-green)]" href="https://kyotsu-zemi.fworks.studio/guide/daimon-tokutenritsu-2026/" target="_blank" rel="noopener noreferrer">共通テストゼミ・2026年大問別得点率の再集計</a>：大問単位の値の照合</li>
+              <li><a className="underline text-[var(--color-brand-green)]" href="https://sukyojuku.com/joho1-2026-honshiken/" target="_blank" rel="noopener noreferrer">数強塾・2025／2026年度情報Ⅰの設問・成績分布の分析</a>：中央値、分布の境界、得点帯別人数を照合</li>
+            </ul>
+            <h3 className="font-semibold mb-2">数値と解釈の区別</h3>
+            <p className="text-sm mb-2">得点率＝平均得点÷配点。正答率＝完全に正答した受験者の割合（部分点を含めない）。大問全体の正答率は設問の正答率の平均であり、配点を重み付けした得点率と一致するとは限りません。大問の得点率・正答率は小数第2位まで表示し、元の集計で端数処理が行われた場合は合計値とわずかな差が生じることがあります。</p>
+            <p className="text-sm mb-2">「出題内容」「注目した設問」「差の要因」は各報告書を参考に当サイトが整理した文章です。報告書の文章や表そのものを転載せず、考察と計算結果を掲載します。前年のデータとの比較は、同名・同配点の本試験かを確認してから実施しています。</p>
+            <p className="text-sm">資料を根拠とする解釈であっても、各問題の客観的な難易度や個人の得点可能性を確定するものではありません。試行問題・追試験の統計を本試験のものとして扱うことはありません。</p>
+          </section>
           <p className="mb-4">問題、解答、リスニング音源について、試験詳細の「特記事項」に記録された提供元を集計しました。歴史的な試験資料の所在や伝達経路を調べるための目録です。収録レコードから自動生成するため、データの追記に応じて結果が変わります。</p>
           <p className="mb-5">対象レコード：<strong>{data.summary.count.toLocaleString('ja-JP')}件</strong> ／ 出典の記載あり：<strong>{data.summary.documented.toLocaleString('ja-JP')}件</strong> ／ 記載なし：<strong>{data.summary.missing.toLocaleString('ja-JP')}件</strong></p>
           <p className="text-sm mb-6 border-l-4 border-gray-300 pl-3">重要：これはサイト内の出典表記を集計したもので、提供元が本サイトによる転載・再配布を許諾したことを示すものではありません。また、出典の記載がない資料も、提供元が存在しないことを意味しません。正確な出典の確認や権利に関する連絡は、右下のヘルプ窓口へお願いします。</p>
