@@ -256,6 +256,41 @@ function buildStaticBody(page, records, details, subjectCategories, archives) {
       if (d?.examinees != null) list.push(['受験者数', d.examinees + '人']);
       content = '<h2>試験情報</h2><dl>' + list.map(([k,v]) => '<dt>' + escapeHtml(k) + '</dt><dd>' + escapeHtml(v) + '</dd>').join('') + '</dl>';
       if (d?.specialNotes) content += '<h2>資料の注記・出典</h2><p>' + escapeHtml(d.specialNotes) + '</p>';
+      // The same fact-based comparison must also be available without executing React.
+      const examYear = Number(r.year);
+      if (/^[0-9]{4}$/.test(r.year) && examYear >= 2021 && examYear <= 2026 && r.examType === 'main') {
+        const max = d?.totalScore;
+        const byYear = new Map();
+        for (const entry of records) {
+          const y = Number(entry.year);
+          if (!/^[0-9]{4}$/.test(entry.year) || y < 2021 || y > 2026 || entry.examType !== 'main' || entry.subject !== r.subject) continue;
+          const info = details.get(entry.questionPdf);
+          if (!info || !(info.totalScore > 0) || info.averageScore == null || (max > 0 && info.totalScore !== max)) continue;
+          const arr = byYear.get(y) ?? [];
+          arr.push({ ...entry, info, rate: info.averageScore / info.totalScore * 100 });
+          byYear.set(y, arr);
+        }
+        const comparable = [...byYear].filter(([year, items]) => items.length === 1).map(([year, items]) => ({ year, ...items[0] })).sort((a,b) => b.year - a.year);
+        if (d?.averageScore != null && max > 0) {
+          const rate = d.averageScore / max * 100;
+          const prior = comparable.find(x => x.year === examYear - 1);
+          const diff = prior ? rate - prior.rate : null;
+          content += '<h2>本試験の年度比較</h2><p>この科目の平均得点率は' + rate.toFixed(2) + '%（' + d.averageScore + '点／' + max + '点）。' +
+            (diff !== null ? '前年度の同名・同配点試験との差は' + (diff >= 0 ? '+' : '') + diff.toFixed(2) + 'ポイントです。' : '比較可能な前年の記録はありません。') +
+            'これらは試験の難易度順位を示す数値ではありません。</p>';
+        }
+        if (comparable.length > 1) {
+          content += '<h3>同じ科目名・満点の推移</h3><table><thead><tr><th>年度</th><th>平均点</th><th>平均得点率</th><th>受験者数</th></tr></thead><tbody>' +
+            comparable.map(x => '<tr><td><a href="/test/' + encodeURIComponent(x.questionPdf) + '">' + x.year +
+              '</a></td><td>' + x.info.averageScore + '</td><td>' + x.rate.toFixed(2) + '%</td><td>' +
+              (x.info.examinees ?? '—') + '</td></tr>').join('') + '</tbody></table>';
+        }
+        content += '<h3>公式の試験資料</h3><p>大学入試センターの<a href="https://www.dnc.ac.jp/kyotsu/kako_shiken_jouhou/r' + (examYear - 2018) +
+          '/">当該年度の実施結果・試験情報</a>および<a href="https://www.dnc.ac.jp/kyotsu/hyouka/">問題評価・分析委員会報告書</a>を参照できます。</p>';
+        if (examYear === 2026 && r.subject === '国語') {
+          content += '<h3>2026年度国語の構成</h3><p>論理的文章、文学的文章、実用的文章を扱う領域、古文、漢文の5大問。問題構成の詳細は<a href="https://www.zkai.co.jp/kyotsu-test/bunseki/kokugo/">Z会の分析</a>に掲載されています。</p>';
+        }
+      }
       content += '<p><a href="' + R2_ORIGIN + '/' + encodeURIComponent(pdf) + '">問題PDF</a></p>';
       if (r.answerPdf) content += '<p><a href="' + R2_ORIGIN + '/' + encodeURIComponent(r.answerPdf) + '">解答PDF</a></p>';
       content += '<p><a href="/year/' + encodeURIComponent(r.year) + '">同年度の試験一覧</a></p>';
