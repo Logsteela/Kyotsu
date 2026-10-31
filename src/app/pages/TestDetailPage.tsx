@@ -4,6 +4,7 @@ import { SEOMeta } from '@/app/components/SEOMeta';
 import { StructuredData } from '@/app/components/StructuredData';
 import { Breadcrumbs } from '@/app/components/Breadcrumbs';
 import { CommonTestMainInsights } from '@/app/components/CommonTestMainInsights';
+import { ExamScoreCalculator } from '@/app/components/ExamScoreCalculator';
 import { getEnhancedDatabase, SLUG_TO_CATEGORY } from '@/app/data/testDatabase';
 import { getTestDetails } from '@/app/data/testDetailsDatabase';
 import { getEraDisplay } from '@/app/utils/era';
@@ -544,6 +545,15 @@ export function TestDetailPage() {
             subject={testRecord.subject}
             examType={testRecord.testType}
             questionPdf={testRecord.questionPdf}
+          />
+
+          <ExamScoreCalculator
+            year={testRecord.year}
+            subject={testRecord.subject}
+            testType={testRecord.testType}
+            average={typeof testDetails?.averageScore === 'number' ? testDetails.averageScore : undefined}
+            maxScore={typeof testDetails?.totalScore === 'number' ? testDetails.totalScore : undefined}
+            standardDeviation={typeof testDetails?.standardDeviation === 'number' ? testDetails.standardDeviation : undefined}
           />
 
           {related.length > 0 && (
