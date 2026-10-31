@@ -296,6 +296,24 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
     content = '<h2>入試の記録比較</h2><p>収録された統計をもとに、平均得点率や各種得点記録の順位を整理した一覧です。年度や受験者集団による違いを考慮し、順位だけで難易度を判断しないでください。</p>' +
       archives.map(t => '<section><h3>' + escapeHtml(t.title) + '</h3><ol>' +
         t.data.map(row => '<li>' + escapeHtml(row.item1) + '：' + escapeHtml(row.item2) + '</li>').join('') + '</ol></section>').join('');
+  } else if (page.path === '/common-test-2025-analysis') {
+    const kinds = [
+      ...Object.entries(priorResearch).map(([subject, entry]) => ({subject, type: '大問別得点率', groups: entry.groups.length,
+        highest: Math.max(...entry.groups.map(x=>x.previousRate)),lowest: Math.min(...entry.groups.map(x=>x.previousRate))})),
+      ...Object.entries(social2025).map(([subject, entry]) => ({subject, type: '問題評価', groups: entry.groups.length})),
+      ...Object.entries(foreign2025).map(([subject, entry]) => ({subject, type: '問題評価', groups: entry.sections.length})),
+    ];
+    content = '<h2>2025年度の共通テスト本試験27科目</h2>' +
+      '<p>大問別得点率が確認できた20科目と、高校教員による問題評価を整理した7科目の研究資料です。出典・集計方法は<a href="/sources">資料の出典</a>にまとめています。</p>' +
+      '<table><thead><tr><th>科目</th><th>掲載内容</th><th>大問数</th><th>大問得点率の最低・最高</th></tr></thead><tbody>' +
+      kinds.map(x=>{
+        const record = records.find(r=>r.year==='2025'&&r.examType==='main'&&r.subject===x.subject);
+        if (!record) return '';
+        return '<tr><td><a href="/test/' + encodeURIComponent(record.questionPdf) + '">' + escapeHtml(x.subject) + '</a></td><td>' +
+          x.type + '</td><td>' + x.groups + '</td><td>' +
+          (x.lowest==null?'未照合':x.lowest.toFixed(2)+'%～'+x.highest.toFixed(2)+'%') +
+          '</td></tr>';
+      }).join('') + '</tbody></table><h2>比較可能な大問</h2><p>2026年度と番号・配点が対応する14科目は、2026年度の資料ページでも前年との大問別得点率差を閲覧できます。選択問題や配点変更がある場合は数値の単純合計を避けています。</p>';
   } else if (page.path === '/common-test-2026-analysis') {
     const summarized = [];
     for (const [subject, research] of Object.entries(questionResearch)) {
@@ -663,6 +681,7 @@ function buildPages(records) {
     ['/year-statistics', '年度別・教科別の平均得点率比較｜共通テスト過去問総集', '年度別に平均得点率や前年との差を比較します。'],
     ['/common-test-changes', '共通テスト科目別の平均点前年差｜共通テスト過去問総集', '共通テスト本試験について前年と今年の科目別平均点を照合します。'],
     ['/common-test-2026-analysis', '2026年度共通テスト本試験・大問別得点率と正答率の分析', '23科目の大問別成績と出題評価を一覧し、個別試験の分析に進めます。'],
+    ['/common-test-2025-analysis', '2025年度共通テスト本試験・27科目の出題分析', '20科目の大問別得点率と7科目の問題評価を一覧して比較します。'],
   ]) add({ path, title, description });
   add({
     path: '/overview',
