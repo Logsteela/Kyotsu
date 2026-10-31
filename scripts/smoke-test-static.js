@@ -35,9 +35,9 @@ for (const target of cases) {
 }
 // All 2026 main-exam subjects must have substantive, crawler-visible editorial content.
 const tsvSource = readFileSync(join(root, 'src/app/data/testDatabase.ts'), 'utf8');
-const tsvBlock = tsvSource.match(/const DATABASE_TSV = `\\n([\\s\\S]*?)\\n`/);
+const tsvBlock = tsvSource.match(/const DATABASE_TSV = `\n([\s\S]*?)\n`/);
 if (!tsvBlock) throw new Error('Database TSV unavailable');
-const main2026 = tsvBlock[1].split('\\n').map(line => line.split('\\t'))
+const main2026 = tsvBlock[1].split('\n').map(line => line.split('\t'))
   .filter(row => row[0] === '2026' && row[1] === 'main');
 const qualitative = new Set(['ドイツ語','フランス語','中国語','韓国語']);
 if (main2026.length !== 27) errors.push('Unexpected 2026 main-exam count: ' + main2026.length);
