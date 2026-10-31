@@ -1,5 +1,6 @@
 import { createBrowserRouter, type RouteObject } from 'react-router';
 
+import { CommonTest2025AnalysisPage } from '@/app/pages/CommonTest2025AnalysisPage';
 import { CommonTest2026AnalysisPage } from '@/app/pages/CommonTest2026AnalysisPage';
 import { CommonTestChangesPage } from '@/app/pages/CommonTestChangesPage';
 import { SourcesPage } from '@/app/pages/SourcesPage';
@@ -37,6 +38,7 @@ const routes: RouteObject[] = [
       { path: 'year-statistics', Component: YearStatisticsPage },
       { path: 'common-test-changes', Component: CommonTestChangesPage },
       { path: 'common-test-2026-analysis', Component: CommonTest2026AnalysisPage },
+      { path: 'common-test-2025-analysis', Component: CommonTest2025AnalysisPage },
       { path: 'guide', Component: GuidePage },
       { path: 'about', Component: AboutPage },
       { path: 'privacy', Component: PrivacyPage },
