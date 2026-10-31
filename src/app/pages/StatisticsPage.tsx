@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
 import { SEOMeta } from '@/app/components/SEOMeta';
+import { SortHeader } from '@/app/components/SortHeader';
+import { useSortedRows } from '@/app/utils/useSortedRows';
 import { getEnhancedDatabase } from '@/app/data/testDatabase';
 import { getTestDetails } from '@/app/data/testDetailsDatabase';
 
@@ -37,6 +39,7 @@ export function StatisticsPage() {
   const [period, setPeriod] = useState<Period>('all');
   const current = subjects.find(s => s.name === selected) ?? subjects[0];
   const points = current?.points.filter(p => inPeriod(p.year, period)) ?? [];
+  const { sorted, sortKey, direction, sortBy } = useSortedRows(points, 'year');
   const mean = points.length ? points.reduce((sum, p) => sum + p.rate, 0) / points.length : null;
   const max = points.length ? points.reduce((a, b) => a.rate > b.rate ? a : b) : null;
   const min = points.length ? points.reduce((a, b) => a.rate < b.rate ? a : b) : null;
@@ -76,8 +79,12 @@ export function StatisticsPage() {
               {points.length ? (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse text-sm">
-                    <thead><tr className="border-b bg-gray-50"><th className="p-3">年度</th><th className="p-3">平均点</th><th className="p-3">満点</th><th className="p-3 min-w-[120px]">平均得点率</th><th className="p-3">受験者数</th><th className="p-3">出典・資料</th></tr></thead>
-                    <tbody>{points.map(p => <tr key={p.questionPdf} className="border-b">
+                    <thead><tr className="border-b bg-gray-50"><SortHeader label="年度" column="year" {...{sortKey,direction}} onSort={sortBy} />
+                      <SortHeader label="平均点" column="average" {...{sortKey,direction}} onSort={sortBy} />
+                      <SortHeader label="満点" column="max" {...{sortKey,direction}} onSort={sortBy} />
+                      <SortHeader label="平均得点率" column="rate" className="p-3 min-w-[120px]" {...{sortKey,direction}} onSort={sortBy} />
+                      <SortHeader label="受験者数" column="examinees" {...{sortKey,direction}} onSort={sortBy} /><th className="p-3">出典・資料</th></tr></thead>
+                    <tbody>{sorted.map(p => <tr key={p.questionPdf} className="border-b">
                       <td className="p-3">{p.year}</td><td className="p-3">{p.average}</td><td className="p-3">{p.max}</td>
                       <td className="p-3">
                         <span className="tabular-nums">{p.rate.toFixed(1)}%</span>
