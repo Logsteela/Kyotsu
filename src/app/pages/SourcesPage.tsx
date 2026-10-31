@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router';
 import { SEOMeta } from '@/app/components/SEOMeta';
+import { SortHeader } from '@/app/components/SortHeader';
+import { useSortedRows } from '@/app/utils/useSortedRows';
 import { testDatabase } from '@/app/data/testDatabase';
 import { getTestDetails } from '@/app/data/testDetailsDatabase';
 
@@ -13,6 +15,27 @@ function extractSources(notes: string): {kind: string; source: string}[] {
     if (source) found.push({ kind: match[1], source });
   }
   return found;
+}
+function SourceTable({ items }: { items: SourceItem[] }) {
+  const { sorted, sortKey, direction, sortBy } = useSortedRows(items, 'count');
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-sm text-left">
+        <thead><tr className="border-b bg-gray-50">
+          <SortHeader label="記載された出典名" column="label" {...{sortKey,direction}} onSort={sortBy} />
+          <SortHeader label="件数" column="count" {...{sortKey,direction}} onSort={sortBy} />
+          <th className="p-3">資料例</th>
+        </tr></thead>
+        <tbody>{sorted.map(item => (
+          <tr key={item.label} className="border-b">
+            <td className="p-3 font-medium">{item.label}</td>
+            <td className="p-3 tabular-nums">{item.count}</td>
+            <td className="p-3"><div className="flex flex-wrap gap-3">{item.example.map((pdf, i) => <Link key={pdf} to={`/test/${encodeURIComponent(pdf)}`} className="text-[var(--color-brand-green)] underline">例{i + 1}</Link>)}</div></td>
+          </tr>
+        ))}</tbody>
+      </table>
+    </div>
+  );
 }
 export function SourcesPage() {
   const data = useMemo(() => {
@@ -54,22 +77,7 @@ export function SourcesPage() {
           {data.tables.map(table => (
             <section key={table.kind} className="mb-7">
               <h2 className="text-xl font-bold mb-2">{table.kind}の出典記録</h2>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm text-left">
-                  <thead><tr className="border-b bg-gray-50"><th className="p-3">記載された出典名</th><th className="p-3">件数</th><th className="p-3">資料例</th></tr></thead>
-                  <tbody>{table.sources.map(item => (
-                    <tr key={item.label} className="border-b">
-                      <td className="p-3 font-medium">{item.label}</td>
-                      <td className="p-3 tabular-nums">{item.count}</td>
-                      <td className="p-3">
-                        <div className="flex flex-wrap gap-3">
-                          {item.example.map((pdf, i) => <Link key={pdf} to={`/test/${encodeURIComponent(pdf)}`} className="text-[var(--color-brand-green)] underline">例{i + 1}</Link>)}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}</tbody>
-                </table>
-              </div>
+              <SourceTable items={table.sources} />
             </section>
           ))}
           <h2 className="text-lg font-bold mb-2">収録情報の整理方法</h2>
