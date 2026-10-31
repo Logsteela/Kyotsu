@@ -78,6 +78,7 @@ export function SourcesPage() {
             <ul className="list-disc pl-5 text-sm space-y-2 mb-4">
               <li><a className="underline text-[var(--color-brand-green)]" href="https://www.dnc.ac.jp/kyotsu/hyouka/r8_hyouka/r8_data.html" target="_blank" rel="noopener noreferrer">2026年度本試験・設問別得点率と正答率／科目別成績分布</a>（CSVおよび説明書）</li>
               <li><a className="underline text-[var(--color-brand-green)]" href="https://www.dnc.ac.jp/kyotsu/hyouka/r7_hyouka/r7_data.html" target="_blank" rel="noopener noreferrer">2025年度本試験・設問別得点率と正答率／科目別成績分布</a></li>
+              <li><a className="underline text-[var(--color-brand-green)]" href="https://www.dnc.ac.jp/kyotsu/hyouka/r7_hyouka/r7_hyoukahoukokusyo_honshiken.html" target="_blank" rel="noopener noreferrer">2025年度問題評価・分析委員会報告書（本試験）</a>：外国語4科目の高校教員評価から題材・設問の特徴を整理</li>
               <li><a className="underline text-[var(--color-brand-green)]" href="https://www.dnc.ac.jp/kyotsu/hyouka/r8_hyouka/r8_hyoukahoukokusyo_honshiken.html" target="_blank" rel="noopener noreferrer">2026年度・問題評価・分析委員会報告書（本試験）</a>：高等学校教科担当教員、関係教育団体、問題作成部会の評価</li>
               <li><a className="underline text-[var(--color-brand-green)]" href="https://www.dnc.ac.jp/kyotsu/suii/R3_.html" target="_blank" rel="noopener noreferrer">共通テスト本試験の受験者数・平均点の推移</a></li>
               <li><a className="underline text-[var(--color-brand-green)]" href="https://www.dnc.ac.jp/kyotsu/hyouka/" target="_blank" rel="noopener noreferrer">過年度の問題評価報告書・試験情報データ一覧</a></li>
