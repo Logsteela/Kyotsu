@@ -115,6 +115,14 @@ export function CommonTestMainInsights({ year, subject, examType, questionPdf }:
           <a href="https://www.zkai.co.jp/kyotsu-test/bunseki/kokugo/" target="_blank" rel="noopener noreferrer" className="text-[var(--color-brand-green)] underline">2026年度国語の出題内容分析（Z会）</a>
         </div>
       )}
+      {year === 2026 && (subject.includes('英語') && (subject.includes('リーディング') || subject.includes('筆記'))) && (
+        <div className="border-t pt-4 text-sm">
+          <h3 className="text-base font-semibold mb-2">2026年度英語リーディングの出題構成</h3>
+          <p className="mb-2 leading-relaxed">大学入試センターが公表した高校教員による評価によると、2026年度は8大問で構成され、メッセージや物語、科学的文章などを扱いました。第4問にはニュースレターの推敲、第8問には複数の意見や図表を照合してメモを整理する設問が含まれます。</p>
+          <p className="mb-3 leading-relaxed">単一文章の読解だけでなく、形式の異なる資料の照合・整理にも注意して問題を確認できます。設問ごとの評価は公式報告書に掲載されています。</p>
+          <a href="https://www.dnc.ac.jp/kyotsu/hyouka/r8_hyouka/r8_hyoukahoukokusyo_honshiken.html" target="_blank" rel="noopener noreferrer" className="text-[var(--color-brand-green)] underline">2026年度公式・教科別評価（外国語）</a>
+        </div>
+      )}
       <p className="text-xs text-gray-600 leading-relaxed mt-4">
         注：平均点や得点率は受験者集団・科目構成・得点調整等の影響を受けます。同じ科目名でも年度により出題範囲や方式が異なる場合があります。
         比較可能な年度が複数あっても、得点率だけから問題難易度の優劣は確定できません。
