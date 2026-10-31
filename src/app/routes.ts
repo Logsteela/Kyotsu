@@ -1,5 +1,9 @@
 import { createBrowserRouter, type RouteObject } from 'react-router';
 
+import { StatisticsPage } from '@/app/pages/StatisticsPage';
+import { GuidePage } from '@/app/pages/GuidePage';
+import { AboutPage } from '@/app/pages/AboutPage';
+import { PrivacyPage } from '@/app/pages/PrivacyPage';
 import { Root } from '@/app/pages/Root';
 import { HomePage } from '@/app/pages/HomePage';
 import { OverviewPage } from '@/app/pages/OverviewPage';
@@ -22,6 +26,10 @@ const routes: RouteObject[] = [
       { path: 'subject/:subject', Component: SubjectPage },
       { path: 'test/:questionPdf', Component: TestDetailPage },
       { path: 'archives', Component: ArchivesPage },
+      { path: 'statistics', Component: StatisticsPage },
+      { path: 'guide', Component: GuidePage },
+      { path: 'about', Component: AboutPage },
+      { path: 'privacy', Component: PrivacyPage },
 
       { path: '*', Component: NotFoundPage },
     ],
