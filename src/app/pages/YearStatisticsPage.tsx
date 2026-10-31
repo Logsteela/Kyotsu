@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
 import { SEOMeta } from '@/app/components/SEOMeta';
+import { SortHeader } from '@/app/components/SortHeader';
+import { useSortedRows } from '@/app/utils/useSortedRows';
 import { getEnhancedDatabase } from '@/app/data/testDatabase';
 import { getTestDetails } from '@/app/data/testDetailsDatabase';
 
@@ -25,11 +27,11 @@ export function YearStatisticsPage() {
   const years = [...new Set(records.map(r => r.year))].sort((a, b) => b - a);
   const [chosenYear, setChosenYear] = useState<number | null>(null);
   const year = chosenYear !== null && years.includes(chosenYear) ? chosenYear : years[0];
-  const selected = records.filter(r => r.year === year).sort((a,b) => b.rate - a.rate);
-  const comparison = (entry: Score) => {
-    const previous = records.filter(r => r.year === entry.year - 1 && r.subject === entry.subject && r.max === entry.max);
-    return previous.length === 1 ? entry.rate - previous[0].rate : null;
-  };
+  const selected = records.filter(r => r.year === year).map(p => {
+    const prior = records.filter(r => r.year === p.year - 1 && r.subject === p.subject && r.max === p.max);
+    return { ...p, delta: prior.length === 1 ? p.rate - prior[0].rate : null };
+  });
+  const { sorted, sortKey, direction, sortBy } = useSortedRows(selected, 'rate');
   return (
     <>
       <SEOMeta path="/year-statistics" title="年度別・教科別の平均得点率比較｜共通テスト過去問総集"
@@ -47,11 +49,11 @@ export function YearStatisticsPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead><tr className="bg-gray-50 border-b">
-                  <th className="p-3">科目</th><th className="p-3">平均点／満点</th><th className="p-3 min-w-[140px]">平均得点率</th>
-                  <th className="p-3">前年との差</th><th className="p-3">受験者数</th><th className="p-3">詳細</th>
+                  <SortHeader label="科目" column="subject" {...{sortKey,direction}} onSort={sortBy} /><SortHeader label="平均点" column="average" {...{sortKey,direction}} onSort={sortBy} /><SortHeader label="平均得点率" column="rate" className="p-3 min-w-[140px]" {...{sortKey,direction}} onSort={sortBy} />
+                  <SortHeader label="前年との差" column="delta" {...{sortKey,direction}} onSort={sortBy} /><SortHeader label="受験者数" column="examinees" {...{sortKey,direction}} onSort={sortBy} /><th className="p-3">詳細</th>
                 </tr></thead>
-                <tbody>{selected.map(p => {
-                  const delta = comparison(p);
+                <tbody>{sorted.map(p => {
+                  const delta = p.delta;
                   return <tr key={p.questionPdf} className="border-b">
                     <th className="p-3 font-medium">{p.subject}</th><td className="p-3">{p.average}／{p.max}</td>
                     <td className="p-3 tabular-nums">{p.rate.toFixed(1)}%<span className="block bg-gray-100 h-1.5 rounded mt-1" aria-hidden="true"><span className="block h-full rounded bg-[var(--color-brand-green)]" style={{width: `${Math.max(0, Math.min(100, p.rate))}%`}} /></span></td>
