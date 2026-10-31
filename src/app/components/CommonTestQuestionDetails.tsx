@@ -29,6 +29,31 @@ export function CommonTestQuestionDetails({ year, subject }: { year: number | st
       <h3 className="font-semibold mb-2">設問単位で注目する点</h3>
       <p className="text-sm leading-relaxed mb-3">{record.detail}</p>
     </section>}
+    {subject === '国語' && <section className="mt-5">
+      <h3 className="font-semibold mb-2">国語の得点分布：2025年度と2026年度の比較</h3>
+      <p className="text-sm leading-relaxed mb-3">
+        2026年度は平均点116.37点で、2025年度の126.67点から10.30点下がりました。
+        分布でも160点以上（8割以上）の割合が19.93%から10.04%へ、180点以上（9割以上）は4.07%から1.65%へ減っています。
+        これは平均点の変化だけでなく、特に高得点帯の人数構成が変わったことを意味します。
+      </p>
+      <table className="w-full text-sm text-left mb-3">
+        <thead><tr className="border-b bg-gray-50"><th className="p-2">分布の指標</th><th className="p-2">2025年度</th><th className="p-2">2026年度</th></tr></thead>
+        <tbody>{[
+          ['160点以上','87,139人（19.93%）','43,974人（10.04%）'],
+          ['180点以上','17,786人（4.07%）','7,215人（1.65%）'],
+          ['200点満点','144人','113人'],
+          ['下位20%の境目','94点','86点'],
+          ['下位40%の境目','119点','107点'],
+          ['下位60%の境目','139点','126点'],
+          ['下位80%の境目','159点','146点'],
+        ].map(([name,prev,curr])=><tr key={name} className="border-b"><th className="p-2 font-medium">{name}</th><td className="p-2">{prev}</td><td className="p-2">{curr}</td></tr>)}</tbody>
+      </table>
+      <p className="text-sm leading-relaxed mb-3">
+        分位点は下位20%が8点、40%が12点、60%と80%がそれぞれ13点下がっています。
+        2026年度の160点以上の割合は前年のおよそ半分です。ただし、出題内容だけでなく受験者の違いも含むため、
+        得点分布の差をそのまま問題難易度の差とはみなしません。
+      </p>
+    </section>}
     {subject === '情報Ⅰ' && <section className="mt-5">
       <h3 className="font-semibold mb-2">得点分布の変化（2025年度から2026年度）</h3>
       <p className="text-sm leading-relaxed mb-3">2026年度の科目別成績分布では、中央値・最頻値とも56点。前年の中央値70点・最頻値71点から移動しています。平均点だけでなく、得点分布の中心が下がったことが確認できます。</p>
