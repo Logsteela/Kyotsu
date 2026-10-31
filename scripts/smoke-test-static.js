@@ -16,6 +16,10 @@ const cases = [
   { path: 'test/2026_地学_本試験問題.pdf/index.html', required: ['地球の変遷', '40.07', '大問'] },
   { path: 'test/2026_地理総合_本試験問題.pdf/index.html', required: ['地理総合', '50点', '得点率'] },
   { path: 'test/2026_公共_本試験問題.pdf/index.html', required: ['公共', '社会保障', '50点'] },
+  { path: 'test/2026_ドイツ語_本試験問題.pdf/index.html', required: ['第4問', '金継ぎ', '問題評価'] },
+  { path: 'test/2026_フランス語_本試験問題.pdf/index.html', required: ['第7問', '市民農園', '問題評価'] },
+  { path: 'test/2026_中国語_本試験問題.pdf/index.html', required: ['第5問', 'フィンランド', '問題評価'] },
+  { path: 'test/2026_韓国語_本試験問題.pdf/index.html', required: ['第4問', '気候美食', '問題評価'] },
 ];
 const errors = [];
 let checked = 0;

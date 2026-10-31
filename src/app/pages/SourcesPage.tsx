@@ -105,6 +105,8 @@ export function SourcesPage() {
               <li><a href="https://kyotsu-zemi.fworks.studio/guide/chiri-rekishi-koukyou-daimon-kousei/" className="underline text-[var(--color-brand-green)]" target="_blank" rel="noopener noreferrer">2026年度「地理総合／歴史総合／公共」選択領域の配点と得点率</a></li>
               <li><a href="https://kyotsu-zemi.fworks.studio/guide/chireki-koumin-daizai/" className="underline text-[var(--color-brand-green)]" target="_blank" rel="noopener noreferrer">2026年度地理・歴史・公共の大問題材と評価</a></li>
             </ul>
+            <h3 className="font-semibold mb-2">外国語4科目の問題評価の利用について</h3>
+            <p className="text-sm mb-4">2026年度のドイツ語・フランス語・中国語・韓国語は、大学入試センターの問題評価・分析委員会報告書にある各科目の「高等学校教科担当教員からの評価」を読み、当サイト独自の説明として大問の構成、時間的負荷、設問評価を整理しています。原資料は上の2026年度報告書ページから各言語を選べます。大問ごとの実測得点率は数値未照合のため掲載していません。</p>
             <h3 className="font-semibold mb-2">数値と解釈の区別</h3>
             <p className="text-sm mb-2">得点率＝平均得点÷配点。正答率＝完全に正答した受験者の割合（部分点を含めない）。大問全体の正答率は設問の正答率の平均であり、配点を重み付けした得点率と一致するとは限りません。大問の得点率・正答率は小数第2位まで表示し、元の集計で端数処理が行われた場合は合計値とわずかな差が生じることがあります。</p>
             <p className="text-sm mb-2">「出題内容」「注目した設問」「差の要因」は各報告書を参考に当サイトが整理した文章です。報告書の文章や表そのものを転載せず、考察と計算結果を掲載します。前年のデータとの比較は、同名・同配点の本試験かを確認してから実施しています。</p>

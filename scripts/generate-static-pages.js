@@ -13,6 +13,7 @@ const DATABASE_PATH = join(__dirname, '../src/app/data/testDatabase.ts');
 const DETAILS_PATH = join(__dirname, '../src/app/data/testDetailsDatabase.ts');
 const QUESTION_RESEARCH_PATH = join(__dirname, '../src/app/data/commonTest2026Research.ts');
 const PRIOR_RESEARCH_PATH = join(__dirname, '../src/app/data/commonTest2025GroupComparison.ts');
+const FOREIGN_RESEARCH_PATH = join(__dirname, '../src/app/data/commonTest2026ForeignLanguages.ts');
 const ARCHIVES_PATH = join(__dirname, '../src/app/components/archivesTables.json');
 const R2_ORIGIN = 'https://pub-43d2006e555442dca4a107e7bc0d01bb.r2.dev';
 
@@ -175,6 +176,14 @@ function loadQuestionResearch() {
   return JSON.parse(block);
 }
 
+function loadForeignResearch() {
+  const source = readFileSync(FOREIGN_RESEARCH_PATH, 'utf8');
+  const marker = 'COMMON_TEST_2026_FOREIGN_LANGUAGES: Record<string, ForeignLanguageAnalysis> = ';
+  const at = source.indexOf(marker);
+  if (at < 0) throw new Error('Foreign language research data missing');
+  return JSON.parse(source.slice(at + marker.length).trim().replace(/;$/, ''));
+}
+
 function loadPriorResearch() {
   const source = readFileSync(PRIOR_RESEARCH_PATH, 'utf8');
   const marker = 'COMMON_TEST_GROUP_COMPARISONS: Record<string, GroupComparison> = ';
@@ -211,7 +220,7 @@ function staticNavigation() {
   return '<nav aria-label="サイト案内"><a href="/">ホーム</a> ｜ <a href="/overview">全試験一覧</a> ｜ <a href="/statistics">平均点の推移</a> ｜ <a href="/year-statistics">年度別統計</a> ｜ <a href="/coverage">収録状況</a> ｜ <a href="/sources">資料の出典</a> ｜ <a href="/guide">資料の使い方</a> ｜ <a href="/about">サイトについて</a> ｜ <a href="/privacy">プライバシーポリシー</a></nav>';
 }
 
-function buildStaticBody(page, records, details, subjectCategories, archives, questionResearch, priorResearch) {
+function buildStaticBody(page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch) {
   const heading = '<h1>' + escapeHtml(page.title) + '</h1>';
   const intro = '<p>' + escapeHtml(page.description) + '</p>';
   let content = '';
@@ -273,6 +282,12 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
       '</tbody></table><h2>科目別に何が分かるか</h2>' +
       summarized.map(r => '<h3>' + escapeHtml(r.subject) + '</h3><p>' + escapeHtml(r.overview) +
         ' <a href="/test/' + encodeURIComponent(r.pdf) + '">詳細の分析を見る</a></p>').join('');
+    content += '<h2>外国語4科目の出題と評価</h2><p>得点率の大問別原数値を未照合のため、以下は教師評価に基づく質的な分析です。</p>' +
+      Object.entries(foreignResearch).map(([subject, review]) => {
+        const exam = records.find(r => r.year === '2026' && r.examType === 'main' && r.subject === subject);
+        return exam ? '<h3><a href="/test/' + encodeURIComponent(exam.questionPdf) + '">' + escapeHtml(subject) +
+          '</a></h3><p>' + escapeHtml(review.observation) + '</p>' : '';
+      }).join('');
   } else if (page.path === '/common-test-changes') {
     const snapshots = records.filter(r => /^[0-9]{4}$/.test(r.year) && Number(r.year) >= 2025 && Number(r.year) <= 2026 && r.examType === 'main');
     const changes = [];
@@ -357,6 +372,13 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
               '</td><td>' + p.points + '点</td><td>' + p.previousRate.toFixed(2) + '%</td></tr>').join('') +
             '</tbody></table>';
         }
+        const foreign = examYear === 2026 ? foreignResearch[r.subject] : null;
+        if (foreign) {
+          content += '<h2>本試験の出題内容と問題評価</h2><p>大学入試センターの高等学校教科担当教員による評価に基づく大問別の整理です。実測の大問別得点率は未確認なので記載していません。</p>' +
+            foreign.sections.map(x => '<h3>第' + x.number + '問：' + escapeHtml(x.topic) + '</h3><p>' + escapeHtml(x.summary) + '</p>').join('') +
+            '<h3>全体評価</h3><p>' + escapeHtml(foreign.observation) + '</p>' +
+            '<h3>注目すべき設問</h3><p>' + escapeHtml(foreign.specific) + '</p><p>' + escapeHtml(foreign.caution) + '</p>';
+        }
         const researched = examYear === 2026 ? questionResearch[r.subject] : null;
         if (researched) {
           const parts = researched.parts;
@@ -429,8 +451,8 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
   return '<div id="archive-static-fallback" style="max-width:1100px;margin:24px auto;padding:20px;font-family:system-ui,sans-serif;line-height:1.8">' + heading + intro + content + staticNavigation() + '</div>';
 }
 
-function injectBody(html, page, records, details, subjectCategories, archives, questionResearch, priorResearch) {
-  const fallback = buildStaticBody(page, records, details, subjectCategories, archives, questionResearch, priorResearch);
+function injectBody(html, page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch) {
+  const fallback = buildStaticBody(page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch);
   return html.replace('<div id="root"></div>', '<div id="root">' + fallback + '</div>');
 }
 
@@ -627,12 +649,13 @@ function main() {
   const archives = JSON.parse(readFileSync(ARCHIVES_PATH, 'utf8'));
   const questionResearch = loadQuestionResearch();
   const priorResearch = loadPriorResearch();
+  const foreignResearch = loadForeignResearch();
   const pages = buildPages(records);
   const baseHtml = readFileSync(DIST_INDEX, 'utf8');
   let fileCount = 0;
 
   for (const page of pages) {
-    const html = injectBody(injectMeta(baseHtml, page), page, records, details, subjectCategories, archives, questionResearch, priorResearch);
+    const html = injectBody(injectMeta(baseHtml, page), page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch);
     for (const filePath of pathToFilePaths(page.path)) {
       writeFileEnsuringDir(filePath, html);
       fileCount += 1;

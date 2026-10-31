@@ -87,11 +87,27 @@ for (const [subject, entry] of Object.entries(previousResearch)) {
   }
   yearOnYearVerified++;
 }
+const foreignSource = read('src/app/data/commonTest2026ForeignLanguages.ts');
+const foreignMarker = 'COMMON_TEST_2026_FOREIGN_LANGUAGES: Record<string, ForeignLanguageAnalysis> = ';
+const foreignAt = foreignSource.indexOf(foreignMarker);
+if (foreignAt < 0) throw new Error('Foreign language research missing');
+const foreign = JSON.parse(foreignSource.slice(foreignAt + foreignMarker.length).trim().replace(/;$/, ''));
+for (const [subject, report] of Object.entries(foreign)) {
+  const row = rows.filter(r => r[0] === '2026' && r[1] === 'main' && r[2] === subject);
+  if (row.length !== 1 || research[subject] || !report.sections?.length ||
+      !report.observation?.trim() || !report.specific?.trim() || !report.caution?.trim()) {
+    problems.push(subject + ': foreign evaluation incomplete or not unique');
+  }
+  const numbers = report.sections.map(x=>x.number);
+  if (numbers.some((n,i)=>n!==i+1) || report.sections.some(x=>!x.topic?.trim()||!x.summary?.trim()))
+    problems.push(subject+': malformed qualitative question-group data');
+}
 const count2026 = rows.filter(r => r[0] === '2026' && r[1] === 'main').length;
 const message = {
   tested: report.length,
   available: count2026,
-  unmatched: count2026 - report.length,
+  unmatched: count2026 - report.length - Object.keys(foreign).length,
+  qualitativeForeignLanguages: Object.keys(foreign).length,
   weightedMeansConfirmed: report.filter(r=>!r.optional).length,
   yearOnYearVerified,
   optionalMeansNotAdditive: report.filter(r=>r.optional).map(r=>r.subject),
