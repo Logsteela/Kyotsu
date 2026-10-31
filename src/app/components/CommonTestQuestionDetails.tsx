@@ -1,4 +1,5 @@
 import { COMMON_TEST_2026_RESEARCH } from '@/app/data/commonTest2026Research';
+import { CommonTest2026SocialDistribution } from '@/app/components/CommonTest2026SocialDistribution';
 import { getDifficultyAppropriateness } from '@/app/data/commonTest2026Evaluations';
 import { COMMON_TEST_GROUP_COMPARISONS } from '@/app/data/commonTest2025GroupComparison';
 import { SortHeader } from '@/app/components/SortHeader';
@@ -67,6 +68,7 @@ export function CommonTestQuestionDetails({ year, subject }: { year: number | st
         得点分布の差をそのまま問題難易度の差とはみなしません。
       </p>
     </section>}
+    <CommonTest2026SocialDistribution subject={subject} />
     {subject === '情報Ⅰ' && <section className="mt-5">
       <h3 className="font-semibold mb-2">得点分布の変化（2025年度から2026年度）</h3>
       <p className="text-sm leading-relaxed mb-3">2026年度の科目別成績分布では、中央値・最頻値とも56点。前年の中央値70点・最頻値71点から移動しています。平均点だけでなく、得点分布の中心が下がったことが確認できます。</p>

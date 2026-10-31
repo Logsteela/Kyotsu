@@ -111,6 +111,12 @@ export function SourcesPage() {
             </ul>
             <h3 className="font-semibold mb-2">外国語4科目の問題評価の利用について</h3>
             <p className="text-sm mb-4">2026年度のドイツ語・フランス語・中国語・韓国語は、大学入試センターの問題評価・分析委員会報告書にある各科目の「高等学校教科担当教員からの評価」を読み、当サイト独自の説明として大問の構成、時間的負荷、設問評価を整理しています。原資料は上の2026年度報告書ページから各言語を選べます。大問ごとの実測得点率は数値未照合のため掲載していません。</p>
+            <h3 className="font-semibold mb-2">地理・歴史・公民の得点分布の照合</h3>
+            <p className="text-sm mb-3">2026年度の地理探究・日本史探究・世界史探究・公共・倫理・公共・政治経済の得点分布は、大学入試センターの「科目別成績分布（1点刻みの人数）」から80点・90点以上の割合を求め、5分位境界の公表値と照合しました。2025年度との比較値は確認できた3科目のみ掲載しています。</p>
+            <ul className="list-disc pl-5 text-sm space-y-2 mb-4">
+              <li><a href="https://kyotsu-zemi.fworks.studio/guide/chireki-koumin-tokuten-bunpu/" target="_blank" rel="noopener noreferrer" className="underline text-[var(--color-brand-green)]">2026年度地理歴史・公民5科目の80点・90点以上の割合と5分位値の照合</a></li>
+              <li><a href="https://kyotsu-zemi.fworks.studio/guide/chireki-tokuten-bunpu-2025/" target="_blank" rel="noopener noreferrer" className="underline text-[var(--color-brand-green)]">2025年度地理歴史3科目の80点以上の割合</a></li>
+            </ul>
             <h3 className="font-semibold mb-2">2026年度・高校教員の外部評価</h3>
             <p className="text-sm mb-3">「難易度の適正さ」の値は、大学入試センターの「問題評価・分析委員会 外部評価分科会の評価結果」巻末資料の第7項目から整理しました。全27科目・出題範囲のうち物理・生物・地学・生物基礎・地学基礎・フランス語・韓国語の7科目は3、ほかの20科目は4です。4＝「あてはまる」、3＝「ある程度あてはまる」。難しいほど高くなる得点ではなく、平均得点率とも別の指標です。</p>
             <p className="text-sm mb-4"><a className="underline text-[var(--color-brand-green)]" href="https://www.dnc.ac.jp/kyotsu/hyouka/r8_hyouka/r8_hyoukahoukokusyo_honshiken.html" target="_blank" rel="noopener noreferrer">原資料：2026年度問題評価報告書・巻末資料</a></p>

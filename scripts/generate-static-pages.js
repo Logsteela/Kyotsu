@@ -14,6 +14,7 @@ const DETAILS_PATH = join(__dirname, '../src/app/data/testDetailsDatabase.ts');
 const QUESTION_RESEARCH_PATH = join(__dirname, '../src/app/data/commonTest2026Research.ts');
 const PRIOR_RESEARCH_PATH = join(__dirname, '../src/app/data/commonTest2025GroupComparison.ts');
 const FOREIGN_RESEARCH_PATH = join(__dirname, '../src/app/data/commonTest2026ForeignLanguages.ts');
+const SOCIAL_DISTRIBUTION_PATH = join(__dirname, '../src/app/data/commonTest2026SocialDistribution.ts');
 const ARCHIVES_PATH = join(__dirname, '../src/app/components/archivesTables.json');
 const R2_ORIGIN = 'https://pub-43d2006e555442dca4a107e7bc0d01bb.r2.dev';
 
@@ -180,6 +181,14 @@ function difficultyAppropriateness(subject) {
   return ['物理','生物','地学','生物基礎','地学基礎','フランス語','韓国語'].includes(subject) ? 3 : 4;
 }
 
+function loadSocialDistribution() {
+  const source = readFileSync(SOCIAL_DISTRIBUTION_PATH, 'utf8');
+  const marker = 'COMMON_TEST_SOCIAL_DISTRIBUTION: Record<string,Distribution> = ';
+  const at = source.indexOf(marker);
+  if (at < 0) throw new Error('Social studies distribution data missing');
+  return JSON.parse(source.slice(at + marker.length).trim().replace(/;$/, ''));
+}
+
 function loadForeignResearch() {
   const source = readFileSync(FOREIGN_RESEARCH_PATH, 'utf8');
   const marker = 'COMMON_TEST_2026_FOREIGN_LANGUAGES: Record<string, ForeignLanguageAnalysis> = ';
@@ -224,7 +233,7 @@ function staticNavigation() {
   return '<nav aria-label="サイト案内"><a href="/">ホーム</a> ｜ <a href="/overview">全試験一覧</a> ｜ <a href="/statistics">平均点の推移</a> ｜ <a href="/year-statistics">年度別統計</a> ｜ <a href="/coverage">収録状況</a> ｜ <a href="/sources">資料の出典</a> ｜ <a href="/guide">資料の使い方</a> ｜ <a href="/about">サイトについて</a> ｜ <a href="/privacy">プライバシーポリシー</a></nav>';
 }
 
-function buildStaticBody(page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch) {
+function buildStaticBody(page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution) {
   const heading = '<h1>' + escapeHtml(page.title) + '</h1>';
   const intro = '<p>' + escapeHtml(page.description) + '</p>';
   let content = '';
@@ -433,6 +442,18 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
           }
           if (r.subject === '数学Ⅱ，数学Ｂ，数学Ｃ') content += '<p>数学Ⅱ・B・Cは必答52点と16点ずつ4問から3問選択で100点満点。表中の全7大問を足すと116点になるため、単純な加算はできません。</p>';
           if (['地理総合', '歴史総合', '公共'].includes(r.subject)) content += '<p>この科目は「地理総合／歴史総合／公共」の3領域から2つ選択する試験の50点分野です。</p>';
+          const distribution = socialDistribution[r.subject];
+          if (distribution) {
+            const q = distribution.quintiles;
+            const diff = distribution.previous80 === null ? null : distribution.above80-distribution.previous80;
+            content += '<h3>2026年度の得点分布の分析</h3><p>80点以上は受験者の' +
+              distribution.above80.toFixed(2) + '%、90点以上は' + distribution.above90.toFixed(2) + '%。' +
+              '5分位の境界は下位20%から順に' + q.map(x=>x+'点').join('、') + 'で、上位20%に入る境目はおよそ' + q[3] +
+              '点です。</p>' +
+              (diff === null ? '' : '<p>2025年度の80点以上は' + distribution.previous80.toFixed(2) +
+                '%だったため、前年差は'+(diff>=0?'+':'')+diff.toFixed(2)+'ポイントです。</p>') +
+              '<p>平均点・標準偏差だけで正確な順位は出せず、各科目の受験者が異なるため難易度の直接比較にも使用できません。</p>';
+          }
           if (r.subject === '国語') {
             content += '<h3>2025～2026年度の国語の得点分布</h3><p>平均点は126.67点から116.37点へ10.30点低下。' +
               '160点以上は87,139人（19.93%）から43,974人（10.04%）へ、180点以上は17,786人（4.07%）から7,215人（1.65%）へ減少。' +
@@ -475,8 +496,8 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
   return '<div id="archive-static-fallback" style="max-width:1100px;margin:24px auto;padding:20px;font-family:system-ui,sans-serif;line-height:1.8">' + heading + intro + content + staticNavigation() + '</div>';
 }
 
-function injectBody(html, page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch) {
-  const fallback = buildStaticBody(page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch);
+function injectBody(html, page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution) {
+  const fallback = buildStaticBody(page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution);
   return html.replace('<div id="root"></div>', '<div id="root">' + fallback + '</div>');
 }
 
@@ -674,12 +695,13 @@ function main() {
   const questionResearch = loadQuestionResearch();
   const priorResearch = loadPriorResearch();
   const foreignResearch = loadForeignResearch();
+  const socialDistribution = loadSocialDistribution();
   const pages = buildPages(records);
   const baseHtml = readFileSync(DIST_INDEX, 'utf8');
   let fileCount = 0;
 
   for (const page of pages) {
-    const html = injectBody(injectMeta(baseHtml, page), page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch);
+    const html = injectBody(injectMeta(baseHtml, page), page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution);
     for (const filePath of pathToFilePaths(page.path)) {
       writeFileEnsuringDir(filePath, html);
       fileCount += 1;
