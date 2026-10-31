@@ -244,7 +244,7 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
       const documented = entries.filter(r => /(?:問題|解答|音源)：/.test(details.get(r.questionPdf)?.specialNotes ?? '')).length;
       return '<tr><td><a href="/year/' + encodeURIComponent(year) + '">' + escapeHtml(year) + '</a></td><td>' + entries.length + '</td><td>' + stats + '</td><td>' + documented + '</td></tr>';
     }).join('');
-    content = '<h2>年度・資料群ごとの記録</h2><p>登録済みの試験データを自動集計しています。数値は試験レコード数であり、PDFファイル数や現物の閲覧可否を保証するものではありません。</p><table><thead><tr><th>年度・資料群</th><th>登録</th><th>平均点・満点あり</th><th>出典記録あり</th></tr></thead><tbody>' + tableRows + '</tbody></table>' + (priorYear.nonAdditive ? '<p>選択大問を含むため全大問の得点を合計しても科目平均になりません。</p>' : '');
+    content = '<h2>年度・資料群ごとの記録</h2><p>登録済みの試験データを自動集計しています。数値は試験レコード数であり、PDFファイル数や現物の閲覧可否を保証するものではありません。</p><table><thead><tr><th>年度・資料群</th><th>登録</th><th>平均点・満点あり</th><th>出典記録あり</th></tr></thead><tbody>' + tableRows + '</tbody></table>';
   } else if (page.path === '/sources') {
     const sourceCounts = new Map();
     for (const r of records) {
@@ -374,7 +374,7 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
             '<table><thead><tr><th>大問</th><th>分野</th><th>配点</th><th>得点率</th></tr></thead><tbody>' +
             priorYear.groups.map(p => '<tr><td>第' + p.number + '問</td><td>' + escapeHtml(p.topic) +
               '</td><td>' + p.points + '点</td><td>' + p.previousRate.toFixed(2) + '%</td></tr>').join('') +
-            '</tbody></table>';
+            '</tbody></table>' + (priorYear.nonAdditive ? '<p>選択大問が含まれるため、全大問を合計しても科目平均点には一致しません。</p>' : '');
         }
         const foreign = examYear === 2026 ? foreignResearch[r.subject] : null;
         if (foreign) {
