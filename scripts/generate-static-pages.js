@@ -11,6 +11,7 @@ const DIST_DIR = join(__dirname, '../dist');
 const DIST_INDEX = join(DIST_DIR, 'index.html');
 const DATABASE_PATH = join(__dirname, '../src/app/data/testDatabase.ts');
 const DETAILS_PATH = join(__dirname, '../src/app/data/testDetailsDatabase.ts');
+const QUESTION_RESEARCH_PATH = join(__dirname, '../src/app/data/commonTest2026Research.ts');
 const ARCHIVES_PATH = join(__dirname, '../src/app/components/archivesTables.json');
 const R2_ORIGIN = 'https://pub-43d2006e555442dca4a107e7bc0d01bb.r2.dev';
 
@@ -164,6 +165,15 @@ function loadSubjectCategories() {
   return categories;
 }
 
+function loadQuestionResearch() {
+  const source = readFileSync(QUESTION_RESEARCH_PATH, 'utf8');
+  const marker = 'COMMON_TEST_2026_RESEARCH: Record<string, MainExamResearch> = ';
+  const at = source.indexOf(marker);
+  if (at < 0) throw new Error('Question research data marker missing');
+  const block = source.slice(at + marker.length).trim().replace(/;\\s*$/, '');
+  return JSON.parse(block);
+}
+
 function loadDetails() {
   const source = readFileSync(DETAILS_PATH, 'utf8');
   const details = new Map();
@@ -192,7 +202,7 @@ function staticNavigation() {
   return '<nav aria-label="サイト案内"><a href="/">ホーム</a> ｜ <a href="/overview">全試験一覧</a> ｜ <a href="/statistics">平均点の推移</a> ｜ <a href="/year-statistics">年度別統計</a> ｜ <a href="/coverage">収録状況</a> ｜ <a href="/sources">資料の出典</a> ｜ <a href="/guide">資料の使い方</a> ｜ <a href="/about">サイトについて</a> ｜ <a href="/privacy">プライバシーポリシー</a></nav>';
 }
 
-function buildStaticBody(page, records, details, subjectCategories, archives) {
+function buildStaticBody(page, records, details, subjectCategories, archives, questionResearch) {
   const heading = '<h1>' + escapeHtml(page.title) + '</h1>';
   const intro = '<p>' + escapeHtml(page.description) + '</p>';
   let content = '';
@@ -301,10 +311,24 @@ function buildStaticBody(page, records, details, subjectCategories, archives) {
               '</a></td><td>' + x.info.averageScore + '</td><td>' + x.rate.toFixed(2) + '%</td><td>' +
               (x.info.examinees ?? '—') + '</td></tr>').join('') + '</tbody></table>';
         }
-        content += '<h3>公式の試験資料</h3><p>大学入試センターの<a href="https://www.dnc.ac.jp/kyotsu/kako_shiken_jouhou/r' + (examYear - 2018) +
-          '/">当該年度の実施結果・試験情報</a>および<a href="https://www.dnc.ac.jp/kyotsu/hyouka/">問題評価・分析委員会報告書</a>を参照できます。</p>';
-        if (examYear === 2026 && r.subject === '国語') {
-          content += '<h3>2026年度国語の構成</h3><p>論理的文章、文学的文章、実用的文章を扱う領域、古文、漢文の5大問。問題構成の詳細は<a href="https://www.zkai.co.jp/kyotsu-test/bunseki/kokugo/">Z会の分析</a>に掲載されています。</p>';
+        const researched = examYear === 2026 ? questionResearch[r.subject] : null;
+        if (researched) {
+          const parts = researched.parts;
+          const best = parts.reduce((a,b) => a.scoreRate > b.scoreRate ? a : b);
+          const worst = parts.reduce((a,b) => a.scoreRate < b.scoreRate ? a : b);
+          content += '<h2>本試験の大問別得点率・正答率</h2><p>得点率は平均得点÷配点、正答率は大問内の設問で完全に正解した割合の平均です。' +
+            '最も得点率の高い大問は第' + best.number + '問（' + best.scoreRate.toFixed(2) + '%）、最も低いのは第' +
+            worst.number + '問（' + worst.scoreRate.toFixed(2) + '%）です。</p>' +
+            '<table><thead><tr><th>大問</th><th>分野</th><th>配点</th><th>得点率</th><th>正答率</th></tr></thead><tbody>' +
+            parts.map(p => '<tr><td>第' + p.number + '問</td><td>' + escapeHtml(p.topic) + '</td><td>' + p.points +
+              '</td><td>' + p.scoreRate.toFixed(2) + '%</td><td>' + p.correctRate.toFixed(2) + '%</td></tr>').join('') +
+            '</tbody></table>' +
+            '<h3>大問別の差から分かること</h3><p>' + escapeHtml(researched.observation) + '</p>' +
+            (researched.review ? '<h3>問題評価と出題内容</h3><p>' + escapeHtml(researched.review) + '</p>' : '') +
+            (researched.detail ? '<h3>設問別正答率からの分析</h3><p>' + escapeHtml(researched.detail) + '</p>' : '');
+          if (r.subject === '情報Ⅰ') {
+            content += '<h3>得点分布の前年比較</h3><p>中央値は2025年度70点から2026年度56点、最頻値は71点から56点へ移動。80点以上の割合は28.84%から7.86%、90点以上は10.54%から1.55%に低下しました。下位20%・80%の境界もそれぞれ55点から43点、83点から70点に移り、分布の中心から上位まで変化が見られます。</p>';
+          }
         }
       }
       content += '<p><a href="' + R2_ORIGIN + '/' + encodeURIComponent(pdf) + '">問題PDF</a></p>';
@@ -335,8 +359,8 @@ function buildStaticBody(page, records, details, subjectCategories, archives) {
   return '<div id="archive-static-fallback" style="max-width:1100px;margin:24px auto;padding:20px;font-family:system-ui,sans-serif;line-height:1.8">' + heading + intro + content + staticNavigation() + '</div>';
 }
 
-function injectBody(html, page, records, details, subjectCategories, archives) {
-  const fallback = buildStaticBody(page, records, details, subjectCategories, archives);
+function injectBody(html, page, records, details, subjectCategories, archives, questionResearch) {
+  const fallback = buildStaticBody(page, records, details, subjectCategories, archives, questionResearch);
   return html.replace('<div id="root"></div>', '<div id="root">' + fallback + '</div>');
 }
 
@@ -530,12 +554,13 @@ function main() {
   const details = loadDetails();
   const subjectCategories = loadSubjectCategories();
   const archives = JSON.parse(readFileSync(ARCHIVES_PATH, 'utf8'));
+  const questionResearch = loadQuestionResearch();
   const pages = buildPages(records);
   const baseHtml = readFileSync(DIST_INDEX, 'utf8');
   let fileCount = 0;
 
   for (const page of pages) {
-    const html = injectBody(injectMeta(baseHtml, page), page, records, details, subjectCategories, archives);
+    const html = injectBody(injectMeta(baseHtml, page), page, records, details, subjectCategories, archives, questionResearch);
     for (const filePath of pathToFilePaths(page.path)) {
       writeFileEnsuringDir(filePath, html);
       fileCount += 1;
