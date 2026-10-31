@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run audit:archive && npm run audit:research && npm run generate-sitemap && vite build && npm run generate-static-pages",
+    "build": "npm run audit:archive && npm run audit:research && npm run generate-sitemap && vite build && npm run generate-static-pages && npm run smoke:static",
     "audit:archive": "node scripts/audit-archive.js",
     "audit:research": "node scripts/audit-common-test-research.js",
+    "smoke:static": "node scripts/smoke-test-static.js",
     "preview": "vite preview",
     "generate-sitemap": "node scripts/generate-sitemap.js",
     "generate-static-pages": "node scripts/generate-static-pages.js"
