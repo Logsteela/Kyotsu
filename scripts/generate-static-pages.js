@@ -347,6 +347,11 @@ function pathToFilePaths(pathname) {
 
 function buildPages(records) {
   const pages = [];
+  const historicalExamName = year => {
+    const number = Number(year);
+    return number >= 2021 ? '共通テスト' : number >= 1990 ? 'センター試験' :
+      number >= 1979 ? '共通一次試験' : '試行・実地研究試験';
+  };
   const add = ({ path, title, description, keywords, type = 'website', breadcrumbs = [] }) => {
     const normalizedPath = path === '/' ? '/' : `/${path.replace(/^\//, '').replace(/\/$/, '')}`;
     pages.push({
@@ -395,13 +400,13 @@ function buildPages(records) {
     add({
       path: `/year/${encodeURIComponent(year)}`,
       title: isNumeric
-        ? `${year}年度（${era}）共通テスト過去問｜問題・解答PDF`
+        ? `${year}年度（${era}）${historicalExamName(year)}過去問｜問題・解答PDF`
         : `${year}｜問題・解答PDF｜共通テスト過去問総集`,
       description: isNumeric
-        ? `${year}年度（${era}）共通テストの問題PDF、解答PDF、本試験、追試験。`
+        ? `${year}年度（${era}）${historicalExamName(year)}の問題・解答PDFと関連資料。`
         : `${year}の問題PDF、解答PDF、本試験、追試験。`,
       keywords: `共通テスト,${year}年度,${era},過去問,問題,解答,PDF,ダウンロード,本試験,追試験,センター試験`,
-      type: 'article',
+      type: 'website',
       breadcrumbs: [
         { name: '総覧', url: `${BASE_URL}/overview` },
         { name: isNumeric ? `${year}年度一覧` : `${year}一覧`, url: `${BASE_URL}/year/${encodeURIComponent(year)}` },
@@ -412,8 +417,8 @@ function buildPages(records) {
   for (const subject of SUBJECTS) {
     add({
       path: `/subject/${subject.slug}`,
-      title: `共通テスト ${subject.titleLabel} 過去問｜問題・解答PDF`,
-      description: `共通テスト ${subject.titleLabel}の問題PDF、解答PDF、本試験、追試験、年度別一覧。`,
+      title: `${subject.titleLabel}の歴代入試過去問｜共通テスト・センター試験等の問題と解答`,
+      description: `${subject.titleLabel}の共通テスト・センター試験・共通一次などの問題、解答、年度別一覧。`,
       keywords: `共通テスト,${subject.titleLabel},過去問,問題,解答,PDF,ダウンロード,センター試験,大学入試,本試験,追試験`,
       type: 'article',
       breadcrumbs: [
