@@ -86,6 +86,7 @@ function buildUrls() {
   addUrl(urls, BASE_URL, today, 'weekly', 1.0);
   addUrl(urls, `${BASE_URL}/overview`, today, 'weekly', 0.9);
   addUrl(urls, `${BASE_URL}/archives`, today, 'monthly', 0.7);
+  for (const slug of ['statistics', 'guide', 'about', 'privacy']) addUrl(urls, `${BASE_URL}/${slug}`, today, 'monthly', 0.7);
 
   const years = sortYears(new Set(records.map((record) => record.year)));
   years.forEach((year) => {
@@ -138,7 +139,7 @@ try {
 
   console.log('✅ sitemap.xml を生成しました:', XML_OUTPUT_PATH);
   console.log('✅ sitemap.txt を生成しました:', TXT_OUTPUT_PATH);
-  console.log(`📄 合計 ${3 + years.size + SUBJECT_SLUGS.length + questionPdfs.size} ページを登録`);
+  console.log(`📄 合計 ${7 + years.size + SUBJECT_SLUGS.length + questionPdfs.size} ページを登録`);
   console.log('   - トップページ: 1');
   console.log('   - 総覧ページ: 1');
   console.log('   - アーカイブページ: 1');
