@@ -89,6 +89,12 @@ export function SourcesPage() {
               <li><a className="underline text-[var(--color-brand-green)]" href="https://kyotsu-zemi.fworks.studio/guide/kokugo-tokuten-bunpu/" target="_blank" rel="noopener noreferrer">共通テストゼミ・2025／2026年度国語の得点分布再集計</a>：得点帯別人数、5分位値を照合</li>
               <li><a className="underline text-[var(--color-brand-green)]" href="https://sukyojuku.com/joho1-2026-honshiken/" target="_blank" rel="noopener noreferrer">数強塾・2025／2026年度情報Ⅰの設問・成績分布の分析</a>：中央値、分布の境界、得点帯別人数を照合</li>
             </ul>
+            <h3 className="font-semibold mb-2">出題テーマの照合</h3>
+            <ul className="list-disc pl-5 text-sm space-y-2 mb-4">
+              <li><a className="underline text-[var(--color-brand-green)]" href="https://www.keinet.ne.jp/learning/center/" target="_blank" rel="noopener noreferrer">河合塾 Kei-Net 共通テスト対策・科目別出題分析</a>：2026年度の生物・生物基礎・物理基礎・地学基礎・英語リスニング等での大問構成や題材を照合</li>
+              <li><a className="underline text-[var(--color-brand-green)]" href="https://kyotsu-zemi.fworks.studio/guide/daimon-tokutenritsu-chireki-koumin-2026/" target="_blank" rel="noopener noreferrer">共通テストゼミ・2026年度地歴公民の大問別得点率</a>：5科目の大問別集計値を照合</li>
+              <li><a className="underline text-[var(--color-brand-green)]" href="https://kyotsu-zemi.fworks.studio/guide/chireki-koumin-daizai/" target="_blank" rel="noopener noreferrer">同・地歴公民の大問別題材と報告書の解説</a>：報告書のテーマと設問の評価を照合</li>
+            </ul>
             <h3 className="font-semibold mb-2">数値と解釈の区別</h3>
             <p className="text-sm mb-2">得点率＝平均得点÷配点。正答率＝完全に正答した受験者の割合（部分点を含めない）。大問全体の正答率は設問の正答率の平均であり、配点を重み付けした得点率と一致するとは限りません。大問の得点率・正答率は小数第2位まで表示し、元の集計で端数処理が行われた場合は合計値とわずかな差が生じることがあります。</p>
             <p className="text-sm mb-2">「出題内容」「注目した設問」「差の要因」は各報告書を参考に当サイトが整理した文章です。報告書の文章や表そのものを転載せず、考察と計算結果を掲載します。前年のデータとの比較は、同名・同配点の本試験かを確認してから実施しています。</p>
