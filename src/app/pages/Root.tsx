@@ -45,7 +45,7 @@ export function Root() {
             共通テスト過去問総集
           </div>
           <p className="text-sm text-gray-500 mt-2 text-center lg:text-left break-words">
-            共通テスト・センター試験・共通一次の過去問資料を公開
+            共通テストの大問別得点率・年度比較・出題分析と、歴代過去問資料
           </p>
         </header>
 

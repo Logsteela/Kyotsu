@@ -3,13 +3,24 @@ import { SEOMeta } from '@/app/components/SEOMeta';
 export function AboutPage() {
   return (
     <>
-      <SEOMeta path="/about" title="サイトについて・資料の収録方針｜共通テスト過去問総集" description="共通テスト過去問総集の目的、資料の整理方法、掲載内容、問い合わせ方針について。" />
+      <SEOMeta path="/about" title="比較・分析の方法と資料の収録方針｜共通テスト過去問総集" description="共通テスト本試験の大問別得点率・問題評価・得点分布を照合する方法、出典、資料収録方針、運営情報。" />
       <div className="flex-1 bg-gray-100 px-4 sm:px-6 py-6 lg:py-8">
         <article className="bg-white rounded-lg border border-[var(--color-table-border)] p-6 lg:p-8 max-w-4xl text-gray-800 leading-relaxed">
           <h1 className="text-2xl font-bold mb-5">サイトについて</h1>
           <p className="mb-5">「共通テスト過去問総集」（kyotsu.org）は、大学入学共通テスト・大学入試センター試験・共通第1次学力試験等の資料を、年代と教科をまたいで検索できるように整理した非公式の個人運営サイトです。大学入試センターや各資料提供元が運営する公式サービスではありません。</p>
           <h2 className="text-xl font-semibold mb-2">独自の整理と利用目的</h2>
           <p className="mb-5">資料の閲覧先を探す手間を減らすため、本試験・追試験、試作・研究段階の試験、科目、年度を統一した一覧に分類しています。各資料には、利用可能な範囲で実施日・試験時間・配点・受験者数・平均点等の情報を対応付けています。平均点の年度比較も独自に検索できるようにしています。</p>
+          <h2 className="text-xl font-semibold mb-2">得点率と出題内容をどう比較しているか</h2>
+          <p className="mb-5">
+            <Link className="underline text-[var(--color-brand-green)]" to="/common-test-2026-analysis">2026年度本試験の分析</Link>では、23科目で公表された大問別得点率等を配点に合わせて整理し、
+            大問ごとの得点差を比較できます。残る外国語4科目は、大問別の実測数値を推定せず、問題評価報告書に記載された題材・評価を要約しました。
+            <Link className="underline text-[var(--color-brand-green)]" to="/common-test-2025-analysis">2025年度の分析</Link>も、確認できた範囲から同様に収録しています。
+          </p>
+          <p className="mb-5">
+            例えば物理では同じ25点配点の大問間で得点率の差があり、英語リーディングでは文章の推敲と説明文の読解で成績に差が見られました。
+            年度をまたぐ際は選択問題の配点や科目名の変化を確認し、平均点の変化を単純に「難化・易化」と断定しません。
+            <Link className="underline text-[var(--color-brand-green)]" to="/sources#research-methods">原資料と計算方法はこちら</Link>です。
+          </p>
           <h2 className="text-xl font-semibold mb-2">掲載資料と出典</h2>
           <p className="mb-5">問題・解答・音声などは、大学入試センター、国立国会図書館、報道機関等が公表・保有してきた資料を含みます。個々の資料について判明している出典は、試験詳細ページの特記事項をご参照ください。資料によって掲載元・利用条件が異なります。原資料の権利をこのサイトが保有すると主張するものではありません。</p>
           <h2 className="text-xl font-semibold mb-2">誤記・欠損・権利について</h2>

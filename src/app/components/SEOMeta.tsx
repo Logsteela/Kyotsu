@@ -13,7 +13,7 @@ interface SEOMetaProps {
 const BASE_URL = 'https://kyotsu.org';
 const SITE_NAME = '共通テスト過去問総集';
 const SITE_ALTERNATE_NAMES = ['共通テスト過去問', '共通テスト過去問総集', '共通テスト集成'];
-const SITE_DESCRIPTION = '共通テスト、センター試験、共通一次、追試験、特例追試験の問題・解答PDFを年度別・教科別に探せる過去問アーカイブです。';
+const SITE_DESCRIPTION = '2025・2026年度共通テスト本試験の大問別得点率、設問別正答率、得点分布、問題評価を独自に整理・比較。過去問PDFと歴代平均点も年度・科目別に検索できます。';
 const DEFAULT_IMAGE_ALT = '共通テスト過去問総集';
 
 function getCurrentPath(): string {

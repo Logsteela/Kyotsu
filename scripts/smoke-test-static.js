@@ -5,11 +5,11 @@ import { fileURLToPath } from 'node:url';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const dist = join(root, 'dist');
 const cases = [
-  { path: 'index.html', required: ['共通テスト', '年度別・教科別'] },
+  { path: 'index.html', required: ['共通テストの大問別得点率・年度比較', '本試験の独自比較・分析', '23.79', '31.67', '/common-test-2026-analysis', '/common-test-2025-analysis'] },
   { path: 'sources/index.html', required: ['設問別分析', 'www.dnc.ac.jp', '問題・解答・音源の出典'] },
   { path: 'common-test-2026-analysis/index.html', required: ['23科目', '大問', '国語', '地学', '数学Ⅰ'] },
-  { path: 'test/2026_国語_本試験問題_訂正付.pdf/index.html', required: ['国語', '45.68', '160点以上', '2025'] },
-  { path: 'test/2020_国語_本試験問題.pdf/index.html', required: ['同じ科目・試験制度の前後年度比較', '2019年度', 'センター試験'] },
+  { path: 'test/2026_国語_本試験問題_訂正付.pdf/index.html', required: ['国語', '45.68', '160点以上', '2025', '大問別得点率・出題分析と問題PDF'] },
+  { path: 'test/2020_国語_本試験問題.pdf/index.html', required: ['同じ科目・試験制度の前後年度比較', '2019年度', 'センター試験', '問題・解答PDF'] },
   { path: 'test/1985_国語_本試験問題.pdf/index.html', required: ['同じ科目・試験制度の前後年度比較', '共通第1次学力試験'] },
   { path: 'test/2025_国語_本試験問題.pdf/index.html', required: ['2025年度本試験・大問別', '66.74', '57.42'] },
   { path: 'test/2025_数学IA_本試験問題.pdf/index.html', required: ['2025年度本試験・大問別', '62.06', '58.54'] },

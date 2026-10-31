@@ -1,12 +1,19 @@
  import { Link } from 'react-router';
-import { FileText, Calendar, ArrowRight, Clock, Info } from 'lucide-react';
+import { FileText, Calendar, ArrowRight, Clock, Info, BarChart3 } from 'lucide-react';
+import { COMMON_TEST_2026_RESEARCH } from '@/app/data/commonTest2026Research';
 import { SEOMeta } from '@/app/components/SEOMeta';
 import { StructuredData } from '@/app/components/StructuredData';
 import { Button } from '@/app/components/ui/button';
 
 export function HomePage() {
-  const title = '共通テスト過去問総集｜PDFダウンロード';
-  const description = '共通テスト、センター試験、共通一次、追試験、特例追試験の問題、解答の過去問PDFを年度別、教科別掲載。';
+  const title = '共通テストの大問別得点率・年度比較｜問題分析と過去問総集';
+  const description = '2025・2026年度共通テスト本試験の大問別得点率、設問別正答率、得点分布、問題評価を独自に整理・比較。過去問PDFと歴代平均点も年度・科目別に検索できます。';
+  const physics = COMMON_TEST_2026_RESEARCH['物理'].parts;
+  const english = COMMON_TEST_2026_RESEARCH['英語（リーディング）'].parts;
+  const physSecond = physics.find(p => p.number === 2)!;
+  const physFourth = physics.find(p => p.number === 4)!;
+  const englishFourth = english.find(p => p.number === 4)!;
+  const englishSeventh = english.find(p => p.number === 7)!;
 
   return (
     <>
@@ -14,7 +21,7 @@ export function HomePage() {
         title={title}
         description={description}
         path="/"
-        keywords="共通テスト,過去問,センター試験,共通一次,一覧,特例追試験,追試験,再試験,大学入試,問題,解答,PDF,ダウンロード,ホーム"
+        keywords="共通テスト,大問別得点率,正答率,得点分布,年度比較,問題評価,過去問,センター試験,共通一次"
       />
       <StructuredData type="WebSite" />
 
@@ -22,17 +29,54 @@ export function HomePage() {
         <div className="w-full">
           {/* ウェルカムセクション */}
           <section className="bg-white rounded-lg border border-[var(--color-table-border)] p-6 lg:p-8 mb-6">
-            <h1 className="sr-only">共通テスト過去問総集</h1>
-            <p className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">
+            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">
               大学入試過去問の資料・分析集
-            </p>
+            </h1>
             <p className="text-gray-700 leading-relaxed mb-4">
-              このサイトでは、収録している共通テストの問題・解答を無料で閲覧・ダウンロードできます。また、旧センター試験、旧共通一次試験も収集しています。
-              すべての過去問を網羅的に収録している最中です。
+              共通テストの平均点を眺めるだけでなく、<strong>大問ごとの得点率・設問別正答率・得点分布・前年との差</strong>を比較できます。
+              2025・2026年度本試験では、公表された試験成績と問題評価を照合し、出題内容と得点差の特徴を当サイトで整理しています。
             </p>
             <p className="text-gray-700 leading-relaxed">
-              年度別・教科別で閲覧する機能を使って、必要な過去問を素早く見つけることができます。
+              共通テスト・センター試験・共通一次の問題と解答も、年度別・科目別に検索・閲覧できます。未収録や未照合の資料は、推測で補っていません。
             </p>
+          </section>
+
+          {/* 公表データを照合した分析への入口（過去問一覧のUIは変更しない） */}
+          <section className="bg-white rounded-lg border border-[var(--color-table-border)] p-6 lg:p-8 mb-6" aria-labelledby="home-analysis-heading">
+            <h2 id="home-analysis-heading" className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
+              <BarChart3 className="w-5 h-5 text-[var(--color-brand-green)]" />
+              本試験の独自比較・分析
+            </h2>
+            <p className="text-gray-700 leading-relaxed mb-4">
+              どの大問が全体の成績を押し下げたのか、前年からどこが変わったのかを、
+              大学入試センター公表データの大問別集計と問題評価から読み取れます。
+              例えば2026年度本試験では、以下のような科目内の差が見られます。
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+              <div className="border border-gray-200 rounded-md p-4">
+                <h3 className="font-semibold text-gray-900 mb-2">物理：電磁気の大問と力学の差</h3>
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  第2問は得点率<strong>{physSecond.scoreRate.toFixed(2)}%</strong>、第4問は<strong>{physFourth.scoreRate.toFixed(2)}%</strong>。
+                  同じ25点配点の大問で<strong>{(physSecond.scoreRate - physFourth.scoreRate).toFixed(2)}ポイント</strong>の差があります。
+                </p>
+              </div>
+              <div className="border border-gray-200 rounded-md p-4">
+                <h3 className="font-semibold text-gray-900 mb-2">英語リーディング：大問間の得点差</h3>
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  第4問の得点率は<strong>{englishFourth.scoreRate.toFixed(2)}%</strong>、第7問は<strong>{englishSeventh.scoreRate.toFixed(2)}%</strong>。
+                  文章の推敲と科学的説明文では<strong>{(englishFourth.scoreRate - englishSeventh.scoreRate).toFixed(2)}ポイント</strong>違います。
+                </p>
+              </div>
+            </div>
+            <p className="text-xs text-gray-600 leading-relaxed mb-4">
+              得点率は受験者の平均得点を配点で割った値です。科目・大問間の差は、そのまま問題の客観的難易度を表すものではありません。
+              数値の定義と資料は<Link to="/sources#research-methods" className="underline text-[var(--color-brand-green)]">出典・集計方法</Link>にまとめています。
+            </p>
+            <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold">
+              <Link className="underline text-[var(--color-brand-green)]" to="/common-test-2026-analysis">2026年度・27科目の出題分析</Link>
+              <Link className="underline text-[var(--color-brand-green)]" to="/common-test-2025-analysis">2025年度の分析と大問別得点率</Link>
+              <Link className="underline text-[var(--color-brand-green)]" to="/year-statistics">歴代の平均点・得点率を比較</Link>
+            </div>
           </section>
 
           {/* クイックアクセス */}

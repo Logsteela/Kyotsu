@@ -22,7 +22,7 @@ const R2_ORIGIN = 'https://pub-43d2006e555442dca4a107e7bc0d01bb.r2.dev';
 
 
 const DEFAULT_DESCRIPTION =
-  '共通テスト、センター試験、共通一次、追試験、特例追試験の問題、解答の過去問PDFを年度別、教科別掲載。';
+  '2025・2026年度共通テスト本試験の大問別得点率、設問別正答率、得点分布、問題評価を独自に整理・比較。過去問PDFと歴代平均点も年度・科目別に検索できます。';
 
 const SUBJECTS = [
   { slug: 'eigo-reading', label: '英語（Reading）', titleLabel: '英語リーディング' },
@@ -256,11 +256,26 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
   const intro = '<p>' + escapeHtml(page.description) + '</p>';
   let content = '';
   if (page.path === '/') {
-    content = '<h2>年度別・教科別に探す</h2><p>大学入学共通テスト・センター試験・共通第1次学力試験、本試験・追試験・試行問題の問題・解答資料を整理した非公式アーカイブです。</p>';
+    const phys = questionResearch['物理'].parts;
+    const eng = questionResearch['英語（リーディング）'].parts;
+    const p2 = phys.find(x => x.number === 2), p4 = phys.find(x => x.number === 4);
+    const e4 = eng.find(x => x.number === 4), e7 = eng.find(x => x.number === 7);
+    content = '<h2>本試験の独自比較・分析</h2>' +
+      '<p>2025・2026年度の共通テスト本試験について、大学入試センターの設問別得点率・正答率、得点分布、問題評価を照合し、当サイトで大問別に集計・比較しています。</p>' +
+      '<h3>2026年度物理：大問間の得点率差</h3><p>第2問の得点率は' + p2.scoreRate.toFixed(2) + '%、第4問は' + p4.scoreRate.toFixed(2) +
+      '%。同じ25点配点の大問で' + (p2.scoreRate-p4.scoreRate).toFixed(2) + 'ポイントの差があります。</p>' +
+      '<h3>2026年度英語リーディング：出題内容と得点率</h3><p>第4問は' + e4.scoreRate.toFixed(2) +
+      '%、第7問は' + e7.scoreRate.toFixed(2) + '%。大問によって' + (e4.scoreRate-e7.scoreRate).toFixed(2) + 'ポイント異なります。</p>' +
+      '<p>得点率だけで客観的な難易度は判断できません。<a href="/sources#research-methods">原資料・計算方法</a>をまとめています。</p>' +
+      '<ul><li><a href="/common-test-2026-analysis">2026年度・27科目の本試験分析</a></li>' +
+      '<li><a href="/common-test-2025-analysis">2025年度の本試験分析・大問別得点率</a></li>' +
+      '<li><a href="/year-statistics">歴代平均点と得点率の比較</a></li>' +
+      '<li><a href="/overview">年度別・教科別の過去問・解答一覧</a></li></ul>' +
+      '<h2>過去問資料も年度別・教科別に検索</h2><p>共通テスト・センター試験・共通第1次学力試験、本試験・追試験・試行問題を区別して収録しています。</p>';
   } else if (page.path === '/guide') {
     content = '<h2>資料の探し方</h2><p>総覧、年度別、教科別の一覧から過去問を探せます。1979年に共通第1次学力試験、1990年にセンター試験、2021年に共通テストへ移行しました。異なる試験制度や受験者集団の得点は直接比較できない場合があります。</p>';
   } else if (page.path === '/about') {
-    content = '<h2>独自の整理方針</h2><p>年度、教科、試験区分、実施日、試験時間、平均点などを紐付けて記録し、古い資料を見つけやすくする非公式の個人運営サイトです。各資料の出典情報は試験詳細の特記事項に記録されています。原資料の権利は各権利者に帰属します。</p>';
+    content = '<h2>独自の比較・分析と資料の整理方針</h2><p>2025・2026年度の本試験について、大問別得点率、正答率、出題内容、得点分布を照合して独自に比較しています。<a href="/common-test-2026-analysis">2026年度の分析</a>、<a href="/common-test-2025-analysis">2025年度の分析</a>、<a href="/sources#research-methods">出典と集計方法</a>をご覧ください。</p><p>年度、教科、試験区分、実施日、試験時間、平均点などを紐付けて記録し、古い資料を見つけやすくする非公式の個人運営サイトです。原資料の権利は各権利者に帰属します。</p>';
   } else if (page.path === '/privacy') {
     content = '<h2>広告とCookieについて</h2><p>Google AdSenseの利用を申請しています。広告が配信される場合はCookie等によって広告・ブラウザに関するデータが利用される可能性があります。Googleのデータ利用については https://policies.google.com/technologies/partner-sites を参照してください。</p>';
   } else if (page.path === '/coverage') {
@@ -645,7 +660,7 @@ function pathToFilePaths(pathname) {
   return decodedPath === rawPath ? [decodedPath] : [decodedPath, rawPath];
 }
 
-function buildPages(records) {
+function buildPages(records, questionResearch, priorResearch) {
   const pages = [];
   const historicalExamName = year => {
     const number = Number(year);
@@ -667,13 +682,13 @@ function buildPages(records) {
 
   add({
     path: '/',
-    title: '共通テスト過去問総集｜PDFダウンロード',
+    title: '共通テストの大問別得点率・年度比較｜問題分析と過去問総集',
     description: DEFAULT_DESCRIPTION,
-    keywords: '共通テスト,過去問,センター試験,共通一次,一覧,全部,大学入試,問題,解答,PDF,ダウンロード,ホーム',
+    keywords: '共通テスト,大問別得点率,正答率,得点分布,年度比較,問題評価,過去問,センター試験',
   });
   for (const [path, title, description] of [
     ['/guide', '過去問資料の使い方｜共通テスト過去問総集', '本試験・追試験と試験制度の変遷、資料を探す方法を説明します。'],
-    ['/about', 'サイトについて｜共通テスト過去問総集', '資料の整理方針、出典、運営情報を説明します。'],
+    ['/about', '独自比較・分析と資料の収録方針｜共通テスト過去問総集', '大問別得点率・問題評価・得点分布の比較方法と、収録資料の出典・運営情報を説明します。'],
     ['/privacy', 'プライバシーポリシー｜共通テスト過去問総集', '広告とCookie等の利用について説明します。'],
     ['/statistics', '科目別平均点の年度推移｜共通テスト過去問総集', '本試験の科目別平均点と満点、平均得点率を比較します。'],
     ['/coverage', '収録状況・資料の確認状況｜共通テスト過去問総集', '登録資料数・平均点と出典の記載状況を年度ごとに照合します。'],
@@ -744,10 +759,21 @@ function buildPages(records) {
     const testType = getTestTypeLabel(record.examType);
     const testPath = `/test/${encodeURIComponent(record.questionPdf)}`;
 
+    const y = Number(record.year);
+    const analyzedMain = record.examType === 'main' && (y === 2025 || y === 2026);
+    const hasRates = analyzedMain && (y === 2026
+      ? Boolean(questionResearch[record.subject])
+      : Boolean(priorResearch[record.subject]));
+    const hasReview = analyzedMain && !hasRates;
+    const seoTopic = hasRates ? '大問別得点率・出題分析と問題PDF'
+      : hasReview ? '出題内容・問題評価と問題PDF' : '問題・解答PDF';
+    const seoExplanation = hasRates
+      ? '大問別の得点率を整理し、出題内容や年度間の差を比較。'
+      : hasReview ? '問題評価報告書から出題内容と特徴を整理。' : '';
     add({
       path: testPath,
-      title: `${formattedYear} ${subject} ${testType}｜問題・解答PDF｜共通テスト過去問総集`,
-      description: `${formattedYear} ${subject} ${testType}の問題PDF、解答PDF、平均点、受験者数。`,
+      title: `${formattedYear} ${subject} ${testType}｜${seoTopic}｜共通テスト過去問総集`,
+      description: `${formattedYear} ${subject} ${testType}。${seoExplanation}問題PDF、解答PDF、平均点、受験者数を確認。`,
       keywords: `共通テスト,過去問,${formattedYear},${era},${subject},${testType},問題,解答,PDF,平均点,受験者数`,
       type: 'article',
       breadcrumbs: [
@@ -775,7 +801,7 @@ function main() {
   const foreign2025 = loadForeign2025();
   const socialDistribution = loadSocialDistribution();
   const social2025 = loadSocial2025();
-  const pages = buildPages(records);
+  const pages = buildPages(records, questionResearch, priorResearch);
   const baseHtml = readFileSync(DIST_INDEX, 'utf8');
   let fileCount = 0;
 

@@ -4,6 +4,11 @@ import { SEOMeta } from '@/app/components/SEOMeta';
 import { StructuredData } from '@/app/components/StructuredData';
 import { Breadcrumbs } from '@/app/components/Breadcrumbs';
 import { CommonTestMainInsights } from '@/app/components/CommonTestMainInsights';
+import { COMMON_TEST_2026_RESEARCH } from '@/app/data/commonTest2026Research';
+import { COMMON_TEST_2026_FOREIGN_LANGUAGES } from '@/app/data/commonTest2026ForeignLanguages';
+import { COMMON_TEST_GROUP_COMPARISONS } from '@/app/data/commonTest2025GroupComparison';
+import { COMMON_TEST_2025_SOCIAL_AREAS } from '@/app/data/commonTest2025SocialAreas';
+import { COMMON_TEST_2025_FOREIGN_LANGUAGES } from '@/app/data/commonTest2025ForeignLanguages';
 import { ExamScoreCalculator } from '@/app/components/ExamScoreCalculator';
 import { HistoricalExamContext } from '@/app/components/HistoricalExamContext';
 import { getEnhancedDatabase, SLUG_TO_CATEGORY } from '@/app/data/testDatabase';
@@ -194,7 +199,21 @@ export function TestDetailPage() {
     : '';
   const pagePath = `/test/${encodeURIComponent(decodedPdf)}`;
 
-  const pageTitle = `${displayTestName}｜問題・解答PDF｜共通テスト過去問総集`;
+  const hasRates = testRecord.testType === 'main' && (
+    (testRecord.year === 2026 && Boolean(COMMON_TEST_2026_RESEARCH[testRecord.subject])) ||
+    (testRecord.year === 2025 && Boolean(COMMON_TEST_GROUP_COMPARISONS[testRecord.subject]))
+  );
+  const hasQuestionReview = testRecord.testType === 'main' && (
+    (testRecord.year === 2026 && Boolean(COMMON_TEST_2026_FOREIGN_LANGUAGES[testRecord.subject])) ||
+    (testRecord.year === 2025 &&
+      (Boolean(COMMON_TEST_2025_SOCIAL_AREAS[testRecord.subject]) ||
+       Boolean(COMMON_TEST_2025_FOREIGN_LANGUAGES[testRecord.subject])))
+  );
+  const pageTitle = hasRates
+    ? `${displayTestName}｜大問別得点率・出題分析と問題PDF｜共通テスト過去問総集`
+    : hasQuestionReview
+      ? `${displayTestName}｜出題内容・問題評価と問題PDF｜共通テスト過去問総集`
+      : `${displayTestName}｜問題・解答PDF｜共通テスト過去問総集`;
 
   const facts = [
     typeof testDetails?.averageScore === 'number' ? `平均点${testDetails.averageScore}点` : '',
@@ -202,7 +221,12 @@ export function TestDetailPage() {
     typeof testDetails?.examinees === 'number' ? `受験者数${testDetails.examinees.toLocaleString('ja-JP')}人` : '',
     typeof testDetails?.testDuration === 'number' ? `試験時間${testDetails.testDuration}分` : '',
   ].filter(Boolean);
-  const description = `${displayTestName}の問題・解答資料。${facts.length ? facts.join('、') + '。' : '収録状況や出典情報を確認できます。'}`;
+  const analysisSummary = hasRates
+    ? '公表された大問別得点率と科目平均を整理し、出題内容と年度間の差を比較できます。'
+    : hasQuestionReview
+      ? '問題評価報告書から各大問の出題内容と特徴を整理しました。'
+      : '';
+  const description = `${displayTestName}。 ${analysisSummary}${facts.length ? facts.join('、') + '。' : '問題・解答の収録状況と出典情報を確認できます。'}`;
 
   const relatedCandidates = getEnhancedDatabase().filter(r => r.subject === testRecord.subject && r.questionPdf !== testRecord.questionPdf);
   const related: Array<{ name: string; url: string }> = [];
