@@ -21,6 +21,8 @@ const cases = [
   { path: 'test/2025_情報I_本試験問題.pdf/index.html', required: ['2025年度本試験・大問別', '76.11'] },
   { path: 'test/2026_情報I_本試験問題.pdf/index.html', required: ['2025年度との大問別得点率比較', '24.94'] },
   { path: 'test/2025_英語L_本試験問題.pdf/index.html', required: ['2025年度本試験・大問別', '85.00'] },
+  { path: 'test/2025_英語R_本試験問題.pdf/index.html', required: ['2025年度本試験・大問別', '41.59'] },
+  { path: 'test/2026_英語R_本試験問題.pdf/index.html', required: ['2025年度との大問別得点率比較', '14.61'] },
   { path: 'test/2026_地学_本試験問題.pdf/index.html', required: ['地球の変遷', '40.07', '大問'] },
   { path: 'test/2026_地理総合_本試験問題.pdf/index.html', required: ['地理総合', '50点', '得点率'] },
   { path: 'test/2026_公共_本試験問題.pdf/index.html', required: ['公共', '社会保障', '50点'] },
