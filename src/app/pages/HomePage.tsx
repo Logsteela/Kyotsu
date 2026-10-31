@@ -75,19 +75,6 @@ export function HomePage() {
             </div>
           </section>
 
-          <section className="bg-white rounded-lg border border-[var(--color-table-border)] p-6 lg:p-8 mb-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-3">過去問を読む・比較する</h2>
-            <p className="text-gray-700 leading-relaxed mb-4">
-              試験の制度が変わった時期や、追試験・試作問題を探す際の注意点をまとめました。
-              本試験の平均点は科目別・年度別に比較できます。公開されている記録を検索しやすく整理し、資料の欠損や出典も確認できるようにしています。
-            </p>
-            <div className="flex flex-wrap gap-4 text-[var(--color-brand-green)]">
-              <Link to="/guide" className="underline underline-offset-2">資料の使い方と試験制度の変遷</Link>
-              <Link to="/statistics" className="underline underline-offset-2">平均点の推移を見る</Link>
-              <Link to="/about" className="underline underline-offset-2">収録方針・出典について</Link>
-            </div>
-          </section>
-
           {/* サイトの目的 */}
           <section className="bg-white rounded-lg border border-[var(--color-table-border)] p-6 lg:p-8 mb-6">
             <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
