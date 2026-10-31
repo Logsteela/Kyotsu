@@ -49,7 +49,7 @@ export function Root() {
             共通テスト過去問総集
           </div>
           <p className="text-sm text-gray-500 mt-2 text-center lg:text-left break-words">
-            共通テストの全ての問題・解答を無料公開
+            共通テスト・センター試験・共通一次の過去問資料を公開
           </p>
         </header>
 
