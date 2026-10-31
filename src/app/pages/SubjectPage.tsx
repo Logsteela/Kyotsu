@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useParams } from 'react-router';
+import { useParams, Link } from 'react-router';
 import { SEOMeta } from '@/app/components/SEOMeta';
 import { StructuredData } from '@/app/components/StructuredData';
 import { Breadcrumbs } from '@/app/components/Breadcrumbs';
@@ -99,6 +99,12 @@ export function SubjectPage() {
         items={itemListItems}
       />
       <Breadcrumbs items={breadcrumbs} />
+      <nav aria-label="科目別の成績比較" className="px-4 sm:px-6 text-sm text-gray-700 flex flex-wrap gap-x-5 gap-y-2 mb-2">
+        <span>同じ科目群の出題分析・年度比較：</span>
+        <Link className="underline text-[var(--color-brand-green)]" to="/common-test-2026-analysis">2026年度本試験</Link>
+        <Link className="underline text-[var(--color-brand-green)]" to="/common-test-2025-analysis">2025年度本試験</Link>
+        <Link className="underline text-[var(--color-brand-green)]" to="/statistics">科目別平均点の推移</Link>
+      </nav>
       <PDFTableWithFilter 
         items={filteredPDFs} 
         title={title} 

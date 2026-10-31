@@ -248,7 +248,7 @@ function loadDetails() {
 }
 
 function staticNavigation() {
-  return '<nav aria-label="サイト案内"><a href="/">ホーム</a> ｜ <a href="/overview">全試験一覧</a> ｜ <a href="/statistics">平均点の推移</a> ｜ <a href="/year-statistics">年度別統計</a> ｜ <a href="/coverage">収録状況</a> ｜ <a href="/sources">資料の出典</a> ｜ <a href="/guide">資料の使い方</a> ｜ <a href="/about">サイトについて</a> ｜ <a href="/privacy">プライバシーポリシー</a></nav>';
+  return '<nav aria-label="サイト案内"><a href="/">ホーム</a> ｜ <a href="/common-test-2026-analysis">2026年度本試験の分析</a> ｜ <a href="/common-test-2025-analysis">2025年度本試験の分析</a> ｜ <a href="/overview">全試験一覧</a> ｜ <a href="/statistics">平均点の推移</a> ｜ <a href="/year-statistics">年度別統計</a> ｜ <a href="/coverage">収録状況</a> ｜ <a href="/sources">資料の出典</a> ｜ <a href="/guide">資料の使い方</a> ｜ <a href="/about">サイトについて</a> ｜ <a href="/privacy">プライバシーポリシー</a></nav>';
 }
 
 function buildStaticBody(page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution, social2025, foreign2025) {
@@ -578,7 +578,13 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
       if (category) filtered = records.filter(r => (subjectCategories.get(r.subject) ?? 'その他') === category);
     }
     if (page.path !== '/archives') {
-      content = '<h2>収録資料一覧</h2><ul>' + filtered.slice(0, page.path === '/overview' ? 400 : 160).map(r =>
+      const analysisEntry = page.path === '/overview'
+        ? '<p>資料に加えて、<a href="/common-test-2026-analysis">2026年度本試験の大問別得点率と出題分析</a>、<a href="/common-test-2025-analysis">2025年度の比較</a>も公開しています。</p>'
+        : page.path === '/year/2025' || page.path === '/year/2026'
+          ? '<p>本試験の出題内容と大問別得点率：<a href="/common-test-' + page.path.slice(6) + '-analysis">' + page.path.slice(6) + '年度の分析</a></p>'
+          : page.path.startsWith('/subject/')
+            ? '<p>この科目群の得点率を調べる：<a href="/common-test-2026-analysis">2026年度の大問別比較</a>、<a href="/common-test-2025-analysis">2025年度の分析</a>。</p>' : '';
+      content = analysisEntry + '<h2>収録資料一覧</h2><ul>' + filtered.slice(0, page.path === '/overview' ? 400 : 160).map(r =>
         '<li><a href="/test/' + encodeURIComponent(r.questionPdf) + '">' +
         escapeHtml(r.year + '年度 ' + r.subject + ' ' + (r.examType === 'main' ? '本試験' : '追試験')) +
         '</a></li>').join('') + '</ul>';

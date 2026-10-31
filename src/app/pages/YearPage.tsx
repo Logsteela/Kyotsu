@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useParams } from 'react-router';
+import { useParams, Link } from 'react-router';
 import { SEOMeta } from '@/app/components/SEOMeta';
 import { StructuredData } from '@/app/components/StructuredData';
 import { Breadcrumbs } from '@/app/components/Breadcrumbs';
@@ -127,6 +127,14 @@ export function YearPage() {
         items={itemListItems}
       />
       <Breadcrumbs items={breadcrumbs} />
+      {(year === '2025' || year === '2026') && (
+        <nav aria-label="同年度の出題分析" className="px-4 sm:px-6 text-sm text-gray-700 mb-2">
+          <span>本試験の大問別得点率・出題内容：</span>{' '}
+          <Link className="underline text-[var(--color-brand-green)]" to={year === '2026' ? '/common-test-2026-analysis' : '/common-test-2025-analysis'}>
+            {year}年度の分析一覧
+          </Link>
+        </nav>
+      )}
       <PDFTableWithFilter
         items={filteredPDFs}
         title={title}

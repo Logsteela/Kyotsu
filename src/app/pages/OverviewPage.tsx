@@ -1,4 +1,5 @@
  import { useMemo } from 'react';
+import { Link } from 'react-router';
 import { SEOMeta } from '@/app/components/SEOMeta';
 import { StructuredData } from '@/app/components/StructuredData';
 import { Breadcrumbs } from '@/app/components/Breadcrumbs';
@@ -50,6 +51,12 @@ export function OverviewPage() {
         items={itemListItems}
       />
       <Breadcrumbs items={breadcrumbItems} />
+      <nav aria-label="過去問に対応する分析" className="px-4 sm:px-6 text-sm text-gray-700 flex flex-wrap gap-x-5 gap-y-2 mb-2">
+        <span>大問別の比較・分析：</span>
+        <Link className="underline text-[var(--color-brand-green)]" to="/common-test-2026-analysis">2026年度本試験</Link>
+        <Link className="underline text-[var(--color-brand-green)]" to="/common-test-2025-analysis">2025年度本試験</Link>
+        <Link className="underline text-[var(--color-brand-green)]" to="/year-statistics">歴代の平均得点率</Link>
+      </nav>
       <PDFTableWithFilter 
         items={filteredPDFs} 
         title="総覧" 
