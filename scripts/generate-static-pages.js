@@ -176,6 +176,10 @@ function loadQuestionResearch() {
   return JSON.parse(block);
 }
 
+function difficultyAppropriateness(subject) {
+  return ['物理','生物','地学','生物基礎','地学基礎','フランス語','韓国語'].includes(subject) ? 3 : 4;
+}
+
 function loadForeignResearch() {
   const source = readFileSync(FOREIGN_RESEARCH_PATH, 'utf8');
   const marker = 'COMMON_TEST_2026_FOREIGN_LANGUAGES: Record<string, ForeignLanguageAnalysis> = ';
@@ -275,18 +279,18 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
       summarized.push({ subject, pdf: matching[0].questionPdf, maxPart, minPart, overview: research.observation });
     }
     content = '<h2>2026年度共通テスト本試験・科目別分析</h2><p>大学入試センターの2026年度大問別の得点率と正答率から23科目を比較。各科目の試験情報には大問ごとの分析と題材の考察を掲載しています。原資料の所在は<a href="/sources">出典一覧</a>にまとめています。</p>' +
-      '<table><thead><tr><th>科目</th><th>最低得点率の大問</th><th>最高得点率の大問</th><th>差</th></tr></thead><tbody>' +
+      '<table><thead><tr><th>科目</th><th>最低得点率の大問</th><th>最高得点率の大問</th><th>差</th><th>難易度の適正さ*</th></tr></thead><tbody>' +
       summarized.map(r => '<tr><td><a href="/test/' + encodeURIComponent(r.pdf) + '">' + escapeHtml(r.subject) + '</a></td><td>第' +
         r.minPart.number + '問 ' + r.minPart.scoreRate.toFixed(2) + '%</td><td>第' + r.maxPart.number + '問 ' +
-        r.maxPart.scoreRate.toFixed(2) + '%</td><td>' + (r.maxPart.scoreRate-r.minPart.scoreRate).toFixed(2) + 'pt</td></tr>').join('') +
-      '</tbody></table><h2>科目別に何が分かるか</h2>' +
+        r.maxPart.scoreRate.toFixed(2) + '%</td><td>' + (r.maxPart.scoreRate-r.minPart.scoreRate).toFixed(2) + 'pt</td><td>' + difficultyAppropriateness(r.subject) + '／4</td></tr>').join('') +
+      '</tbody></table><p>*高校教員による「難易度の適正さ」の評価であり、4が難しいという意味ではありません。</p><h2>科目別に何が分かるか</h2>' +
       summarized.map(r => '<h3>' + escapeHtml(r.subject) + '</h3><p>' + escapeHtml(r.overview) +
         ' <a href="/test/' + encodeURIComponent(r.pdf) + '">詳細の分析を見る</a></p>').join('');
     content += '<h2>外国語4科目の出題と評価</h2><p>得点率の大問別原数値を未照合のため、以下は教師評価に基づく質的な分析です。</p>' +
       Object.entries(foreignResearch).map(([subject, review]) => {
         const exam = records.find(r => r.year === '2026' && r.examType === 'main' && r.subject === subject);
         return exam ? '<h3><a href="/test/' + encodeURIComponent(exam.questionPdf) + '">' + escapeHtml(subject) +
-          '</a></h3><p>' + escapeHtml(review.observation) + '</p>' : '';
+          '</a></h3><p>' + escapeHtml(review.observation) + '（高校教員による難易度の適正さ評価：' + difficultyAppropriateness(subject) + '／4）</p>' : '';
       }).join('');
   } else if (page.path === '/common-test-changes') {
     const snapshots = records.filter(r => /^[0-9]{4}$/.test(r.year) && Number(r.year) >= 2025 && Number(r.year) <= 2026 && r.examType === 'main');
@@ -374,7 +378,7 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
         }
         const foreign = examYear === 2026 ? foreignResearch[r.subject] : null;
         if (foreign) {
-          content += '<h2>本試験の出題内容と問題評価</h2><p>大学入試センターの高等学校教科担当教員による評価に基づく大問別の整理です。実測の大問別得点率は未確認なので記載していません。</p>' +
+          content += '<h2>本試験の出題内容と問題評価</h2><p>高校教員による「難易度の適正さ」の評価：' + difficultyAppropriateness(r.subject) + '／4。これは難しさを表す値ではありません。実測の大問別得点率は未確認なので記載していません。</p>' +
             foreign.sections.map(x => '<h3>第' + x.number + '問：' + escapeHtml(x.topic) + '</h3><p>' + escapeHtml(x.summary) + '</p>').join('') +
             '<h3>全体評価</h3><p>' + escapeHtml(foreign.observation) + '</p>' +
             '<h3>注目すべき設問</h3><p>' + escapeHtml(foreign.specific) + '</p><p>' + escapeHtml(foreign.caution) + '</p>';
@@ -384,7 +388,7 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
           const parts = researched.parts;
           const best = parts.reduce((a,b) => a.scoreRate > b.scoreRate ? a : b);
           const worst = parts.reduce((a,b) => a.scoreRate < b.scoreRate ? a : b);
-          content += '<h2>本試験の大問別得点率・正答率</h2><p>得点率は平均得点÷配点、正答率は大問内の設問で完全に正解した割合の平均です。' +
+          content += '<h2>本試験の大問別得点率・正答率</h2><p>高校教員による「難易度の適正さ」の評価：' + difficultyAppropriateness(r.subject) + '／4。これは難しさを表す値ではありません。</p><p>得点率は平均得点÷配点、正答率は大問内の設問で完全に正解した割合の平均です。' +
             '最も得点率の高い大問は第' + best.number + '問（' + best.scoreRate.toFixed(2) + '%）、最も低いのは第' +
             worst.number + '問（' + worst.scoreRate.toFixed(2) + '%）です。</p>' +
             '<table><thead><tr><th>大問</th><th>分野</th><th>配点</th><th>得点率</th><th>正答率</th></tr></thead><tbody>' +

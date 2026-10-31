@@ -5,13 +5,14 @@ import { getEnhancedDatabase } from '@/app/data/testDatabase';
 import { getTestDetails } from '@/app/data/testDetailsDatabase';
 import { COMMON_TEST_2026_RESEARCH } from '@/app/data/commonTest2026Research';
 import { COMMON_TEST_2026_FOREIGN_LANGUAGES } from '@/app/data/commonTest2026ForeignLanguages';
+import { getDifficultyAppropriateness } from '@/app/data/commonTest2026Evaluations';
 import { SortHeader } from '@/app/components/SortHeader';
 import { useSortedRows } from '@/app/utils/useSortedRows';
 
 type Item = {
   subject: string; average: number | null; max: number | null; rate: number | null;
   questionPdf: string; groups: number; lowest: number; lowRate: number;
-  highest: number; highRate: number; gap: number;
+  highest: number; highRate: number; gap: number; rating: number;
 };
 export function CommonTest2026AnalysisPage() {
   const all = useMemo(() => {
@@ -30,7 +31,8 @@ export function CommonTest2026AnalysisPage() {
       list.push({ subject, questionPdf:r.questionPdf, average, max,
         rate: average !== null && max ? average / max * 100 : null,
         groups:entry.parts.length, lowest:worst.number, lowRate:worst.scoreRate,
-        highest:best.number, highRate:best.scoreRate, gap:best.scoreRate-worst.scoreRate });
+        highest:best.number, highRate:best.scoreRate, gap:best.scoreRate-worst.scoreRate,
+        rating:getDifficultyAppropriateness(subject) });
     }
     return list;
   }, []);
@@ -44,6 +46,7 @@ export function CommonTest2026AnalysisPage() {
       <article className="bg-white rounded-lg border border-[var(--color-table-border)] p-6 lg:p-8 max-w-6xl text-gray-800 leading-relaxed">
         <h1 className="text-2xl font-bold mb-4">2026年度共通テスト本試験・大問別の成績と分析</h1>
         <p className="mb-3">23科目について、大学入試センターの設問別得点率・正答率表に基づく大問別の集計値を比較します。ドイツ語・フランス語・中国語・韓国語の4科目は、公式の問題評価に基づく大問別の題材・出題意図を別に整理しています。各科目名を開くと、出題内容と問題評価報告書を照らし合わせた分析、大問別の数値表、得点分布の分析（資料のある科目）を読むことができます。</p>
+        <p className="text-sm mb-3">*教員評価は「問題の難易度は適正である」との観点に対する高校教員の同意度です。4＝あてはまる、3＝ある程度あてはまる。数値が高いほど問題が難しいという意味ではありません。</p>
         <p className="mb-5 text-sm">大問間の差は同じ科目の得点率が高い大問と低い大問の差です。大問の配点が異なる科目同士の難易度順位を示すものではありません。小問の正答率や考察は各詳細ページにまとめています。</p>
         <label htmlFor="analysis-search" className="block font-semibold mb-1">科目を絞り込み</label>
         <input id="analysis-search" value={name} onChange={e=>setName(e.target.value)}
@@ -58,6 +61,7 @@ export function CommonTest2026AnalysisPage() {
               <SortHeader label="最も低い大問" column="lowRate" {...{sortKey,direction}} onSort={sortBy} />
               <SortHeader label="最も高い大問" column="highRate" {...{sortKey,direction}} onSort={sortBy} />
               <SortHeader label="大問間の差" column="gap" {...{sortKey,direction}} onSort={sortBy} />
+              <SortHeader label="教員評価*" column="rating" {...{sortKey,direction}} onSort={sortBy} />
             </tr></thead>
             <tbody>{sorted.map(row=><tr key={row.questionPdf} className="border-b">
               <th className="p-3 font-medium"><Link className="text-[var(--color-brand-green)] underline" to={`/test/${encodeURIComponent(row.questionPdf)}`}>{row.subject}</Link></th>
@@ -66,6 +70,7 @@ export function CommonTest2026AnalysisPage() {
               <td className="p-3 tabular-nums">第{row.lowest}問 {row.lowRate.toFixed(2)}%</td>
               <td className="p-3 tabular-nums">第{row.highest}問 {row.highRate.toFixed(2)}%</td>
               <td className="p-3 tabular-nums">{row.gap.toFixed(2)}pt</td>
+              <td className="p-3 tabular-nums">{row.rating}／4</td>
             </tr>)}</tbody>
           </table>
         </div>
@@ -78,6 +83,7 @@ export function CommonTest2026AnalysisPage() {
             if (!record) return null;
             return <div key={subject} className="border rounded p-4 bg-gray-50">
               <h3 className="font-semibold mb-2"><Link to={`/test/${encodeURIComponent(record.questionPdf)}`} className="underline text-[var(--color-brand-green)]">{subject}（{note.sections.length}大問）</Link></h3>
+              <p className="text-xs text-gray-600 mb-2">高校教員による難易度の適正さ評価：{getDifficultyAppropriateness(subject)}／4</p>
               <p className="text-sm leading-relaxed">{note.observation}</p>
             </div>;
           })}

@@ -1,4 +1,5 @@
 import { COMMON_TEST_2026_FOREIGN_LANGUAGES } from '@/app/data/commonTest2026ForeignLanguages';
+import { getDifficultyAppropriateness } from '@/app/data/commonTest2026Evaluations';
 import { getTestDetails } from '@/app/data/testDetailsDatabase';
 import { getEnhancedDatabase } from '@/app/data/testDatabase';
 
@@ -14,6 +15,7 @@ export function CommonTestForeignLanguageReview({ year, subject }: { year:number
     ? newScore.averageScore - oldScore.averageScore : null;
   return <section aria-label="2026年度の出題と問題評価" className="mt-6 border-t pt-5">
     <h3 className="text-lg font-semibold mb-3">2026年度・大問別の出題内容と問題評価</h3>
+    <p className="text-xs text-gray-600 mb-3">高校教員による「難易度の適正さ」評価：{getDifficultyAppropriateness(subject)}／4（問題が難しいほど高くなる値ではありません）</p>
     <p className="text-sm leading-relaxed mb-4">
       大学入試センターが公開した高校教員による問題評価を読み、各大問で必要だった知識・判断と、
       問題の負荷について整理しました。大問別の実測得点率は未照合のため掲載せず、

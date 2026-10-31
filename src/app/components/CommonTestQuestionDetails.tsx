@@ -1,4 +1,5 @@
 import { COMMON_TEST_2026_RESEARCH } from '@/app/data/commonTest2026Research';
+import { getDifficultyAppropriateness } from '@/app/data/commonTest2026Evaluations';
 import { COMMON_TEST_GROUP_COMPARISONS } from '@/app/data/commonTest2025GroupComparison';
 import { SortHeader } from '@/app/components/SortHeader';
 import { useSortedRows } from '@/app/utils/useSortedRows';
@@ -11,6 +12,7 @@ export function CommonTestQuestionDetails({ year, subject }: { year: number | st
   const difference = highest.scoreRate - lowest.scoreRate;
   return <section className="mt-5">
     <h3 className="text-base sm:text-lg font-semibold mb-2">大問ごとの得点状況（2026年度本試験）</h3>
+    <p className="text-xs text-gray-600 mb-3">高校教員による「難易度の適正さ」評価：{getDifficultyAppropriateness(subject)}／4（問題の難しさを数値化した値ではありません）</p>
     <p className="text-sm leading-relaxed mb-3">
       実際の受験者の成績から、大問の得点率と正答率を比較しました。得点率は部分点を含む平均得点の割合、
       正答率は小問を完全に正解した割合の大問内平均です。未照合の正答率は「—」と表示します。大問の正答率は配点による重み付けをしていないため、
