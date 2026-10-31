@@ -12,6 +12,7 @@ const DIST_INDEX = join(DIST_DIR, 'index.html');
 const DATABASE_PATH = join(__dirname, '../src/app/data/testDatabase.ts');
 const DETAILS_PATH = join(__dirname, '../src/app/data/testDetailsDatabase.ts');
 const QUESTION_RESEARCH_PATH = join(__dirname, '../src/app/data/commonTest2026Research.ts');
+const PRIOR_RESEARCH_PATH = join(__dirname, '../src/app/data/commonTest2025GroupComparison.ts');
 const ARCHIVES_PATH = join(__dirname, '../src/app/components/archivesTables.json');
 const R2_ORIGIN = 'https://pub-43d2006e555442dca4a107e7bc0d01bb.r2.dev';
 
@@ -174,6 +175,14 @@ function loadQuestionResearch() {
   return JSON.parse(block);
 }
 
+function loadPriorResearch() {
+  const source = readFileSync(PRIOR_RESEARCH_PATH, 'utf8');
+  const marker = 'COMMON_TEST_GROUP_COMPARISONS: Record<string, GroupComparison> = ';
+  const at = source.indexOf(marker);
+  if (at < 0) throw new Error('Previous-year research data marker missing');
+  return JSON.parse(source.slice(at + marker.length).trim().replace(/;$/, ''));
+}
+
 function loadDetails() {
   const source = readFileSync(DETAILS_PATH, 'utf8');
   const details = new Map();
@@ -202,7 +211,7 @@ function staticNavigation() {
   return '<nav aria-label="サイト案内"><a href="/">ホーム</a> ｜ <a href="/overview">全試験一覧</a> ｜ <a href="/statistics">平均点の推移</a> ｜ <a href="/year-statistics">年度別統計</a> ｜ <a href="/coverage">収録状況</a> ｜ <a href="/sources">資料の出典</a> ｜ <a href="/guide">資料の使い方</a> ｜ <a href="/about">サイトについて</a> ｜ <a href="/privacy">プライバシーポリシー</a></nav>';
 }
 
-function buildStaticBody(page, records, details, subjectCategories, archives, questionResearch) {
+function buildStaticBody(page, records, details, subjectCategories, archives, questionResearch, priorResearch) {
   const heading = '<h1>' + escapeHtml(page.title) + '</h1>';
   const intro = '<p>' + escapeHtml(page.description) + '</p>';
   let content = '';
@@ -351,6 +360,19 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
             '<h3>大問別の差から分かること</h3><p>' + escapeHtml(researched.observation) + '</p>' +
             (researched.review ? '<h3>問題評価と出題内容</h3><p>' + escapeHtml(researched.review) + '</p>' : '') +
             (researched.detail ? '<h3>設問別正答率からの分析</h3><p>' + escapeHtml(researched.detail) + '</p>' : '');
+          const comparison = priorResearch[r.subject];
+          if (comparison && comparison.groups.length === parts.length) {
+            const paired = comparison.groups.map(g => ({ before:g, after:parts.find(p => p.number === g.number && p.points === g.points) }));
+            if (paired.every(x => x.after)) {
+              content += '<h3>2025年度との大問別得点率比較</h3><p>同じ大問番号・配点の比較です。出題内容は年度によって異なり、同一問題との比較ではありません。</p>' +
+                '<table><thead><tr><th>大問</th><th>2025年得点率</th><th>2026年得点率</th><th>前年差</th><th>平均点への寄与</th></tr></thead><tbody>' +
+                paired.map(x => {
+                  const diff=x.after.scoreRate-x.before.previousRate;
+                  return '<tr><td>第'+x.before.number+'問</td><td>'+x.before.previousRate.toFixed(2)+'%</td><td>'+x.after.scoreRate.toFixed(2)+'%</td><td>'+
+                    (diff>=0?'+':'')+diff.toFixed(2)+'pt</td><td>'+(diff>=0?'+':'')+(diff*x.after.points/100).toFixed(2)+'点</td></tr>';
+                }).join('') + '</tbody></table><p>' + escapeHtml(comparison.comment) + '</p>';
+            }
+          }
           if (r.subject === '数学Ⅱ，数学Ｂ，数学Ｃ') content += '<p>数学Ⅱ・B・Cは必答52点と16点ずつ4問から3問選択で100点満点。表中の全7大問を足すと116点になるため、単純な加算はできません。</p>';
           if (['地理総合', '歴史総合', '公共'].includes(r.subject)) content += '<p>この科目は「地理総合／歴史総合／公共」の3領域から2つ選択する試験の50点分野です。</p>';
           if (r.subject === '国語') {
@@ -395,8 +417,8 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
   return '<div id="archive-static-fallback" style="max-width:1100px;margin:24px auto;padding:20px;font-family:system-ui,sans-serif;line-height:1.8">' + heading + intro + content + staticNavigation() + '</div>';
 }
 
-function injectBody(html, page, records, details, subjectCategories, archives, questionResearch) {
-  const fallback = buildStaticBody(page, records, details, subjectCategories, archives, questionResearch);
+function injectBody(html, page, records, details, subjectCategories, archives, questionResearch, priorResearch) {
+  const fallback = buildStaticBody(page, records, details, subjectCategories, archives, questionResearch, priorResearch);
   return html.replace('<div id="root"></div>', '<div id="root">' + fallback + '</div>');
 }
 
@@ -592,12 +614,13 @@ function main() {
   const subjectCategories = loadSubjectCategories();
   const archives = JSON.parse(readFileSync(ARCHIVES_PATH, 'utf8'));
   const questionResearch = loadQuestionResearch();
+  const priorResearch = loadPriorResearch();
   const pages = buildPages(records);
   const baseHtml = readFileSync(DIST_INDEX, 'utf8');
   let fileCount = 0;
 
   for (const page of pages) {
-    const html = injectBody(injectMeta(baseHtml, page), page, records, details, subjectCategories, archives, questionResearch);
+    const html = injectBody(injectMeta(baseHtml, page), page, records, details, subjectCategories, archives, questionResearch, priorResearch);
     for (const filePath of pathToFilePaths(page.path)) {
       writeFileEnsuringDir(filePath, html);
       fileCount += 1;
