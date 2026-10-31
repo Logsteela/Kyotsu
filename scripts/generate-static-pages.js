@@ -256,7 +256,7 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
       const minPart = research.parts.reduce((a,b) => a.scoreRate <= b.scoreRate ? a : b);
       summarized.push({ subject, pdf: matching[0].questionPdf, maxPart, minPart, overview: research.observation });
     }
-    content = '<h2>2026年度共通テスト本試験・科目別分析</h2><p>大学入試センターの2026年度大問別の得点率と正答率から18科目を比較。各科目の試験情報には大問ごとの分析と題材の考察を掲載しています。原資料の所在は<a href="/sources">出典一覧</a>にまとめています。</p>' +
+    content = '<h2>2026年度共通テスト本試験・科目別分析</h2><p>大学入試センターの2026年度大問別の得点率と正答率から23科目を比較。各科目の試験情報には大問ごとの分析と題材の考察を掲載しています。原資料の所在は<a href="/sources">出典一覧</a>にまとめています。</p>' +
       '<table><thead><tr><th>科目</th><th>最低得点率の大問</th><th>最高得点率の大問</th><th>差</th></tr></thead><tbody>' +
       summarized.map(r => '<tr><td><a href="/test/' + encodeURIComponent(r.pdf) + '">' + escapeHtml(r.subject) + '</a></td><td>第' +
         r.minPart.number + '問 ' + r.minPart.scoreRate.toFixed(2) + '%</td><td>第' + r.maxPart.number + '問 ' +
@@ -346,7 +346,7 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
             worst.number + '問（' + worst.scoreRate.toFixed(2) + '%）です。</p>' +
             '<table><thead><tr><th>大問</th><th>分野</th><th>配点</th><th>得点率</th><th>正答率</th></tr></thead><tbody>' +
             parts.map(p => '<tr><td>第' + p.number + '問</td><td>' + escapeHtml(p.topic) + '</td><td>' + p.points +
-              '</td><td>' + p.scoreRate.toFixed(2) + '%</td><td>' + p.correctRate.toFixed(2) + '%</td></tr>').join('') +
+              '</td><td>' + p.scoreRate.toFixed(2) + '%</td><td>' + (p.correctRate === null ? '—' : p.correctRate.toFixed(2) + '%') + '</td></tr>').join('') +
             '</tbody></table>' +
             '<h3>大問別の差から分かること</h3><p>' + escapeHtml(researched.observation) + '</p>' +
             (researched.review ? '<h3>問題評価と出題内容</h3><p>' + escapeHtml(researched.review) + '</p>' : '') +
