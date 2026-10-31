@@ -86,6 +86,7 @@ export function SourcesPage() {
             <ul className="list-disc pl-5 text-sm space-y-2 mb-4">
               <li><a className="underline text-[var(--color-brand-green)]" href="https://eic.obunsha.co.jp/exam_info/2026/2026%E5%B9%B4-%E5%85%B1%E9%80%9A%E3%83%86%E3%82%B9%E3%83%88-%E5%B0%8F%E5%95%8F%E5%88%A5%E6%AD%A3%E7%AD%94%E7%8E%87/" target="_blank" rel="noopener noreferrer">旺文社教育情報センター・2026年の小問別正答率整理</a>：原資料の個別設問の数値の照合</li>
               <li><a className="underline text-[var(--color-brand-green)]" href="https://kyotsu-zemi.fworks.studio/guide/daimon-tokutenritsu-2026/" target="_blank" rel="noopener noreferrer">共通テストゼミ・2026年大問別得点率の再集計</a>：大問単位の値の照合</li>
+              <li><a className="underline text-[var(--color-brand-green)]" href="https://kyotsu-zemi.fworks.studio/guide/kokugo-tokuten-bunpu/" target="_blank" rel="noopener noreferrer">共通テストゼミ・2025／2026年度国語の得点分布再集計</a>：得点帯別人数、5分位値を照合</li>
               <li><a className="underline text-[var(--color-brand-green)]" href="https://sukyojuku.com/joho1-2026-honshiken/" target="_blank" rel="noopener noreferrer">数強塾・2025／2026年度情報Ⅰの設問・成績分布の分析</a>：中央値、分布の境界、得点帯別人数を照合</li>
             </ul>
             <h3 className="font-semibold mb-2">数値と解釈の区別</h3>
