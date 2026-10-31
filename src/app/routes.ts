@@ -1,5 +1,6 @@
 import { createBrowserRouter, type RouteObject } from 'react-router';
 
+import { CoveragePage } from '@/app/pages/CoveragePage';
 import { StatisticsPage } from '@/app/pages/StatisticsPage';
 import { GuidePage } from '@/app/pages/GuidePage';
 import { AboutPage } from '@/app/pages/AboutPage';
@@ -27,6 +28,7 @@ const routes: RouteObject[] = [
       { path: 'test/:questionPdf', Component: TestDetailPage },
       { path: 'archives', Component: ArchivesPage },
       { path: 'statistics', Component: StatisticsPage },
+      { path: 'coverage', Component: CoveragePage },
       { path: 'guide', Component: GuidePage },
       { path: 'about', Component: AboutPage },
       { path: 'privacy', Component: PrivacyPage },
