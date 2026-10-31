@@ -233,7 +233,15 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
       }
     }
     const sorted = [...sourceCounts.entries()].sort((a, b) => b[1] - a[1]);
-    content = '<h2>問題・解答・音源の出典</h2><p>サイトの試験詳細にある出典の記載を集計しました。出典の記載は資料の転載・再利用許諾を意味しません。記載がない資料について提供元を推定していません。</p><table><thead><tr><th>出典記録</th><th>登録件数</th></tr></thead><tbody>' +
+    content = '<h2>共通テストの設問別分析に用いた出典と集計方法</h2>' +
+      '<p>このサイトでは大学入試センターの2026年度本試験資料を元に、大問別得点率・正答率・国語や情報Ⅰの得点分布を要約し、試験別ページに掲載しています。原資料への外部リンクは以下にまとめています。</p>' +
+      '<ul>' +
+      '<li><a href="https://www.dnc.ac.jp/kyotsu/hyouka/r8_hyouka/r8_data.html">大学入試センター・2026年度設問別得点率と科目別成績分布</a></li>' +
+      '<li><a href="https://www.dnc.ac.jp/kyotsu/hyouka/r7_hyouka/r7_data.html">大学入試センター・2025年度設問別得点率と科目別成績分布</a></li>' +
+      '<li><a href="https://www.dnc.ac.jp/kyotsu/hyouka/r8_hyouka/r8_hyoukahoukokusyo_honshiken.html">2026年度問題評価・分析委員会報告書</a></li>' +
+      '<li><a href="https://www.dnc.ac.jp/kyotsu/suii/R3_.html">平均点・受験者数の推移</a></li>' +
+      '</ul><p>得点率は平均得点÷配点、正答率は完全に正答した割合の集計。分析文は元資料を参照して当サイトでまとめたもので、年度間の得点分布差を試験難易度の差と断定しません。</p>' +
+      '<h2>問題・解答・音源の出典</h2><p>サイトの試験詳細にある出典の記載を集計しました。記載がない資料について提供元を推定していません。</p><table><thead><tr><th>出典記録</th><th>登録件数</th></tr></thead><tbody>' +
       sorted.map(([source, count]) => '<tr><td>' + escapeHtml(source) + '</td><td>' + count + '</td></tr>').join('') + '</tbody></table>';
   } else if (page.path === '/archives') {
     content = '<h2>入試の記録比較</h2><p>収録された統計をもとに、平均得点率や各種得点記録の順位を整理した一覧です。年度や受験者集団による違いを考慮し、順位だけで難易度を判断しないでください。</p>' +
