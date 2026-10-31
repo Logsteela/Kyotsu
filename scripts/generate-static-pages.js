@@ -11,6 +11,7 @@ const DIST_DIR = join(__dirname, '../dist');
 const DIST_INDEX = join(DIST_DIR, 'index.html');
 const DATABASE_PATH = join(__dirname, '../src/app/data/testDatabase.ts');
 const DETAILS_PATH = join(__dirname, '../src/app/data/testDetailsDatabase.ts');
+const ARCHIVES_PATH = join(__dirname, '../src/app/components/archivesTables.json');
 const R2_ORIGIN = 'https://pub-43d2006e555442dca4a107e7bc0d01bb.r2.dev';
 
 
@@ -151,6 +152,18 @@ function pageJsonLd(meta) {
   return { '@context': 'https://schema.org', '@graph': graph };
 }
 
+function loadSubjectCategories() {
+  const source = readFileSync(DATABASE_PATH, 'utf8');
+  const begin = source.indexOf('export const SUBJECT_MAPPING:');
+  const end = source.indexOf('// 分類用教科名からスラッグ', begin);
+  const section = source.slice(begin, end);
+  const categories = new Map();
+  for (const match of section.matchAll(/'([^']+)':\\s*\\{\\s*category:\\s*'([^']+)'/g)) {
+    categories.set(match[1], match[2]);
+  }
+  return categories;
+}
+
 function loadDetails() {
   const source = readFileSync(DETAILS_PATH, 'utf8');
   const details = new Map();
@@ -168,16 +181,18 @@ function loadDetails() {
       totalScore: numeric('totalScore'),
       examinees: numeric('examinees'),
       testDuration: numeric('testDuration'),
+      implementationDate: props.match(/implementationDate:'([^']*)'/)?.[1] ?? '',
+      specialNotes: props.match(/specialNotes:'([^']*)'/)?.[1] ?? '',
     });
   }
   return details;
 }
 
 function staticNavigation() {
-  return '<nav aria-label="サイト案内"><a href="/">ホーム</a> ｜ <a href="/overview">全試験一覧</a> ｜ <a href="/statistics">平均点の推移</a> ｜ <a href="/guide">資料の使い方</a> ｜ <a href="/about">サイトについて</a> ｜ <a href="/privacy">プライバシーポリシー</a></nav>';
+  return '<nav aria-label="サイト案内"><a href="/">ホーム</a> ｜ <a href="/overview">全試験一覧</a> ｜ <a href="/statistics">平均点の推移</a> ｜ <a href="/coverage">収録状況</a> ｜ <a href="/guide">資料の使い方</a> ｜ <a href="/about">サイトについて</a> ｜ <a href="/privacy">プライバシーポリシー</a></nav>';
 }
 
-function buildStaticBody(page, records, details) {
+function buildStaticBody(page, records, details, subjectCategories, archives) {
   const heading = '<h1>' + escapeHtml(page.title) + '</h1>';
   const intro = '<p>' + escapeHtml(page.description) + '</p>';
   let content = '';
@@ -189,6 +204,19 @@ function buildStaticBody(page, records, details) {
     content = '<h2>独自の整理方針</h2><p>年度、教科、試験区分、実施日、試験時間、平均点などを紐付けて記録し、古い資料を見つけやすくする非公式の個人運営サイトです。各資料の出典情報は試験詳細の特記事項に記録されています。原資料の権利は各権利者に帰属します。</p>';
   } else if (page.path === '/privacy') {
     content = '<h2>広告とCookieについて</h2><p>Google AdSenseの利用を申請しています。広告が配信される場合はCookie等によって広告・ブラウザに関するデータが利用される可能性があります。Googleのデータ利用については https://policies.google.com/technologies/partner-sites を参照してください。</p>';
+  } else if (page.path === '/coverage') {
+    const sortedYears = sortYears(new Set(records.map(r => r.year)));
+    const tableRows = sortedYears.map(year => {
+      const entries = records.filter(r => r.year === year);
+      const stats = entries.filter(r => details.get(r.questionPdf)?.averageScore != null && details.get(r.questionPdf)?.totalScore > 0).length;
+      const documented = entries.filter(r => /(?:問題|解答|音源)：/.test(details.get(r.questionPdf)?.specialNotes ?? '')).length;
+      return '<tr><td><a href="/year/' + encodeURIComponent(year) + '">' + escapeHtml(year) + '</a></td><td>' + entries.length + '</td><td>' + stats + '</td><td>' + documented + '</td></tr>';
+    }).join('');
+    content = '<h2>年度・資料群ごとの記録</h2><p>登録済みの試験データを自動集計しています。数値は試験レコード数であり、PDFファイル数や現物の閲覧可否を保証するものではありません。</p><table><thead><tr><th>年度・資料群</th><th>登録</th><th>平均点・満点あり</th><th>出典記録あり</th></tr></thead><tbody>' + tableRows + '</tbody></table>';
+  } else if (page.path === '/archives') {
+    content = '<h2>入試の記録比較</h2><p>収録された統計をもとに、平均得点率や各種得点記録の順位を整理した一覧です。年度や受験者集団による違いを考慮し、順位だけで難易度を判断しないでください。</p>' +
+      archives.map(t => '<section><h3>' + escapeHtml(t.title) + '</h3><ol>' +
+        t.data.map(row => '<li>' + escapeHtml(row.item1) + '：' + escapeHtml(row.item2) + '</li>').join('') + '</ol></section>').join('');
   } else if (page.path === '/statistics') {
     const scores = records.filter(r => r.examType === 'main' && details.get(r.questionPdf)?.averageScore !== null && details.get(r.questionPdf)?.totalScore);
     const sample = scores.slice(0, 60).map(r => {
@@ -202,11 +230,13 @@ function buildStaticBody(page, records, details) {
     if (r) {
       const d = details.get(pdf);
       const list = [['年度', r.year], ['科目', r.subject], ['試験区分', r.examType === 'main' ? '本試験' : '追試験']];
+      if (d?.implementationDate) list.push(['実施日', d.implementationDate]);
       if (d?.testDuration != null) list.push(['試験時間', d.testDuration + '分']);
       if (d?.totalScore != null) list.push(['配点', d.totalScore + '点']);
       if (d?.averageScore != null) list.push(['平均点', d.averageScore + '点']);
       if (d?.examinees != null) list.push(['受験者数', d.examinees + '人']);
       content = '<h2>試験情報</h2><dl>' + list.map(([k,v]) => '<dt>' + escapeHtml(k) + '</dt><dd>' + escapeHtml(v) + '</dd>').join('') + '</dl>';
+      if (d?.specialNotes) content += '<h2>資料の注記・出典</h2><p>' + escapeHtml(d.specialNotes) + '</p>';
       content += '<p><a href="' + R2_ORIGIN + '/' + encodeURIComponent(pdf) + '">問題PDF</a></p>';
       if (r.answerPdf) content += '<p><a href="' + R2_ORIGIN + '/' + encodeURIComponent(r.answerPdf) + '">解答PDF</a></p>';
       content += '<p><a href="/year/' + encodeURIComponent(r.year) + '">同年度の試験一覧</a></p>';
@@ -217,18 +247,13 @@ function buildStaticBody(page, records, details) {
       filtered = records.filter(r => String(r.year) === decodeURIComponent(page.path.slice(6)));
     } else if (page.path.startsWith('/subject/')) {
       const slug = page.path.slice(9);
-      const subjectMatches = {
-        'eigo-reading': /英語.*(?:R|リーディング|筆記)/,
-        'eigo-listening': /英語.*(?:L|リスニング)/,
-        math1: /数学(?:I|Ⅰ|１|一)/,
-        math2: /数学(?:II|Ⅱ|２|二)/,
-        kokugo: /国語/,
-        'rika-kiso': /基礎理科|理科基礎|物理基礎|化学基礎|生物基礎|地学基礎/,
-        rika: /物理|化学|生物|地学|理科/,
-        joho: /情報/,
-        shakai: /歴史|地理|倫理|政治|経済|社会|現代社会/,
+      const slugCategories = {
+        'eigo-reading': '英語（Reading）', 'eigo-listening': '英語（Listening）',
+        math1: '数学①', math2: '数学②', kokugo: '国語', 'rika-kiso': '理科基礎',
+        rika: '理科', joho: '情報', shakai: '社会', sonota: 'その他',
       };
-      if (subjectMatches[slug]) filtered = records.filter(r => subjectMatches[slug].test(r.subject));
+      const category = slugCategories[slug];
+      if (category) filtered = records.filter(r => (subjectCategories.get(r.subject) ?? 'その他') === category);
     }
     if (page.path !== '/archives') {
       content = '<h2>収録資料一覧</h2><ul>' + filtered.slice(0, page.path === '/overview' ? 400 : 160).map(r =>
@@ -240,8 +265,8 @@ function buildStaticBody(page, records, details) {
   return '<div id="archive-static-fallback" style="max-width:1100px;margin:24px auto;padding:20px;font-family:system-ui,sans-serif;line-height:1.8">' + heading + intro + content + staticNavigation() + '</div>';
 }
 
-function injectBody(html, page, records, details) {
-  const fallback = buildStaticBody(page, records, details);
+function injectBody(html, page, records, details, subjectCategories, archives) {
+  const fallback = buildStaticBody(page, records, details, subjectCategories, archives);
   return html.replace('<div id="root"></div>', '<div id="root">' + fallback + '</div>');
 }
 
@@ -339,6 +364,7 @@ function buildPages(records) {
     ['/about', 'サイトについて｜共通テスト過去問総集', '資料の整理方針、出典、運営情報を説明します。'],
     ['/privacy', 'プライバシーポリシー｜共通テスト過去問総集', '広告とCookie等の利用について説明します。'],
     ['/statistics', '科目別平均点の年度推移｜共通テスト過去問総集', '本試験の科目別平均点と満点、平均得点率を比較します。'],
+    ['/coverage', '収録状況・資料の確認状況｜共通テスト過去問総集', '登録資料数・平均点と出典の記載状況を年度ごとに照合します。'],
   ]) add({ path, title, description });
   add({
     path: '/overview',
@@ -424,12 +450,14 @@ function main() {
 
   const records = extractRecords();
   const details = loadDetails();
+  const subjectCategories = loadSubjectCategories();
+  const archives = JSON.parse(readFileSync(ARCHIVES_PATH, 'utf8'));
   const pages = buildPages(records);
   const baseHtml = readFileSync(DIST_INDEX, 'utf8');
   let fileCount = 0;
 
   for (const page of pages) {
-    const html = injectBody(injectMeta(baseHtml, page), page, records, details);
+    const html = injectBody(injectMeta(baseHtml, page), page, records, details, subjectCategories, archives);
     for (const filePath of pathToFilePaths(page.path)) {
       writeFileEnsuringDir(filePath, html);
       fileCount += 1;
