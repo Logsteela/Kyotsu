@@ -229,6 +229,22 @@ function buildStaticBody(page, records, details, subjectCategories, archives) {
     content = '<h2>入試の記録比較</h2><p>収録された統計をもとに、平均得点率や各種得点記録の順位を整理した一覧です。年度や受験者集団による違いを考慮し、順位だけで難易度を判断しないでください。</p>' +
       archives.map(t => '<section><h3>' + escapeHtml(t.title) + '</h3><ol>' +
         t.data.map(row => '<li>' + escapeHtml(row.item1) + '：' + escapeHtml(row.item2) + '</li>').join('') + '</ol></section>').join('');
+  } else if (page.path === '/common-test-changes') {
+    const snapshots = records.filter(r => /^[0-9]{4}$/.test(r.year) && Number(r.year) >= 2025 && Number(r.year) <= 2026 && r.examType === 'main');
+    const changes = [];
+    for (const current of snapshots.filter(r => r.year === '2026')) {
+      const d = details.get(current.questionPdf);
+      if (!d || d.averageScore == null || !(d.totalScore > 0)) continue;
+      const prior = records.filter(r => r.year === '2025' && r.examType === 'main' && r.subject === current.subject && details.get(r.questionPdf)?.totalScore === d.totalScore);
+      if (prior.length !== 1) continue;
+      const previous = details.get(prior[0].questionPdf);
+      if (previous?.averageScore == null) continue;
+      changes.push({ subject: current.subject, questionPdf: current.questionPdf, prev: previous.averageScore, curr: d.averageScore, delta: d.averageScore - previous.averageScore, max: d.totalScore });
+    }
+    changes.sort((a,b) => a.delta - b.delta);
+    content = '<h2>共通テスト2026年度と2025年度の平均点比較</h2><p>同名・同配点の本試験のみを比較し、当年−前年の差を示します。変化は試験難易度そのものを測るものではありません。画面の年度選択で2022～2026年度を比較できます。</p><table><thead><tr><th>科目</th><th>2025年度平均点</th><th>2026年度平均点</th><th>前年差</th></tr></thead><tbody>' +
+      changes.map(r => '<tr><td><a href="/test/' + encodeURIComponent(r.questionPdf) + '">' + escapeHtml(r.subject) + '</a></td><td>' +
+        r.prev + '</td><td>' + r.curr + '</td><td>' + (r.delta >= 0 ? '+' : '') + r.delta.toFixed(2) + '点</td></tr>').join('') + '</tbody></table>';
   } else if (page.path === '/year-statistics') {
     const latestYear = Math.max(...records.filter(r => /^[0-9]{4}$/.test(r.year)).map(r => Number(r.year)));
     const sameYear = records.filter(r => Number(r.year) === latestYear && r.examType === 'main' && details.get(r.questionPdf)?.averageScore != null && details.get(r.questionPdf)?.totalScore > 0);
@@ -426,6 +442,7 @@ function buildPages(records) {
     ['/coverage', '収録状況・資料の確認状況｜共通テスト過去問総集', '登録資料数・平均点と出典の記載状況を年度ごとに照合します。'],
     ['/sources', '収録資料の出典一覧・来歴｜共通テスト過去問総集', '問題・解答・音源の記載上の出典を集計しています。'],
     ['/year-statistics', '年度別・教科別の平均得点率比較｜共通テスト過去問総集', '年度別に平均得点率や前年との差を比較します。'],
+    ['/common-test-changes', '共通テスト科目別の平均点前年差｜共通テスト過去問総集', '共通テスト本試験について前年と今年の科目別平均点を照合します。'],
   ]) add({ path, title, description });
   add({
     path: '/overview',
