@@ -1,4 +1,5 @@
 import { COMMON_TEST_2026_RESEARCH } from '@/app/data/commonTest2026Research';
+import { COMMON_TEST_GROUP_COMPARISONS } from '@/app/data/commonTest2025GroupComparison';
 import { SortHeader } from '@/app/components/SortHeader';
 import { useSortedRows } from '@/app/utils/useSortedRows';
 
@@ -30,6 +31,7 @@ export function CommonTestQuestionDetails({ year, subject }: { year: number | st
       受験者の選択状況は領域によって異なるため、領域間の得点率をそのまま難易度の差として扱えません。
     </p>}
     <ExamQuestionTable parts={record.parts}/>
+    <PriorYearGroupComparison subject={subject} parts={record.parts} />
     {record.review && <section className="mt-5">
       <h3 className="font-semibold mb-2">出題内容・問題評価から読み取れること</h3>
       <p className="text-sm leading-relaxed mb-3">{record.review}</p>
@@ -109,4 +111,41 @@ function ExamQuestionTable({parts}:{parts:Part[]}) {
       </tr>)}</tbody>
     </table>
   </div>;
+}
+
+type ChangeRow = { number:number; topic:string; points:number; previousRate:number; currentRate:number; delta:number; averageContribution:number };
+function PriorYearGroupComparison({ subject, parts }: { subject: string; parts: Part[] }) {
+  const baseline = COMMON_TEST_GROUP_COMPARISONS[subject];
+  const rows: ChangeRow[] = baseline ? baseline.groups.flatMap(g => {
+    const now = parts.find(p => p.number === g.number && p.points === g.points);
+    if (!now) return [];
+    const delta = now.scoreRate - g.previousRate;
+    return [{ number:g.number, topic:now.topic, points:g.points, previousRate:g.previousRate,
+      currentRate:now.scoreRate, delta, averageContribution:delta * g.points / 100 }];
+  }) : [];
+  const { sorted, sortKey, direction, sortBy } = useSortedRows(rows, 'number', 'asc');
+  if (!baseline || rows.length !== baseline.groups.length) return null;
+  return <section className="mt-6">
+    <h3 className="text-base font-semibold mb-2">2025年度との大問別得点率比較</h3>
+    <p className="text-sm mb-3 leading-relaxed">
+      両年度で大問番号・配点が対応する科目について、2025年度と2026年度の得点率を比べました。
+      「科目平均点への寄与」は大問の配点×得点率の差から計算した値です。同じ番号でも問題の内容は違います。
+    </p>
+    <div className="overflow-x-auto mb-3"><table className="w-full text-sm text-left">
+      <thead><tr className="bg-gray-50 border-b">
+        <SortHeader label="大問" column="number" {...{sortKey,direction}} onSort={sortBy} />
+        <SortHeader label="2025年" column="previousRate" {...{sortKey,direction}} onSort={sortBy} />
+        <SortHeader label="2026年" column="currentRate" {...{sortKey,direction}} onSort={sortBy} />
+        <SortHeader label="変化" column="delta" {...{sortKey,direction}} onSort={sortBy} />
+        <SortHeader label="平均点への寄与" column="averageContribution" {...{sortKey,direction}} onSort={sortBy} />
+      </tr></thead><tbody>{sorted.map(p => <tr key={p.number} className="border-b">
+        <th className="p-3 font-medium">第{p.number}問</th>
+        <td className="p-3 tabular-nums">{p.previousRate.toFixed(2)}%</td>
+        <td className="p-3 tabular-nums">{p.currentRate.toFixed(2)}%</td>
+        <td className="p-3 tabular-nums">{p.delta > 0 ? '+' : ''}{p.delta.toFixed(2)}pt</td>
+        <td className="p-3 tabular-nums">{p.averageContribution > 0 ? '+' : ''}{p.averageContribution.toFixed(2)}点</td>
+      </tr>)}</tbody>
+    </table></div>
+    <p className="text-sm leading-relaxed">{baseline.comment}</p>
+  </section>;
 }
