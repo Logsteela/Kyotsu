@@ -1,11 +1,11 @@
 import { COMMON_TEST_2026_FOREIGN_LANGUAGES } from '@/app/data/commonTest2026ForeignLanguages';
+import { COMMON_TEST_2025_FOREIGN_LANGUAGES } from '@/app/data/commonTest2025ForeignLanguages';
 import { getDifficultyAppropriateness } from '@/app/data/commonTest2026Evaluations';
 import { getTestDetails } from '@/app/data/testDetailsDatabase';
 import { getEnhancedDatabase } from '@/app/data/testDatabase';
 
 export function CommonTestForeignLanguageReview({ year, subject }: { year:number|string; subject:string }) {
-  if (year !== 2026) return null;
-  const research = COMMON_TEST_2026_FOREIGN_LANGUAGES[subject];
+  const research = year === 2026 ? COMMON_TEST_2026_FOREIGN_LANGUAGES[subject] : year === 2025 ? COMMON_TEST_2025_FOREIGN_LANGUAGES[subject] : null;
   if (!research) return null;
   const prior = getEnhancedDatabase().find(r => r.year === 2025 && r.testType === 'main' && r.subject === subject);
   const recent = getEnhancedDatabase().find(r => r.year === 2026 && r.testType === 'main' && r.subject === subject);
@@ -13,9 +13,9 @@ export function CommonTestForeignLanguageReview({ year, subject }: { year:number
   const newScore = recent && getTestDetails(recent.questionPdf);
   const difference = typeof oldScore?.averageScore === 'number' && typeof newScore?.averageScore === 'number'
     ? newScore.averageScore - oldScore.averageScore : null;
-  return <section aria-label="2026年度の出題と問題評価" className="mt-6 border-t pt-5">
-    <h3 className="text-lg font-semibold mb-3">2026年度・大問別の出題内容と問題評価</h3>
-    <p className="text-xs text-gray-600 mb-3">高校教員による「難易度の適正さ」評価：{getDifficultyAppropriateness(subject)}／4（問題が難しいほど高くなる値ではありません）</p>
+  return <section aria-label={`${year}年度の出題と問題評価`} className="mt-6 border-t pt-5">
+    <h3 className="text-lg font-semibold mb-3">{year}年度・大問別の出題内容と問題評価</h3>
+    {year === 2026 && <p className="text-xs text-gray-600 mb-3">高校教員による「難易度の適正さ」評価：{getDifficultyAppropriateness(subject)}／4（問題が難しいほど高くなる値ではありません）</p>}
     <p className="text-sm leading-relaxed mb-4">
       大学入試センターが公開した高校教員による問題評価を読み、各大問で必要だった知識・判断と、
       問題の負荷について整理しました。大問別の実測得点率は未照合のため掲載せず、
@@ -31,7 +31,7 @@ export function CommonTestForeignLanguageReview({ year, subject }: { year:number
     <p className="text-sm leading-relaxed mb-3">{research.observation}</p>
     <h4 className="font-semibold mb-2">検討を要する設問と考え方</h4>
     <p className="text-sm leading-relaxed mb-3">{research.specific}</p>
-    {difference !== null && <p className="text-sm mb-3 bg-gray-50 border rounded p-3">
+    {year === 2026 && difference !== null && <p className="text-sm mb-3 bg-gray-50 border rounded p-3">
       科目平均点の前年差：<strong>{difference > 0 ? '+' : ''}{difference.toFixed(2)}点</strong>（2025年度から2026年度）
     </p>}
     <p className="text-sm leading-relaxed mb-3">{research.caution}</p>
