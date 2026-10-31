@@ -193,7 +193,25 @@ export function TestDetailPage() {
 
   const pageTitle = `${displayTestName}｜問題・解答PDF｜共通テスト過去問総集`;
 
-  const description = `${displayTestName}の問題PDF・解答PDFを掲載。平均点、受験者数、試験時間、配点などの試験情報も確認できます。`;
+  const facts = [
+    typeof testDetails?.averageScore === 'number' ? `平均点${testDetails.averageScore}点` : '',
+    typeof testDetails?.totalScore === 'number' ? `${testDetails.totalScore}点満点` : '',
+    typeof testDetails?.examinees === 'number' ? `受験者数${testDetails.examinees.toLocaleString('ja-JP')}人` : '',
+    typeof testDetails?.testDuration === 'number' ? `試験時間${testDetails.testDuration}分` : '',
+  ].filter(Boolean);
+  const description = `${displayTestName}の問題・解答資料。${facts.length ? facts.join('、') + '。' : '収録状況や出典情報を確認できます。'}`;
+
+  const relatedCandidates = getEnhancedDatabase().filter(r => r.subject === testRecord.subject && r.questionPdf !== testRecord.questionPdf);
+  const related = [];
+  if (typeof testRecord.year === 'number') {
+    const sameType = relatedCandidates.filter(r => typeof r.year === 'number' && r.testType === testRecord.testType);
+    const older = sameType.filter(r => (r.year as number) < testRecord.year).sort((a,b) => (b.year as number) - (a.year as number))[0];
+    const newer = sameType.filter(r => (r.year as number) > testRecord.year).sort((a,b) => (a.year as number) - (b.year as number))[0];
+    if (older) related.push({ name: `以前の同科目（${older.year}年度）`, url: `/test/${encodeURIComponent(older.questionPdf)}` });
+    if (newer) related.push({ name: `次の同科目（${newer.year}年度）`, url: `/test/${encodeURIComponent(newer.questionPdf)}` });
+  }
+  const paired = relatedCandidates.find(r => r.year === testRecord.year && r.testType !== testRecord.testType);
+  if (paired) related.push({ name: `同年度の${paired.testType === 'main' ? '本試験' : '追試験'}`, url: `/test/${encodeURIComponent(paired.questionPdf)}` });
 
   const breadcrumbItems = [
     { name: formattedYear, url: yearPath },
@@ -518,6 +536,13 @@ export function TestDetailPage() {
               )}
             </div>
           </div>
+
+          {related.length > 0 && (
+            <nav aria-label="関連試験" className="text-sm text-gray-600 flex flex-wrap gap-x-4 gap-y-2">
+              <span>関連資料：</span>
+              {related.map(item => <Link key={item.url} to={item.url} className="text-[var(--color-brand-green)] underline">{item.name}</Link>)}
+            </nav>
+          )}
 
           <div className="mt-4">
             <Link to={yearPath}>
