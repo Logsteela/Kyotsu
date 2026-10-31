@@ -247,6 +247,23 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
     content = '<h2>入試の記録比較</h2><p>収録された統計をもとに、平均得点率や各種得点記録の順位を整理した一覧です。年度や受験者集団による違いを考慮し、順位だけで難易度を判断しないでください。</p>' +
       archives.map(t => '<section><h3>' + escapeHtml(t.title) + '</h3><ol>' +
         t.data.map(row => '<li>' + escapeHtml(row.item1) + '：' + escapeHtml(row.item2) + '</li>').join('') + '</ol></section>').join('');
+  } else if (page.path === '/common-test-2026-analysis') {
+    const summarized = [];
+    for (const [subject, research] of Object.entries(questionResearch)) {
+      const matching = records.filter(r => r.year === '2026' && r.examType === 'main' && r.subject === subject);
+      if (matching.length !== 1) continue;
+      const maxPart = research.parts.reduce((a,b) => a.scoreRate >= b.scoreRate ? a : b);
+      const minPart = research.parts.reduce((a,b) => a.scoreRate <= b.scoreRate ? a : b);
+      summarized.push({ subject, pdf: matching[0].questionPdf, maxPart, minPart, overview: research.observation });
+    }
+    content = '<h2>2026年度共通テスト本試験・科目別分析</h2><p>大学入試センターの2026年度大問別の得点率と正答率から18科目を比較。各科目の試験情報には大問ごとの分析と題材の考察を掲載しています。原資料の所在は<a href="/sources">出典一覧</a>にまとめています。</p>' +
+      '<table><thead><tr><th>科目</th><th>最低得点率の大問</th><th>最高得点率の大問</th><th>差</th></tr></thead><tbody>' +
+      summarized.map(r => '<tr><td><a href="/test/' + encodeURIComponent(r.pdf) + '">' + escapeHtml(r.subject) + '</a></td><td>第' +
+        r.minPart.number + '問 ' + r.minPart.scoreRate.toFixed(2) + '%</td><td>第' + r.maxPart.number + '問 ' +
+        r.maxPart.scoreRate.toFixed(2) + '%</td><td>' + (r.maxPart.scoreRate-r.minPart.scoreRate).toFixed(2) + 'pt</td></tr>').join('') +
+      '</tbody></table><h2>科目別に何が分かるか</h2>' +
+      summarized.map(r => '<h3>' + escapeHtml(r.subject) + '</h3><p>' + escapeHtml(r.overview) +
+        ' <a href="/test/' + encodeURIComponent(r.pdf) + '">詳細の分析を見る</a></p>').join('');
   } else if (page.path === '/common-test-changes') {
     const snapshots = records.filter(r => /^[0-9]{4}$/.test(r.year) && Number(r.year) >= 2025 && Number(r.year) <= 2026 && r.examType === 'main');
     const changes = [];
@@ -484,6 +501,7 @@ function buildPages(records) {
     ['/sources', '収録資料の出典一覧・来歴｜共通テスト過去問総集', '問題・解答・音源の記載上の出典を集計しています。'],
     ['/year-statistics', '年度別・教科別の平均得点率比較｜共通テスト過去問総集', '年度別に平均得点率や前年との差を比較します。'],
     ['/common-test-changes', '共通テスト科目別の平均点前年差｜共通テスト過去問総集', '共通テスト本試験について前年と今年の科目別平均点を照合します。'],
+    ['/common-test-2026-analysis', '2026年度共通テスト本試験・大問別得点率と正答率の分析', '18科目の大問別成績と出題評価を一覧し、個別試験の分析に進めます。'],
   ]) add({ path, title, description });
   add({
     path: '/overview',
