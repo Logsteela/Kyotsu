@@ -19,7 +19,6 @@ const details = read('src/app/data/testDetailsDatabase.ts');
 const report = [];
 const problems = [];
 const exceptions = new Set(['数学Ⅱ，数学Ｂ，数学Ｃ']); // 4 optional sections, choose 3; published totals are not additive.
-const canonical = name => name.replace(/\s/g, '');
 for (const [subject, entry] of Object.entries(research)) {
   if (!entry.parts?.length || !entry.observation?.trim()) {
     problems.push(subject + ': missing question-groups or original observations');
