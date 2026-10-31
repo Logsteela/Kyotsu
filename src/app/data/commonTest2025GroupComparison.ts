@@ -1,9 +1,15 @@
-// 2025年度・2026年度で大問番号と配点が対応する科目だけを扱う。
+// 2025年度・2026年度で大問番号と配点が対応する科目だけを大問単位で比較する。
 // 2025年度の得点率は大学入試センターの本試験データを用いた再集計値。
 // 出典・定義は /sources に集約。
 export type PriorGroupRate = { number: number; points: number; previousRate: number; topic: string };
-export type GroupComparison = { previousYear: number; groups: PriorGroupRate[]; comment: string; nonAdditive?: boolean; nonComparable?: boolean };
-export const COMMON_TEST_GROUP_COMPARISONS: Record<st{
+export type GroupComparison = {
+  previousYear: number;
+  groups: PriorGroupRate[];
+  comment: string;
+  nonAdditive?: boolean; // 選択式のため科目平均点への寄与を算定不可
+  nonComparable?: boolean; // 年度間で配点体系が異なるため大問別の寄与を算定不可
+};
+export const COMMON_TEST_GROUP_COMPARISONS: Record<string, GroupComparison> = {
   "国語": {
     "previousYear": 2025,
     "groups": [
