@@ -103,6 +103,9 @@ for (const [subject, report] of Object.entries(foreign)) {
     problems.push(subject+': malformed qualitative question-group data');
 }
 const count2026 = rows.filter(r => r[0] === '2026' && r[1] === 'main').length;
+if (count2026 !== report.length + Object.keys(foreign).length)
+  problems.push('2026 subject analysis coverage incomplete: ' +
+    (report.length + Object.keys(foreign).length) + '/' + count2026);
 const message = {
   tested: report.length,
   available: count2026,

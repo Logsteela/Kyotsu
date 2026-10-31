@@ -33,6 +33,26 @@ for (const target of cases) {
     if (!html.includes(phrase)) errors.push(target.path + ': missing ' + phrase);
   }
 }
+// All 2026 main-exam subjects must have substantive, crawler-visible editorial content.
+const tsvSource = readFileSync(join(root, 'src/app/data/testDatabase.ts'), 'utf8');
+const tsvBlock = tsvSource.match(/const DATABASE_TSV = `\\n([\\s\\S]*?)\\n`/);
+if (!tsvBlock) throw new Error('Database TSV unavailable');
+const main2026 = tsvBlock[1].split('\\n').map(line => line.split('\\t'))
+  .filter(row => row[0] === '2026' && row[1] === 'main');
+const qualitative = new Set(['ドイツ語','フランス語','中国語','韓国語']);
+if (main2026.length !== 27) errors.push('Unexpected 2026 main-exam count: ' + main2026.length);
+let examined2026 = 0;
+for (const record of main2026) {
+  const subject = record[2];
+  const file = join(dist, 'test', record[3], 'index.html');
+  if (!existsSync(file)) { errors.push('Missing 2026 main-exam HTML: ' + subject); continue; }
+  examined2026++;
+  const html = readFileSync(file, 'utf8');
+  const expected = qualitative.has(subject) ? '本試験の出題内容と問題評価' : '本試験の大問別得点率・正答率';
+  if (!html.includes(expected)) errors.push(subject + ': generated HTML lacks verified analysis (' + expected + ')');
+  if (!html.includes('試験情報')) errors.push(subject + ': generated HTML lacks exam metadata');
+}
+console.log('Exam analysis pages checked:', examined2026, '/', main2026.length);
 const sitemap = join(root, 'public/sitemap.xml');
 if (existsSync(sitemap)) {
   const xml = readFileSync(sitemap, 'utf8');
