@@ -29,6 +29,5 @@ export function CommonTestForeignLanguageReview({ year, subject }: { year:number
     {year === 2026 && difference !== null && <p className="text-sm mb-3 bg-gray-50 border rounded p-3">
       科目平均点の前年差：<strong>{difference > 0 ? '+' : ''}{difference.toFixed(2)}点</strong>（2025年度から2026年度）
     </p>}
-    <p className="text-sm leading-relaxed mb-3">{research.caution}</p>
   </section>;
 }

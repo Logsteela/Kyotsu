@@ -539,7 +539,7 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
             (examYear === 2026 ? '<p>外部評価分科会の評価：' + difficultyAppropriateness(r.subject) + '／4</p>' : '') +
             foreign.sections.map(x => '<h3>第' + x.number + '問：' + escapeHtml(x.topic) + '</h3><p>' + escapeHtml(x.summary) + '</p>').join('') +
             '<h3>問題評価</h3><p>' + escapeHtml(foreign.observation) + '</p>' +
-            '<h3>個別設問</h3><p>' + escapeHtml(foreign.specific) + '</p><p>' + escapeHtml(foreign.caution) + '</p>';
+            '<h3>個別設問</h3><p>' + escapeHtml(foreign.specific) + '</p>';
         }
         const researched = examYear === 2026 ? questionResearch[r.subject] : null;
         if (researched) {
