@@ -37,6 +37,11 @@ const SUBJECTS = [
   { slug: 'sonota', label: 'その他', titleLabel: 'その他' },
 ];
 
+function formatTwo(value) {
+  const absolute = Math.round((Math.abs(value)+1e-9)*100)/100;
+  const rounded = Math.sign(value)*absolute;
+  return (Object.is(rounded,-0)?0:rounded).toFixed(2);
+}
 function escapeHtml(value) {
   return String(value)
     .replace(/&/g, '&amp;')
@@ -373,7 +378,7 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
       '<table><thead><tr><th>科目</th><th>比較大問数</th><th>前年差が最大の大問</th><th>得点率差</th><th>平均点への寄与</th></tr></thead><tbody>' +
       availableComparisons.map(r => '<tr><td><a href="/test/' + encodeURIComponent(r.exam.questionPdf) + '">' +
         escapeHtml(r.subject) + '</a></td><td>' + r.pairs.length + '</td><td>第' + r.max.number + '問</td><td>' +
-        (r.max.delta>=0?'+':'') + r.max.delta.toFixed(2) + 'pt</td><td>' +
+        (r.max.delta>=0?'+':'') + r.max.formatTwo(delta) + 'pt</td><td>' +
         (r.prior.nonAdditive ? '—（選択）' : (r.max.contribution>=0?'+':'') + r.max.contribution.toFixed(2) + '点') +
         '</td></tr>').join('') + '</tbody></table>';
         content += '<h2>外国語4科目の出題と評価</h2><p>得点率の大問別原数値を未照合のため、以下は教師評価に基づく質的な分析です。</p>' +
@@ -453,7 +458,7 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
             '<table><thead><tr><th>年度</th><th>平均点</th><th>平均得点率</th><th>受験者数</th></tr></thead><tbody>' +
             neighbors.map(x => '<tr><td><a href="/test/' + encodeURIComponent(x.pdf) + '">' + x.year +
               '年度</a></td><td>' + (x.average ?? '—') + '</td><td>' +
-              (x.average != null && x.max > 0 ? (x.average/x.max*100).toFixed(2)+'%' : '—') +
+              (x.average != null && x.max > 0 ? formatTwo(x.average/x.max*100)+'%' : '—') +
               '</td><td>' + (x.examinees ?? '—') + '</td></tr>').join('') + '</tbody></table>';
         }
         // All-year position within the exact same test regime, subject, and maximum score.
@@ -471,11 +476,11 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
           const delta = currentRate-median;
           content += '<h3>同制度・同科目の長期比較</h3><p>' +
             '同じ試験制度・科目名・満点のうち平均点を確認できた' + rated.length +
-            '年度で高い順に並べると、' + archiveYear + '年度の平均得点率' + currentRate.toFixed(2) +
-            '%は' + rank + '番目です。中央値' + median.toFixed(2) +
+            '年度で高い順に並べると、' + archiveYear + '年度の平均得点率' + formatTwo(currentRate) +
+            '%は' + rank + '番目です。中央値' + formatTwo(median) +
             '%との差は' + (delta>=0?'+':'') + delta.toFixed(2) + 'ポイント。' +
-            '最も高かったのは' + high.year + '年度（' + (high.average/high.max*100).toFixed(2) +
-            '%）、低かったのは' + low.year + '年度（' + (low.average/low.max*100).toFixed(2) +
+            '最も高かったのは' + high.year + '年度（' + formatTwo(high.average/high.max*100) +
+            '%）、低かったのは' + low.year + '年度（' + formatTwo(low.average/low.max*100) +
             '%）です。</p><p>この順位は試験問題の難易度の順位ではありません。</p>';
         }
       }

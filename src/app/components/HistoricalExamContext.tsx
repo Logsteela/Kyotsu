@@ -9,6 +9,12 @@ type Item = { year:number; questionPdf:string; average:number|null; max:number|n
 function regimeOf(year:number):'preliminary'|'first'|'center'|'common' {
   return year < 1979 ? 'preliminary' : year < 1990 ? 'first' : year < 2021 ? 'center' : 'common';
 }
+// Explicit decimal rounding avoids JS toFixed()'s binary 59.665 -> 59.66 edge case.
+function formatTwo(value:number):string {
+  const absolute = Math.round((Math.abs(value)+1e-9)*100)/100;
+  const rounded = Math.sign(value)*absolute;
+  return (Object.is(rounded,-0)?0:rounded).toFixed(2);
+}
 const REGIME_NAME = {
   preliminary:'共通一次導入前の試行・実地研究',
   first:'共通第1次学力試験',
@@ -75,20 +81,20 @@ export function HistoricalExamContext({
     </p>
     {diff!==null && <p className="text-sm mb-3">
       比較可能な前年度の記録（{prev.year}年度）と比べた平均得点率は
-      <strong> {diff>0?'+':''}{diff.toFixed(2)}ポイント</strong>です。
+      <strong> {diff>0?'+':''}{formatTwo(diff)}ポイント</strong>です。
       これは受験者の平均の変化であり、問題の難しさそのものを測る値ではありません。
     </p>}
     {longTerm && <div className="mb-4 border-l-4 border-[var(--color-brand-green)] bg-gray-50 p-3 sm:p-4">
       <h3 className="font-semibold text-sm mb-2">同制度・同科目での長期比較</h3>
       <p className="text-sm leading-relaxed">
         比較できる{longTerm.total}年度の平均得点率を高い順に並べると、
-        {year}年度の{longTerm.value.toFixed(2)}%は<strong>{longTerm.rank}番目</strong>です。
-        これらの年度の中央値は{longTerm.median.toFixed(2)}%で、
-        その差は<strong>{longTerm.value-longTerm.median>=0?'+':''}{(longTerm.value-longTerm.median).toFixed(2)}ポイント</strong>です。
+        {year}年度の{formatTwo(longTerm.value)}%は<strong>{longTerm.rank}番目</strong>です。
+        これらの年度の中央値は{formatTwo(longTerm.median)}%で、
+        その差は<strong>{longTerm.value-longTerm.median>=0?'+':''}{formatTwo(longTerm.value-longTerm.median)}ポイント</strong>です。
       </p>
       <p className="text-sm leading-relaxed mt-2">
-        平均得点率が最も高いのは{longTerm.highest.year}年度（{longTerm.highest.rate.toFixed(2)}%）、
-        最も低いのは{longTerm.lowest.year}年度（{longTerm.lowest.rate.toFixed(2)}%）です。
+        平均得点率が最も高いのは{longTerm.highest.year}年度（{formatTwo(longTerm.highest.rate)}%）、
+        最も低いのは{longTerm.lowest.year}年度（{formatTwo(longTerm.lowest.rate)}%）です。
         受験者の平均点の比較であり、問題の難易度順位ではありません。
       </p>
     </div>}
@@ -104,7 +110,7 @@ export function HistoricalExamContext({
         <tbody>{sorted.map(x=><tr key={x.questionPdf} className={`border-b ${x.questionPdf===questionPdf?'bg-gray-50 font-semibold':''}`}>
           <td className="p-3 tabular-nums">{x.year}年度</td>
           <td className="p-3 tabular-nums">{x.average===null?'—':`${x.average}点`}</td>
-          <td className="p-3 tabular-nums">{x.rate===null?'—':`${x.rate.toFixed(2)}%`}</td>
+          <td className="p-3 tabular-nums">{x.rate===null?'—':`${formatTwo(x.rate)}%`}</td>
           <td className="p-3 tabular-nums">{x.examinees===null?'—':x.examinees.toLocaleString('ja-JP')}</td>
           <td className="p-3"><Link className="underline text-[var(--color-brand-green)]" to={`/test/${encodeURIComponent(x.questionPdf)}`}>{x.questionPdf===questionPdf?'この試験':'問題・解答'}</Link></td>
         </tr>)}</tbody>
