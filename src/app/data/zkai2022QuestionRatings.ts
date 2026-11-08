@@ -364,5 +364,185 @@ export const ZKAI_2022_QUESTION_RATINGS: Record<string,HistoricRatingSubject> = 
         "sortNo": 7
       }
     ]
+  },
+  "日本史Ｂ": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2022/nihonshi-2022/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "人名を通じてみる日本の歴史",
+        "difficulty": "標準",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "法整備と遣隋使・遣唐使",
+        "difficulty": "標準",
+        "sortNo": 2
+      },
+      {
+        "label": "第3問",
+        "topic": "中世の海と交流",
+        "difficulty": "標準",
+        "sortNo": 3
+      },
+      {
+        "label": "第4問",
+        "topic": "近世の身分と社会",
+        "difficulty": "標準",
+        "sortNo": 4
+      },
+      {
+        "label": "第5問",
+        "topic": "日本とハワイの歴史",
+        "difficulty": "やや難",
+        "sortNo": 5
+      },
+      {
+        "label": "第6問",
+        "topic": "鉄道の歴史",
+        "difficulty": "標準",
+        "sortNo": 6
+      }
+    ]
+  },
+  "世界史Ｂ": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2022/sekaishi-2022/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "学者・知識人と歴史",
+        "difficulty": "やや易",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "出来事の当事者の発言と記録",
+        "difficulty": "標準",
+        "sortNo": 2
+      },
+      {
+        "label": "第3問",
+        "topic": "人々の交流と社会変化",
+        "difficulty": "標準",
+        "sortNo": 3
+      },
+      {
+        "label": "第4問",
+        "topic": "歴史の評価と多様な解釈",
+        "difficulty": "やや難",
+        "sortNo": 4
+      },
+      {
+        "label": "第5問",
+        "topic": "墓・廟と歴史",
+        "difficulty": "標準",
+        "sortNo": 5
+      }
+    ]
+  },
+  "地理Ｂ": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2022/chiri-2022/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "自然環境と自然災害",
+        "difficulty": "標準",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "資源・産業とSDGs",
+        "difficulty": "やや易",
+        "sortNo": 2
+      },
+      {
+        "label": "第3問",
+        "topic": "村落・都市と人口",
+        "difficulty": "標準",
+        "sortNo": 3
+      },
+      {
+        "label": "第4問",
+        "topic": "ラテンアメリカの地誌",
+        "difficulty": "標準",
+        "sortNo": 4
+      },
+      {
+        "label": "第5問",
+        "topic": "北海道苫小牧市周辺の地域調査",
+        "difficulty": "標準",
+        "sortNo": 5
+      }
+    ]
+  },
+  "化学基礎": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2022/kagaku-kiso-2022/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "物質の構成と変化",
+        "difficulty": "標準",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "蒸留と物質の分離",
+        "difficulty": "やや難",
+        "sortNo": 2
+      }
+    ]
+  },
+  "生物基礎": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2022/seibutsu-kiso-2022/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "ATP量の測定とDNA抽出",
+        "difficulty": "標準",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "血中酸素飽和度計と免疫",
+        "difficulty": "標準",
+        "sortNo": 2
+      },
+      {
+        "label": "第3問",
+        "topic": "ブナ林と窒素循環・富栄養化",
+        "difficulty": "やや難",
+        "sortNo": 3
+      }
+    ]
+  },
+  "地学基礎": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2022/chigaku-kiso-2022/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "固体地球・地層・鉱物",
+        "difficulty": "標準",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "梅雨期の天気と津波",
+        "difficulty": "やや易",
+        "sortNo": 2
+      },
+      {
+        "label": "第3問",
+        "topic": "太陽と太陽系",
+        "difficulty": "標準",
+        "sortNo": 3
+      },
+      {
+        "label": "第4問",
+        "topic": "自然環境と災害",
+        "difficulty": "やや易",
+        "sortNo": 4
+      }
+    ]
   }
 };
