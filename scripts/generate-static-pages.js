@@ -478,7 +478,7 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
             '同じ試験制度・科目名・満点のうち平均点を確認できた' + rated.length +
             '年度で高い順に並べると、' + archiveYear + '年度の平均得点率' + formatTwo(currentRate) +
             '%は' + rank + '番目です。中央値' + formatTwo(median) +
-            '%との差は' + (delta>=0?'+':'') + delta.toFixed(2) + 'ポイント。' +
+            '%との差は' + (delta>=0?'+':'') + formatTwo(delta) + 'ポイント。' +
             '最も高かったのは' + high.year + '年度（' + formatTwo(high.average/high.max*100) +
             '%）、低かったのは' + low.year + '年度（' + formatTwo(low.average/low.max*100) +
             '%）です。</p><p>この順位は試験問題の難易度の順位ではありません。</p>';
@@ -516,8 +516,8 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
           const delta = currentRate-median;
           content += '<h3>同じ科目の年度内比較</h3><p>同じ満点・科目名のうち集計可能な' +
             comparable.length + '年度で、' + examYear + '年度の平均得点率は高い順で' + rank +
-            '番目です。中央値' + median.toFixed(2) + '%との差は' +
-            (delta>=0?'+':'') + delta.toFixed(2) + 'ポイント。これは難易度順位ではありません。</p>';
+            '番目です。中央値' + formatTwo(median) + '%との差は' +
+            (delta>=0?'+':'') + formatTwo(delta) + 'ポイント。これは難易度順位ではありません。</p>';
         }
         if (comparable.length > 1) {
           content += '<h3>同じ科目名・満点の推移</h3><table><thead><tr><th>年度</th><th>平均点</th><th>平均得点率</th><th>受験者数</th></tr></thead><tbody>' +
