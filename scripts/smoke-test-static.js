@@ -130,7 +130,7 @@ for (const path of withoutAds) {
 }
 const historicalHtml = readFileSync(join(dist,'test/2020_国語_本試験問題.pdf/index.html'),'utf8');
 if (!historicalHtml.includes('過去') ||
-    !historicalHtml.includes('中央値60.22%') || !historicalHtml.includes('番目'))
+    !historicalHtml.includes('中央値60.22%') || !historicalHtml.includes('位'))
   errors.push('Monetized historical exam lacks actual computed comparative statistics');
 // Reject generic filler previously duplicated across thousands of exam pages.
 for (const route of ['index.html','common-test-2026-analysis/index.html',
