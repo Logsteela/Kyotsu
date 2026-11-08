@@ -163,7 +163,7 @@ if (!commonYearHtml.includes('href="/test/2026_')) errors.push('Common Test arch
 const { onRequest: guardTestDetail } = await import('../functions/test/[[path]].js');
 const runGuard = async (pathname) => guardTestDetail({
   request: new Request('https://kyotsu.org' + pathname),
-  next: () => new Response('permitted', { status: 204 }),
+  next: () => new Response(null, { status: 204 }),
 });
 for (const pdf of [
   '2020_国語_本試験問題.pdf',
