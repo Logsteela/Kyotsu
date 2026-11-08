@@ -253,7 +253,7 @@ function staticNavigation() {
 
 function buildStaticBody(page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution, social2025, foreign2025) {
   const heading = '<h1>' + escapeHtml(page.title) + '</h1>';
-  const intro = '<p>' + escapeHtml(page.description) + '</p>';
+  const intro = page.path.startsWith('/test/') ? '' : '<p>' + escapeHtml(page.description) + '</p>';
   let content = '';
   if (page.path === '/') {
     const phys = questionResearch['物理'].parts;
@@ -328,8 +328,7 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
       ...Object.entries(social2025).map(([subject, entry]) => ({subject, type: '問題評価', groups: entry.groups.length})),
       ...Object.entries(foreign2025).map(([subject, entry]) => ({subject, type: '問題評価', groups: entry.sections.length})),
     ];
-    content = '<h2>2025年度の共通テスト本試験27科目</h2>' +
-      '<p>大問別得点率が確認できた20科目と、高校教員による問題評価を整理した7科目の研究資料です。出典・集計方法は<a href="/sources">資料の出典</a>にまとめています。</p>' +
+    content = '<h2>2025年度本試験</h2><p>大問別得点率：20科目 ／ 問題評価：7科目</p>' +
       '<table><thead><tr><th>科目</th><th>掲載内容</th><th>大問数</th><th>大問得点率の最低・最高</th></tr></thead><tbody>' +
       kinds.map(x=>{
         const record = records.find(r=>r.year==='2025'&&r.examType==='main'&&r.subject===x.subject);
@@ -338,7 +337,7 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
           x.type + '</td><td>' + x.groups + '</td><td>' +
           (x.lowest==null?'未照合':x.lowest.toFixed(2)+'%～'+x.highest.toFixed(2)+'%') +
           '</td></tr>';
-      }).join('') + '</tbody></table><h2>比較可能な大問</h2><p>2026年度と番号・配点が対応する14科目は、2026年度の資料ページでも前年との大問別得点率差を閲覧できます。選択問題や配点変更がある場合は数値の単純合計を避けています。</p>';
+      }).join('') + '</tbody></table><p><a href="/common-test-2026-analysis">2026年度との比較</a></p>';
   } else if (page.path === '/common-test-2026-analysis') {
     const summarized = [];
     for (const [subject, research] of Object.entries(questionResearch)) {
@@ -348,14 +347,12 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
       const minPart = research.parts.reduce((a,b) => a.scoreRate <= b.scoreRate ? a : b);
       summarized.push({ subject, pdf: matching[0].questionPdf, maxPart, minPart, overview: research.observation });
     }
-    content = '<h2>2026年度共通テスト本試験・科目別分析</h2><p>大学入試センターの2026年度大問別の得点率と正答率から23科目を比較。各科目の試験情報には大問ごとの分析と題材の考察を掲載しています。原資料の所在は<a href="/sources">出典一覧</a>にまとめています。</p>' +
-      '<table><thead><tr><th>科目</th><th>最低得点率の大問</th><th>最高得点率の大問</th><th>差</th><th>難易度の適正さ*</th></tr></thead><tbody>' +
+    content = '<h2>2026年度本試験</h2><p>大問別得点率・正答率：23科目 ／ 問題評価：外国語4科目</p>' +
+      '<table><thead><tr><th>科目</th><th>最低得点率の大問</th><th>最高得点率の大問</th><th>差</th><th>外部評価分科会</th></tr></thead><tbody>' +
       summarized.map(r => '<tr><td><a href="/test/' + encodeURIComponent(r.pdf) + '">' + escapeHtml(r.subject) + '</a></td><td>第' +
         r.minPart.number + '問 ' + r.minPart.scoreRate.toFixed(2) + '%</td><td>第' + r.maxPart.number + '問 ' +
         r.maxPart.scoreRate.toFixed(2) + '%</td><td>' + (r.maxPart.scoreRate-r.minPart.scoreRate).toFixed(2) + 'pt</td><td>' + difficultyAppropriateness(r.subject) + '／4</td></tr>').join('') +
-      '</tbody></table><p>*高校教員による「難易度の適正さ」の評価であり、4が難しいという意味ではありません。</p><h2>科目別に何が分かるか</h2>' +
-      summarized.map(r => '<h3>' + escapeHtml(r.subject) + '</h3><p>' + escapeHtml(r.overview) +
-        ' <a href="/test/' + encodeURIComponent(r.pdf) + '">詳細の分析を見る</a></p>').join('');
+      '</tbody></table>';
     const availableComparisons = Object.entries(priorResearch).flatMap(([subject, prior]) => {
       const recent = questionResearch[subject];
       const exam = records.find(r=>r.year === '2026' && r.examType === 'main' && r.subject === subject);
@@ -369,18 +366,18 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
       const max = pairs.reduce((a,b)=>Math.abs(a.delta)>=Math.abs(b.delta)?a:b);
       return [{ subject, exam, prior, pairs, max }];
     });
-    content += '<h2>2025年度と大問別得点率を比較できる科目</h2><p>大問番号・配点が対応する11科目の比較。選択式の数学Ⅱ・B・Cは平均点への寄与を算出できません。</p>' +
+    content += '<h2>2025年度との大問別比較</h2>' +
       '<table><thead><tr><th>科目</th><th>比較大問数</th><th>前年差が最大の大問</th><th>得点率差</th><th>平均点への寄与</th></tr></thead><tbody>' +
       availableComparisons.map(r => '<tr><td><a href="/test/' + encodeURIComponent(r.exam.questionPdf) + '">' +
         escapeHtml(r.subject) + '</a></td><td>' + r.pairs.length + '</td><td>第' + r.max.number + '問</td><td>' +
         (r.max.delta>=0?'+':'') + r.max.delta.toFixed(2) + 'pt</td><td>' +
         (r.prior.nonAdditive ? '—（選択）' : (r.max.contribution>=0?'+':'') + r.max.contribution.toFixed(2) + '点') +
         '</td></tr>').join('') + '</tbody></table>';
-        content += '<h2>外国語4科目の出題と評価</h2><p>得点率の大問別原数値を未照合のため、以下は教師評価に基づく質的な分析です。</p>' +
+        content += '<h2>外国語4科目の出題・問題評価</h2>' +
       Object.entries(foreignResearch).map(([subject, review]) => {
         const exam = records.find(r => r.year === '2026' && r.examType === 'main' && r.subject === subject);
         return exam ? '<h3><a href="/test/' + encodeURIComponent(exam.questionPdf) + '">' + escapeHtml(subject) +
-          '</a></h3><p>' + escapeHtml(review.observation) + '（高校教員による難易度の適正さ評価：' + difficultyAppropriateness(subject) + '／4）</p>' : '';
+          '</a></h3><p>' + escapeHtml(review.observation) + '（外部評価分科会：' + difficultyAppropriateness(subject) + '／4）</p>' : '';
       }).join('');
   } else if (page.path === '/common-test-changes') {
     const snapshots = records.filter(r => /^[0-9]{4}$/.test(r.year) && Number(r.year) >= 2025 && Number(r.year) <= 2026 && r.examType === 'main');
@@ -448,8 +445,7 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
         const own=unique.find(x=>x.pdf===pdf);
         const neighbors=[...previous,...(own?[own]:[]),...subsequent];
         if (neighbors.length>=2) {
-          content += '<h2>同じ科目・試験制度の前後年度比較</h2><p>この資料は' +
-            escapeHtml(regime(archiveYear)) + 'の' + archiveYear + '年度本試験。同じ科目名・同じ満点・同じ制度の前後年度を並べています。得点率だけで難易度を判断するものではありません。</p>' +
+          content += '<h2>平均点の年度比較</h2>' +
             '<table><thead><tr><th>年度</th><th>平均点</th><th>平均得点率</th><th>受験者数</th></tr></thead><tbody>' +
             neighbors.map(x => '<tr><td><a href="/test/' + encodeURIComponent(x.pdf) + '">' + x.year +
               '年度</a></td><td>' + (x.average ?? '—') + '</td><td>' +
@@ -469,14 +465,12 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
           const rank = 1 + rated.filter(x=>x.average/x.max*100 > currentRate).length;
           const high = sortedRates[sortedRates.length-1], low = sortedRates[0];
           const delta = currentRate-median;
-          content += '<h3>同制度・同科目の長期比較</h3><p>' +
-            '同じ試験制度・科目名・満点のうち平均点を確認できた' + rated.length +
-            '年度で高い順に並べると、' + archiveYear + '年度の平均得点率' + currentRate.toFixed(2) +
-            '%は' + rank + '番目です。中央値' + median.toFixed(2) +
-            '%との差は' + (delta>=0?'+':'') + delta.toFixed(2) + 'ポイント。' +
-            '最も高かったのは' + high.year + '年度（' + (high.average/high.max*100).toFixed(2) +
-            '%）、低かったのは' + low.year + '年度（' + (low.average/low.max*100).toFixed(2) +
-            '%）です。</p><p>この順位は試験問題の難易度の順位ではありません。</p>';
+          content += '<h3>過去' + rated.length + '年度中の位置</h3><p>' +
+            archiveYear + '年度の平均得点率' + currentRate.toFixed(2) + '%・高い順で' + rank +
+            '位。中央値' + median.toFixed(2) + '%（差' +
+            (delta>=0?'+':'') + delta.toFixed(2) + 'ポイント）。' +
+            '最高：' + high.year + '年度 ' + (high.average/high.max*100).toFixed(2) +
+            '% ／ 最低：' + low.year + '年度 ' + (low.average/low.max*100).toFixed(2) + '%。</p>';
         }
       }
       // The same fact-based comparison must also be available without executing React.
@@ -498,9 +492,9 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
           const rate = d.averageScore / max * 100;
           const prior = comparable.find(x => x.year === examYear - 1);
           const diff = prior ? rate - prior.rate : null;
-          content += '<h2>本試験の年度比較</h2><p>この科目の平均得点率は' + rate.toFixed(2) + '%（' + d.averageScore + '点／' + max + '点）。' +
-            (diff !== null ? '前年度の同名・同配点試験との差は' + (diff >= 0 ? '+' : '') + diff.toFixed(2) + 'ポイントです。' : '比較可能な前年の記録はありません。') +
-            'これらは試験の難易度順位を示す数値ではありません。</p>';
+          content += '<h2>平均点・年度比較</h2><p>平均得点率：' + rate.toFixed(2) + '%（' +
+            d.averageScore + '／' + max + '点）。' +
+            (diff !== null ? '前年比：' + (diff >= 0 ? '+' : '') + diff.toFixed(2) + 'ポイント。' : '') + '</p>';
         }
         if (comparable.length >= 4 && d?.averageScore != null && max > 0) {
           const currentRate = d.averageScore/max*100;
@@ -509,10 +503,9 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
           const median = (sorted[Math.floor((n-1)/2)].rate + sorted[Math.floor(n/2)].rate)/2;
           const rank = 1 + comparable.filter(x=>x.rate>currentRate).length;
           const delta = currentRate-median;
-          content += '<h3>同じ科目の年度内比較</h3><p>同じ満点・科目名のうち集計可能な' +
-            comparable.length + '年度で、' + examYear + '年度の平均得点率は高い順で' + rank +
-            '番目です。中央値' + median.toFixed(2) + '%との差は' +
-            (delta>=0?'+':'') + delta.toFixed(2) + 'ポイント。これは難易度順位ではありません。</p>';
+          content += '<h3>過去' + comparable.length + '年度中の位置</h3><p>平均得点率：高い順で' +
+            rank + '位。中央値' + median.toFixed(2) + '%（差' +
+            (delta>=0?'+':'') + delta.toFixed(2) + 'ポイント）。</p>';
         }
         if (comparable.length > 1) {
           content += '<h3>同じ科目名・満点の推移</h3><table><thead><tr><th>年度</th><th>平均点</th><th>平均得点率</th><th>受験者数</th></tr></thead><tbody>' +
@@ -522,10 +515,10 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
         }
         const socialReview = examYear === 2025 ? social2025[r.subject] : null;
         if (socialReview) {
-          content += '<h2>2025年度・大問別の出題内容</h2><p>この科目は3領域から2つ選択するうちの50点部分です。大問の実測得点率は未確認のため掲載していません。</p>' +
+          content += '<h2>2025年度・大問別の出題内容</h2><p>3領域から2領域選択（50点分）</p>' +
             socialReview.groups.map(g => '<h3>第' + g.number + '問：' + escapeHtml(g.topic) +
               '（' + g.points + '点）</h3><p>' + escapeHtml(g.summary) + '</p>').join('') +
-            '<h3>出題全体の分析</h3><p>' + escapeHtml(socialReview.observation) + '</p>' +
+            '<h3>問題評価</h3><p>' + escapeHtml(socialReview.observation) + '</p>' +
             '<p>' + escapeHtml(socialReview.caution) + '</p>';
         }
         const priorYear = examYear === 2025 ? priorResearch[r.subject] : null;
@@ -533,46 +526,49 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
           const highest = priorYear.groups.reduce((a,b)=>a.previousRate > b.previousRate ? a:b);
           const lowest = priorYear.groups.reduce((a,b)=>a.previousRate < b.previousRate ? a:b);
           content += '<h2>2025年度本試験・大問別の得点率</h2>' +
-            '<p>最も高い得点率は第' + highest.number + '問 ' + highest.previousRate.toFixed(2) +
-            '%、最も低いのは第' + lowest.number + '問 ' + lowest.previousRate.toFixed(2) + '%。2025年度の公表された設問別得点率を大問ごとに整理しました。</p>' +
             '<table><thead><tr><th>大問</th><th>分野</th><th>配点</th><th>得点率</th></tr></thead><tbody>' +
             priorYear.groups.map(p => '<tr><td>第' + p.number + '問</td><td>' + escapeHtml(p.topic) +
               '</td><td>' + p.points + '点</td><td>' + p.previousRate.toFixed(2) + '%</td></tr>').join('') +
-            '</tbody></table>' + (priorYear.nonAdditive ? '<p>選択大問が含まれるため、全大問を合計しても科目平均点には一致しません。</p>' : '') + (priorYear.nonComparable ? '<p>' + escapeHtml(priorYear.comment) + '</p>' : '');
+            '</tbody></table>' +
+            (priorYear.nonAdditive ? '<p>※選択問題をすべて表示（合計116点）。</p>' : '') +
+            (priorYear.nonComparable ? '<p>' + escapeHtml(priorYear.comment) + '</p>' : '');
         }
         const foreign = examYear === 2026 ? foreignResearch[r.subject] : examYear === 2025 ? foreign2025[r.subject] : null;
         if (foreign) {
-          content += '<h2>本試験の出題内容と問題評価</h2><p>' + (examYear === 2026 ? '高校教員による「難易度の適正さ」評価：' + difficultyAppropriateness(r.subject) + '／4。これは問題の難しさを表す値ではありません。' : '2025年度の高校教員による問題評価の内容を整理。') + '大問別の実測得点率は未確認なので記載していません。</p>' +
+          content += '<h2>本試験の出題・問題評価</h2>' +
+            (examYear === 2026 ? '<p>外部評価分科会の評価：' + difficultyAppropriateness(r.subject) + '／4</p>' : '') +
             foreign.sections.map(x => '<h3>第' + x.number + '問：' + escapeHtml(x.topic) + '</h3><p>' + escapeHtml(x.summary) + '</p>').join('') +
-            '<h3>全体評価</h3><p>' + escapeHtml(foreign.observation) + '</p>' +
-            '<h3>注目すべき設問</h3><p>' + escapeHtml(foreign.specific) + '</p><p>' + escapeHtml(foreign.caution) + '</p>';
+            '<h3>問題評価</h3><p>' + escapeHtml(foreign.observation) + '</p>' +
+            '<h3>個別設問</h3><p>' + escapeHtml(foreign.specific) + '</p><p>' + escapeHtml(foreign.caution) + '</p>';
         }
         const researched = examYear === 2026 ? questionResearch[r.subject] : null;
         if (researched) {
           const parts = researched.parts;
           const best = parts.reduce((a,b) => a.scoreRate > b.scoreRate ? a : b);
           const worst = parts.reduce((a,b) => a.scoreRate < b.scoreRate ? a : b);
-          content += '<h2>本試験の大問別得点率・正答率</h2><p>高校教員による「難易度の適正さ」の評価：' + difficultyAppropriateness(r.subject) + '／4。これは難しさを表す値ではありません。</p><p>得点率は平均得点÷配点、正答率は大問内の設問で完全に正解した割合の平均です。' +
-            '最も得点率の高い大問は第' + best.number + '問（' + best.scoreRate.toFixed(2) + '%）、最も低いのは第' +
-            worst.number + '問（' + worst.scoreRate.toFixed(2) + '%）です。</p>' +
+          content += '<h2>本試験の大問別得点率・正答率</h2><p>外部評価分科会の評価：' +
+            difficultyAppropriateness(r.subject) + '／4</p><p>得点率最高：第' +
+            best.number + '問 ' + best.scoreRate.toFixed(2) + '% ／ 最低：第' +
+            worst.number + '問 ' + worst.scoreRate.toFixed(2) + '%。</p>' +
             '<table><thead><tr><th>大問</th><th>分野</th><th>配点</th><th>得点率</th><th>正答率</th></tr></thead><tbody>' +
             parts.map(p => '<tr><td>第' + p.number + '問</td><td>' + escapeHtml(p.topic) + '</td><td>' + p.points +
               '</td><td>' + p.scoreRate.toFixed(2) + '%</td><td>' + (p.correctRate === null ? '—' : p.correctRate.toFixed(2) + '%') + '</td></tr>').join('') +
             '</tbody></table>' +
-            '<h3>大問別の差から分かること</h3><p>' + escapeHtml(researched.observation) + '</p>' +
-            (researched.review ? '<h3>問題評価と出題内容</h3><p>' + escapeHtml(researched.review) + '</p>' : '') +
-            (researched.detail ? '<h3>設問別正答率からの分析</h3><p>' + escapeHtml(researched.detail) + '</p>' : '');
+            (researched.review ? '<h3>出題・問題評価</h3><p>' + escapeHtml(researched.review) + '</p>' : '') +
+            (researched.detail ? '<h3>個別設問</h3><p>' + escapeHtml(researched.detail) + '</p>' : '');
           const comparison = priorResearch[r.subject];
           if (comparison && !comparison.nonComparable && comparison.groups.length === parts.length) {
             const paired = comparison.groups.map(g => ({ before:g, after:parts.find(p => p.number === g.number && p.points === g.points) }));
             if (paired.every(x => x.after)) {
-              content += '<h3>2025年度との大問別得点率比較</h3><p>同じ大問番号・配点の比較です。出題内容は年度によって異なり、同一問題との比較ではありません。</p>' +
+              content += '<h3>2025年度との大問別得点率比較</h3>' +
                 '<table><thead><tr><th>大問</th><th>2025年得点率</th><th>2026年得点率</th><th>前年差</th><th>平均点への寄与</th></tr></thead><tbody>' +
                 paired.map(x => {
                   const diff=x.after.scoreRate-x.before.previousRate;
                   return '<tr><td>第'+x.before.number+'問</td><td>'+x.before.previousRate.toFixed(2)+'%</td><td>'+x.after.scoreRate.toFixed(2)+'%</td><td>'+
                     (diff>=0?'+':'')+diff.toFixed(2)+'pt</td><td>'+(comparison.nonAdditive?'—（選択）':(diff>=0?'+':'')+(diff*x.after.points/100).toFixed(2)+'点')+'</td></tr>';
-                }).join('') + '</tbody></table>' + (comparison.nonAdditive?'<p>第4～7問は4問から3問を選択する方式であり、単純な合計・科目平均点への換算はできません。</p>':'') + '<p>' + escapeHtml(comparison.comment) + '</p>';
+                }).join('') + '</tbody></table>' +
+                (comparison.nonAdditive?'<p>※第4～7問は選択問題。平均点への寄与は算出していません。</p>':'') +
+                '<p>' + escapeHtml(comparison.comment) + '</p>';
             }
           }
           if (r.subject === '数学Ⅱ，数学Ｂ，数学Ｃ') content += '<p>数学Ⅱ・B・Cは必答52点と16点ずつ4問から3問選択で100点満点。表中の全7大問を足すと116点になるため、単純な加算はできません。</p>';
@@ -599,7 +595,7 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
                 .map(row => '<tr>' + row.map(x => '<td>' + x + '</td>').join('') + '</tr>').join('') + '</tbody></table>';
           }
           if (r.subject === '情報Ⅰ') {
-            content += '<h3>得点分布の前年比較</h3><p>中央値は2025年度70点から2026年度56点、最頻値は71点から56点へ移動。80点以上の割合は28.84%から7.86%、90点以上は10.54%から1.55%に低下しました。下位20%・80%の境界もそれぞれ55点から43点、83点から70点に移り、分布の中心から上位まで変化が見られます。</p>';
+            content += '<h3>得点分布の前年比較</h3><p>中央値：70点→56点 ／ 最頻値：71点→56点 ／ 80点以上：28.84%→7.86% ／ 90点以上：10.54%→1.55%</p>';
           }
         }
       }

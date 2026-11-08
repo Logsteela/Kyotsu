@@ -221,12 +221,9 @@ export function TestDetailPage() {
     typeof testDetails?.examinees === 'number' ? `受験者数${testDetails.examinees.toLocaleString('ja-JP')}人` : '',
     typeof testDetails?.testDuration === 'number' ? `試験時間${testDetails.testDuration}分` : '',
   ].filter(Boolean);
-  const analysisSummary = hasRates
-    ? '公表された大問別得点率と科目平均を整理し、出題内容と年度間の差を比較できます。'
-    : hasQuestionReview
-      ? '問題評価報告書から各大問の出題内容と特徴を整理しました。'
-      : '';
-  const description = `${displayTestName}。 ${analysisSummary}${facts.length ? facts.join('、') + '。' : '問題・解答の収録状況と出典情報を確認できます。'}`;
+  const analysisSummary = hasRates ? '大問別得点率・正答率、出題・問題評価、年度比較。'
+    : hasQuestionReview ? '大問別の出題・問題評価。' : '';
+  const description = `${displayTestName}。 ${analysisSummary}${facts.join('、')}${facts.length ? '。' : ''}`;
 
   const relatedCandidates = getEnhancedDatabase().filter(r => r.subject === testRecord.subject && r.questionPdf !== testRecord.questionPdf);
   const related: Array<{ name: string; url: string }> = [];
