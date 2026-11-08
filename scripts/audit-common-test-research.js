@@ -133,6 +133,51 @@ const count2026 = rows.filter(r => r[0] === '2026' && r[1] === 'main').length;
 if (count2026 !== report.length + Object.keys(foreign).length)
   problems.push('2026 subject analysis coverage incomplete: ' +
     (report.length + Object.keys(foreign).length) + '/' + count2026);
+// Keep company assessments attached to genuine 2026 subjects and numbered sections.
+const schoolText = read('src/app/data/commonTest2026SchoolReviews.ts');
+function schoolData(marker, next) {
+  const i = schoolText.indexOf(marker);
+  if (i < 0) throw new Error('School review table not found: ' + marker);
+  const from = i + marker.length;
+  const end = next ? schoolText.indexOf(next, from) : schoolText.length;
+  if (end < 0) throw new Error('School review block has no delimiter');
+  return JSON.parse(schoolText.slice(from,end).trim().replace(/;$/, ''));
+}
+const school = schoolData(
+  'COMMON_TEST_2026_SCHOOL_DIFFICULTY: Record<string, RelativeSchoolAssessment[]> = ',
+  '\nexport const COMMON_TEST_2026_ZKAI_SECTIONS',
+);
+const zkai = schoolData(
+  'COMMON_TEST_2026_ZKAI_SECTIONS: Record<string, SectionSchoolAssessment> = ',
+  null,
+);
+const subjects2026 = rows.filter(x=>x[0]==='2026' && x[1]==='main' &&
+  !['ドイツ語','フランス語','中国語','韓国語'].includes(x[2])).map(x=>x[2]);
+if (subjects2026.length !== 23) problems.push('2026 regular exam subject count: ' + subjects2026.length);
+for (const subject of subjects2026) {
+  const opinions = school[subject];
+  if (!Array.isArray(opinions) || opinions.filter(x=>x.school==='東進').length!==1)
+    problems.push(subject+': missing/duplicate Toshin review');
+  if (opinions?.some(x=>!['東進','河合塾'].includes(x.school) || !x.rating ||
+    !/^https:\/\//.test(x.source))) problems.push(subject+': invalid school assessment');
+}
+for (const subject of Object.keys(school)) {
+  if (!subjects2026.includes(subject)) problems.push(subject+': review without 2026 main exam');
+}
+const validRatings = new Set(['易','やや易','標準','やや難','難']);
+let ratedSections = 0;
+for (const [subject, entry] of Object.entries(zkai)) {
+  const actual = research[subject]?.parts;
+  if (!actual || entry.ratings?.length !== actual.length ||
+      entry.ratings.some(x=>!validRatings.has(x)) ||
+      !Array.isArray(entry.notes) || entry.notes.length<1 ||
+      !/^https:\/\/www\.zkai\.co\.jp\//.test(entry.source)) {
+    problems.push(subject+': Z-kai groups/source do not match recorded large questions');
+  } else ratedSections += actual.length;
+}
+if (Object.keys(zkai).length !== 14 || ratedSections !== 70) {
+  problems.push('Z-kai group census changed: '+Object.keys(zkai).length+' subjects / '+ratedSections+' groups');
+}
 const message = {
   tested: report.length,
   available: count2026,
@@ -143,6 +188,8 @@ const message = {
   weightedMeansConfirmed: report.filter(r=>!r.optional).length,
   yearOnYearVerified,
   optionalMeansNotAdditive: report.filter(r=>r.optional).map(r=>r.subject),
+  schoolOpinions: Object.values(school).reduce((n,a)=>n+a.length,0),
+  zkaiRatedSections: ratedSections,
   errors: problems,
 };
 console.log('Common Test 2026 research audit:', JSON.stringify(message, null, 2));
