@@ -593,6 +593,36 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
   return '<div id="archive-static-fallback" style="max-width:1100px;margin:24px auto;padding:20px;font-family:system-ui,sans-serif;line-height:1.8">' + heading + intro + content + staticNavigation() + '</div>';
 }
 
+// Google publisher policy: do not load ad code on navigation-only / automatically
+// generated record pages without a substantial site-authored analysis.
+// These pages remain fully visible and indexable as part of the archive.
+const AD_EDITORIAL_ROUTES = new Set([
+  '/', '/statistics', '/year-statistics', '/common-test-changes',
+  '/common-test-2025-analysis', '/common-test-2026-analysis',
+]);
+
+function shouldLoadAdSense(page, records, questionResearch, priorResearch, foreignResearch, social2025, foreign2025) {
+  if (AD_EDITORIAL_ROUTES.has(page.path)) return true;
+  if (!page.path.startsWith('/test/')) return false;
+  const pdf = decodeURIComponent(page.path.slice(6));
+  const record = records.find(r => r.questionPdf === pdf);
+  if (!record || record.examType !== 'main') return false;
+  if (record.year === '2026') {
+    return Boolean(questionResearch[record.subject] || foreignResearch[record.subject]);
+  }
+  if (record.year === '2025') {
+    return Boolean(priorResearch[record.subject] || social2025[record.subject] || foreign2025[record.subject]);
+  }
+  return false;
+}
+
+function removeAdSenseCode(html) {
+  return html.replace(
+    /<script\b[^>]*\bsrc=["']https:\/\/pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js\?client=[^"']+["'][^>]*><\/script>\s*/gi,
+    '',
+  );
+}
+
 function injectBody(html, page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution, social2025, foreign2025) {
   const fallback = buildStaticBody(page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution, social2025, foreign2025);
   return html.replace('<div id="root"></div>', '<div id="root">' + fallback + '</div>');
@@ -810,16 +840,20 @@ function main() {
   const pages = buildPages(records, questionResearch, priorResearch);
   const baseHtml = readFileSync(DIST_INDEX, 'utf8');
   let fileCount = 0;
+  let adEligiblePages = 0;
 
   for (const page of pages) {
-    const html = injectBody(injectMeta(baseHtml, page), page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution, social2025, foreign2025);
+    const contentHtml = injectBody(injectMeta(baseHtml, page), page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution, social2025, foreign2025);
+    const adEligible = shouldLoadAdSense(page, records, questionResearch, priorResearch, foreignResearch, social2025, foreign2025);
+    const html = adEligible ? contentHtml : removeAdSenseCode(contentHtml);
+    if (adEligible) adEligiblePages += 1;
     for (const filePath of pathToFilePaths(page.path)) {
       writeFileEnsuringDir(filePath, html);
       fileCount += 1;
     }
   }
 
-  console.log(`✅ 静的HTMLメタ情報を生成しました: ${pages.length} routes / ${fileCount} files`);
+  console.log(`✅ 静的HTMLメタ情報を生成しました: ${pages.length} routes / ${fileCount} files; AdSense code: ${adEligiblePages} editorial routes`);
 }
 
 try {
