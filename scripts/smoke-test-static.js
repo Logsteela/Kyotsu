@@ -13,6 +13,8 @@ const cases = [
   { path: 'test/2026_国語_本試験問題_訂正付.pdf/index.html', required: ['国語', '45.68', '160点以上', '2025', '大問別得点率・出題分析と問題PDF', '東進：難化', 'Ｚ会難度'] },
   { path: 'test/2025_国語_本試験問題.pdf/index.html', required: ['2025年度本試験・大問別', '66.74', '57.42', 'Ｚ会難度'] },
   { path: 'test/2024_国語_本試験問題.pdf/index.html', required: ['2024年度本試験・大問別の出題・難度', '小説「桟橋」', 'Ｚ会難度'] },
+  { path: 'test/2023_国語_本試験問題.pdf/index.html', required: ['2023年度本試験・大問別の出題・難度', '小説「飢えの季節」', 'Ｚ会難度'] },
+  { path: 'test/2023_物理_本試験問題.pdf/index.html', required: ['2023年度本試験・大問別の出題・難度', 'コンデンサー容量', 'Ｚ会難度'] },
   { path: 'test/2024_物理_本試験問題.pdf/index.html', required: ['2024年度本試験・大問別の出題・難度', 'ペットボトルロケット', 'Ｚ会難度'] },
   { path: 'test/2025_数学IA_本試験問題.pdf/index.html', required: ['2025年度本試験・大問別', '62.06', '58.54'] },
   { path: 'test/2026_数学IA_本試験問題.pdf/index.html', required: ['2025年度との大問別得点率比較', '20.29', '21.65'] },
@@ -220,6 +222,19 @@ for(const [subject,entry] of Object.entries(zkai24)) {
   if (!entry.sourceUrl.startsWith('https://www.zkai.co.jp/kyotsu-test/bunseki-2024/') ||
       !entry.parts.every(p=>p.label && p.topic && p.difficulty)) {
     errors.push('Invalid 2024 source or part: '+subject);
+  }
+}
+const zkai23Source = readFileSync(join(root,'src/app/data/zkai2023QuestionRatings.ts'),'utf8');
+const zkai23Marker = 'ZKAI_2023_QUESTION_RATINGS: Record<string,HistoricRatingSubject> = ';
+const zkai23 = JSON.parse(zkai23Source.split(zkai23Marker)[1].trim().replace(/;$/, ''));
+if (Object.keys(zkai23).length !== 8 ||
+    Object.values(zkai23).reduce((n,entry)=>n+entry.parts.length,0) !== 53) {
+  errors.push('Z-kai 2023 difficulty data count mismatch');
+}
+for(const [subject,entry] of Object.entries(zkai23)) {
+  if (!entry.sourceUrl.startsWith('https://www.zkai.co.jp/kyotsu-test/bunseki-2023/') ||
+      !entry.parts.every(p=>p.label && p.topic && p.difficulty)) {
+    errors.push('Invalid 2023 source or part: '+subject);
   }
 }
 // AdSense readiness: ownership code, ads.txt and sitemap directives must agree.
