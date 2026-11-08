@@ -1,4 +1,5 @@
 import { Link } from 'react-router';
+import { PREP_SCHOOL_EVALUATIONS } from '@/app/data/prepSchoolEvaluations';
 import { COMMON_TEST_GROUP_COMPARISONS } from '@/app/data/commonTest2025GroupComparison';
 import { getEnhancedDatabase } from '@/app/data/testDatabase';
 import { SortHeader } from '@/app/components/SortHeader';
@@ -7,10 +8,12 @@ import { useSortedRows } from '@/app/utils/useSortedRows';
 export function CommonTest2025QuestionDetails({ year, subject }: {year: number|string; subject:string}) {
   const data = year === 2025 ? COMMON_TEST_GROUP_COMPARISONS[subject] : null;
   const rates = data?.groups ?? [];
+  const ratings = PREP_SCHOOL_EVALUATIONS['2025']?.[subject]?.zkai;
   const optional = Boolean(data?.nonAdditive);
   const nonComparable = Boolean(data?.nonComparable);
   const mixedCurriculum = Boolean(data?.mixedCurriculum);
-  const { sorted, sortKey, direction, sortBy } = useSortedRows(rates, 'number', 'asc');
+  const rated = rates.map(p => ({...p, zkai:ratings?.[p.number-1] ?? null}));
+  const { sorted, sortKey, direction, sortBy } = useSortedRows(rated, 'number', 'asc');
   if(!data || !rates.length) return null;
   const max = rates.reduce((a,b)=>a.previousRate >= b.previousRate ? a:b);
   const min = rates.reduce((a,b)=>a.previousRate <= b.previousRate ? a:b);
@@ -18,6 +21,7 @@ export function CommonTest2025QuestionDetails({ year, subject }: {year: number|s
   return (
     <section className="mt-5">
       <h3 className="text-base font-semibold mb-2">2025年度本試験・大問別の平均得点率</h3>
+
       <div className="overflow-x-auto mb-3">
         <table className="w-full text-sm text-left">
           <thead><tr className="bg-gray-50 border-b">
@@ -25,12 +29,14 @@ export function CommonTest2025QuestionDetails({ year, subject }: {year: number|s
             <th className="p-3">出題領域</th>
             <SortHeader label="配点" column="points" {...{sortKey,direction}} onSort={sortBy} />
             <SortHeader label="得点率" column="previousRate" {...{sortKey,direction}} onSort={sortBy} />
+            {ratings && <SortHeader label="Ｚ会難度" column="zkai" {...{sortKey,direction}} onSort={sortBy} />}
           </tr></thead>
           <tbody>{sorted.map(p=><tr className="border-b" key={p.number}>
             <th className="p-3">第{p.number}問</th>
             <td className="p-3">{p.topic}</td>
             <td className="p-3 tabular-nums">{p.points}点</td>
             <td className="p-3 tabular-nums">{p.previousRate.toFixed(2)}%</td>
+            {ratings && <td className="p-3">{p.zkai ?? '—'}</td>}
           </tr>)}</tbody>
         </table>
       </div>

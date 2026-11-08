@@ -10,8 +10,8 @@ const cases = [
   { path: 'contact/index.html', required: ['loading_0318','github.com/Logsteela/Kyotsu/issues/new','年度'] },
   { path: 'terms/index.html', required: ['免責事項','得点率','お問い合わせ'] },
   { path: 'common-test-2026-analysis/index.html', required: ['23科目', '大問', '国語', '地学', '数学Ⅰ'] },
-  { path: 'test/2026_国語_本試験問題_訂正付.pdf/index.html', required: ['国語', '45.68', '160点以上', '2025', '大問別得点率・出題分析と問題PDF'] },
-  { path: 'test/2025_国語_本試験問題.pdf/index.html', required: ['2025年度本試験・大問別', '66.74', '57.42'] },
+  { path: 'test/2026_国語_本試験問題_訂正付.pdf/index.html', required: ['国語', '45.68', '160点以上', '2025', '大問別得点率・出題分析と問題PDF', '東進：難化', 'Ｚ会難度'] },
+  { path: 'test/2025_国語_本試験問題.pdf/index.html', required: ['2025年度本試験・大問別', '66.74', '57.42', 'Ｚ会難度'] },
   { path: 'test/2025_数学IA_本試験問題.pdf/index.html', required: ['2025年度本試験・大問別', '62.06', '58.54'] },
   { path: 'test/2026_数学IA_本試験問題.pdf/index.html', required: ['2025年度との大問別得点率比較', '20.29', '21.65'] },
   { path: 'test/2026_数学IIBC_本試験問題.pdf/index.html', required: ['116点', '選択', '第5問', '36.95'] },
@@ -180,6 +180,32 @@ for (const pdf of ['2021_国語_本試験問題.pdf','2026_国語_本試験問�
   const allowed = await runGuard('/test/' + encodeURIComponent(pdf) + '/');
   if (allowed.status !== 204) errors.push('Cloudflare guard rejected Common Test detail: ' + pdf);
 }
+
+// Prep-school labels must be bound to the correct year, question count and source.
+const prepSource = readFileSync(join(root, 'src/app/data/prepSchoolEvaluations.ts'), 'utf8');
+const prepMarker = 'PREP_SCHOOL_EVALUATIONS: Record<string, Record<string, PrepSchoolReview>> = ';
+const prep = JSON.parse(prepSource.split(prepMarker)[1].trim().replace(/;$/, ''));
+const researchSource = readFileSync(join(root, 'src/app/data/commonTest2026Research.ts'), 'utf8');
+const researchMarker = 'COMMON_TEST_2026_RESEARCH: Record<string, MainExamResearch> = ';
+const research = JSON.parse(researchSource.split(researchMarker)[1].trim().replace(/;$/, ''));
+const oldSource = readFileSync(join(root, 'src/app/data/commonTest2025GroupComparison.ts'), 'utf8');
+const oldMarker = 'COMMON_TEST_GROUP_COMPARISONS: Record<string, GroupComparison> = ';
+const old = JSON.parse(oldSource.split(oldMarker)[1].trim().replace(/;$/, ''));
+for(const [year, subjects] of Object.entries(prep)) {
+  for(const [subject, rating] of Object.entries(subjects)) {
+    if(rating.zkai) {
+      const groups = year === '2026' ? research[subject]?.parts : old[subject]?.groups;
+      if(!groups || groups.length!==rating.zkai.length)
+        errors.push('Prep-school question count mismatch: '+year+' '+subject);
+      if(!rating.zkaiUrl?.startsWith('https://www.zkai.co.jp/kyotsu-test/'))
+        errors.push('Unverified prep-school source format: '+year+' '+subject);
+    }
+  }
+}
+if(Object.values(prep['2026']).filter(x=>x.zkai).length!==14 ||
+   Object.values(prep['2025']).filter(x=>x.zkai).length!==14 ||
+   Object.values(prep['2026']).filter(x=>x.toshin).length!==23)
+  errors.push('Unexpected prep-school coverage.');
 
 // AdSense readiness: ownership code, ads.txt and sitemap directives must agree.
 const publicAds = readFileSync(join(root, 'public/ads.txt'), 'utf8');
