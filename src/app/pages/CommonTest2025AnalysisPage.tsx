@@ -7,6 +7,7 @@ import { COMMON_TEST_GROUP_COMPARISONS } from '@/app/data/commonTest2025GroupCom
 import { COMMON_TEST_2025_SOCIAL_AREAS } from '@/app/data/commonTest2025SocialAreas';
 import { COMMON_TEST_2025_FOREIGN_LANGUAGES } from '@/app/data/commonTest2025ForeignLanguages';
 import { SortHeader } from '@/app/components/SortHeader';
+import { SchoolReviewSubjectComparison } from '@/app/components/SchoolReviewSubjectComparison';
 import { useSortedRows } from '@/app/utils/useSortedRows';
 
 type Summary = {
@@ -83,6 +84,7 @@ export function CommonTest2025AnalysisPage() {
         <h2 className="font-semibold text-lg mt-7 mb-3">2026年度との比較</h2>
         <p className="text-sm mb-3">大問別得点率の前年差を比較できる科目は、2026年度の各試験ページに掲載しています。</p>
         <Link className="underline text-[var(--color-brand-green)] text-sm" to="/common-test-2026-analysis">2026年度の27科目分析と前年との比較</Link>
+        <SchoolReviewSubjectComparison year={2025} />
       </article>
     </main>
   </>;

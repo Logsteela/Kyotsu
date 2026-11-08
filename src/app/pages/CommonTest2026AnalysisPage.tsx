@@ -8,6 +8,7 @@ import { COMMON_TEST_GROUP_COMPARISONS } from '@/app/data/commonTest2025GroupCom
 import { COMMON_TEST_2026_FOREIGN_LANGUAGES } from '@/app/data/commonTest2026ForeignLanguages';
 import { getDifficultyAppropriateness } from '@/app/data/commonTest2026Evaluations';
 import { SortHeader } from '@/app/components/SortHeader';
+import { SchoolReviewSubjectComparison } from '@/app/components/SchoolReviewSubjectComparison';
 import { useSortedRows } from '@/app/utils/useSortedRows';
 
 type Item = {
@@ -121,6 +122,7 @@ export function CommonTest2026AnalysisPage() {
           物理では第2問の53.78%と第4問の29.99%で23.79ポイント差があります。
           化学の大問間の差は12.85ポイントでした。
         </p>
+        <SchoolReviewSubjectComparison year={2026} />
       </article>
     </main>
   </>;
