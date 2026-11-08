@@ -14,6 +14,8 @@ const cases = [
   { path: 'test/2026_物理_本試験問題.pdf/index.html', required: ['Z会の大問別評価と実測得点率','東進','河合塾','標準','やや難','第2問'] },
   { path: 'test/2026_情報I_本試験問題.pdf/index.html', required: ['予備校の難易度判定（2025年度比）','Z会の大問別評価と実測得点率','難化','第4問'] },
   { path: 'test/2025_国語_本試験問題.pdf/index.html', required: ['2025年度本試験・大問別', '66.74', '57.42'] },
+  { path: 'test/2025_物理_本試験問題.pdf/index.html', required: ['2025年度・Z会の大問別評価と実測得点率','標準／やや難（A／B）','第3問'] },
+  { path: 'test/2025_情報I_本試験問題.pdf/index.html', required: ['2025年度・Z会の大問別評価と実測得点率','やや易','第4問'] },
   { path: 'test/2025_数学IA_本試験問題.pdf/index.html', required: ['2025年度本試験・大問別', '62.06', '58.54'] },
   { path: 'test/2026_数学IA_本試験問題.pdf/index.html', required: ['2025年度との大問別得点率比較', '20.29', '21.65'] },
   { path: 'test/2026_数学IIBC_本試験問題.pdf/index.html', required: ['116点', '選択', '第5問', '36.95'] },
