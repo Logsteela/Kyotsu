@@ -6,6 +6,7 @@ import { useSortedRows } from '@/app/utils/useSortedRows';
 import { testDatabase } from '@/app/data/testDatabase';
 import { getTestDetails } from '@/app/data/testDetailsDatabase';
 import { COMMON_TEST_2026_SCHOOL_DIFFICULTY, COMMON_TEST_2026_ZKAI_SECTIONS } from '@/app/data/commonTest2026SchoolReviews';
+import { COMMON_TEST_2025_ZKAI_SECTIONS } from '@/app/data/commonTest2025SchoolReviews';
 import { isPublishedTestPdf } from '@/app/utils/publicTestDetail';
 
 type SourceItem = { label: string; count: number; example: string[] };
@@ -103,10 +104,11 @@ export function SourcesPage() {
                     </li>)
                   )}
                 </ul></div>
-                <div><h4 className="font-semibold mb-2">Z会</h4><ul className="list-disc ml-5 space-y-1">
-                  {Object.entries(COMMON_TEST_2026_ZKAI_SECTIONS).map(([subject, entry])=><li key={subject}>
-                    <a className="underline text-[var(--color-brand-green)]" href={entry.source} target="_blank" rel="noopener noreferrer">{subject}</a>
-                  </li>)}
+                <div><h4 className="font-semibold mb-2">Z会（2025・2026年度）</h4><ul className="list-disc ml-5 space-y-1">
+                  {([['2026', COMMON_TEST_2026_ZKAI_SECTIONS], ['2025', COMMON_TEST_2025_ZKAI_SECTIONS]] as const).flatMap(([year, data]) =>
+                    Object.entries(data).map(([subject, entry])=><li key={year + subject}>
+                      <a className="underline text-[var(--color-brand-green)]" href={entry.source} target="_blank" rel="noopener noreferrer">{year}・{subject}</a>
+                    </li>))}
                 </ul></div>
               </div>
             </details>
