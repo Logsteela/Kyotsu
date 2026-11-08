@@ -21,6 +21,24 @@ const ARCHIVES_PATH = join(__dirname, '../src/app/components/archivesTables.json
 const R2_ORIGIN = 'https://pub-43d2006e555442dca4a107e7bc0d01bb.r2.dev';
 
 
+const SCHOOL_REVIEWS_PATH = join(__dirname, '../src/app/data/commonTest2026SchoolReviews.ts');
+const schoolReviewsText = readFileSync(SCHOOL_REVIEWS_PATH, 'utf8');
+function schoolJson(marker, following) {
+  const pos = schoolReviewsText.indexOf(marker);
+  if (pos < 0) throw new Error('Missing reviewed school statistics: ' + marker);
+  const start = pos + marker.length;
+  const end = following ? schoolReviewsText.indexOf(following, start) : schoolReviewsText.length;
+  if (end < 0) throw new Error('Missing delimiter for school statistics');
+  return JSON.parse(schoolReviewsText.slice(start, end).trim().replace(/;$/, ''));
+}
+const schoolDifficulty = schoolJson(
+  'COMMON_TEST_2026_SCHOOL_DIFFICULTY: Record<string, RelativeSchoolAssessment[]> = ',
+  '\nexport const COMMON_TEST_2026_ZKAI_SECTIONS',
+);
+const schoolSections = schoolJson(
+  'COMMON_TEST_2026_ZKAI_SECTIONS: Record<string, SectionSchoolAssessment> = ', null,
+);
+
 const DEFAULT_DESCRIPTION =
   '2025・2026年度共通テスト本試験の大問別得点率、設問別正答率、得点分布、問題評価を独自に整理・比較。過去問PDFと歴代平均点も年度・科目別に検索できます。';
 
@@ -512,6 +530,26 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
             comparable.map(x => '<tr><td><a href="/test/' + encodeURIComponent(x.questionPdf) + '">' + x.year +
               '</a></td><td>' + x.info.averageScore + '</td><td>' + x.rate.toFixed(2) + '%</td><td>' +
               (x.info.examinees ?? '—') + '</td></tr>').join('') + '</tbody></table>';
+        }
+        if (examYear === 2026 && r.examType === 'main') {
+          const schoolRatings = schoolDifficulty[r.subject] || [];
+          const zk = schoolSections[r.subject];
+          const observed = questionResearch[r.subject]?.parts || [];
+          if (schoolRatings.length) {
+            content += '<h2>予備校の難易度判定（2025年度比）</h2>' +
+              '<table><thead><tr><th>予備校</th><th>判定</th></tr></thead><tbody>' +
+              schoolRatings.map(x => '<tr><td>' + escapeHtml(x.school) +
+                '</td><td>' + escapeHtml(x.rating) + '</td></tr>').join('') + '</tbody></table>';
+          }
+          if (zk && observed.length === zk.ratings.length) {
+            content += '<h3>Z会の大問別評価と実測得点率</h3>' +
+              '<table><thead><tr><th>大問</th><th>分野</th><th>Z会評価</th><th>実測得点率</th></tr></thead><tbody>' +
+              observed.map((p,i) => '<tr><td>第' + p.number + '問</td><td>' +
+                escapeHtml(p.topic) + '</td><td>' + escapeHtml(zk.ratings[i]) +
+                '</td><td>' + p.scoreRate.toFixed(2) + '%</td></tr>').join('') +
+              '</tbody></table><ul>' +
+              zk.notes.map(x => '<li>' + escapeHtml(x) + '</li>').join('') + '</ul>';
+          }
         }
         const socialReview = examYear === 2025 ? social2025[r.subject] : null;
         if (socialReview) {
