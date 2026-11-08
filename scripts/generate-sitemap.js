@@ -97,9 +97,9 @@ function buildUrls() {
     addUrl(urls, `${BASE_URL}/subject/${subject}`, today, 'monthly', 0.8);
   });
 
-  const questionPdfs = [...new Set(records.map((record) => record.questionPdf))].sort((a, b) =>
-    a.localeCompare(b, 'ja'),
-  );
+  const questionPdfs = [...new Set(records
+    .filter((record) => /^\d{4}$/.test(record.year) && Number(record.year) >= 2021)
+    .map((record) => record.questionPdf))].sort((a, b) => a.localeCompare(b, 'ja'));
 
   questionPdfs.forEach((questionPdf) => {
     addUrl(urls, `${BASE_URL}/test/${encodeURIComponent(questionPdf)}`, today, 'yearly', 0.6);

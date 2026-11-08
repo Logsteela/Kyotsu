@@ -624,10 +624,12 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
           ? '<p>本試験の出題内容と大問別得点率：<a href="/common-test-' + page.path.slice(6) + '-analysis">' + page.path.slice(6) + '年度の分析</a></p>'
           : page.path.startsWith('/subject/')
             ? '<p>この科目群の得点率を調べる：<a href="/common-test-2026-analysis">2026年度の大問別比較</a>、<a href="/common-test-2025-analysis">2025年度の分析</a>。</p>' : '';
-      content = analysisEntry + '<h2>収録資料一覧</h2><ul>' + filtered.slice(0, page.path === '/overview' ? 400 : 160).map(r =>
-        '<li><a href="/test/' + encodeURIComponent(r.questionPdf) + '">' +
-        escapeHtml(r.year + '年度 ' + r.subject + ' ' + (r.examType === 'main' ? '本試験' : '追試験')) +
-        '</a></li>').join('') + '</ul>';
+      content = analysisEntry + '<h2>収録資料一覧</h2><ul>' + filtered.slice(0, page.path === '/overview' ? 400 : 160).map(r => {
+        const label = escapeHtml(r.year + '年度 ' + r.subject + ' ' + (r.examType === 'main' ? '本試験' : '追試験'));
+        return isCommonTestRecord(r)
+          ? '<li><a href="/test/' + encodeURIComponent(r.questionPdf) + '">' + label + '</a></li>'
+          : '<li>' + label + '</li>';
+      }).join('') + '</ul>';
     }
   }
   return '<div id="archive-static-fallback" style="max-width:1100px;margin:24px auto;padding:20px;font-family:system-ui,sans-serif;line-height:1.8">' + heading + intro + content + staticNavigation() + '</div>';
@@ -761,6 +763,12 @@ function pathToFilePaths(pathname) {
   return decodedPath === rawPath ? [decodedPath] : [decodedPath, rawPath];
 }
 
+// Temporarily generate full articles only for numeric Common Test years (2021+).
+// The archives still include older records and PDF action buttons.
+function isCommonTestRecord(record) {
+  return /^\d{4}$/.test(String(record.year)) && Number(record.year) >= 2021;
+}
+
 function buildPages(records, questionResearch, priorResearch) {
   const pages = [];
   const historicalExamName = year => {
@@ -856,6 +864,7 @@ function buildPages(records, questionResearch, priorResearch) {
   }
 
   for (const record of uniqueByQuestionPdf.values()) {
+    if (!isCommonTestRecord(record)) continue;
     const formattedYear = formatYear(record.year);
     const era = Number.isNaN(Number(record.year)) ? '' : getEraDisplay(record.year);
     const subject = normalizeSubject(record.subject);

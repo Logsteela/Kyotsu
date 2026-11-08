@@ -11,8 +11,6 @@ const cases = [
   { path: 'terms/index.html', required: ['免責事項','得点率','お問い合わせ'] },
   { path: 'common-test-2026-analysis/index.html', required: ['23科目', '大問', '国語', '地学', '数学Ⅰ'] },
   { path: 'test/2026_国語_本試験問題_訂正付.pdf/index.html', required: ['国語', '45.68', '160点以上', '2025', '大問別得点率・出題分析と問題PDF'] },
-  { path: 'test/2020_国語_本試験問題.pdf/index.html', required: ['平均点の年度比較', '2019年度', 'センター試験', '問題・解答PDF'] },
-  { path: 'test/1985_国語_本試験問題.pdf/index.html', required: ['平均点の年度比較', '共通第1次学力試験'] },
   { path: 'test/2025_国語_本試験問題.pdf/index.html', required: ['2025年度本試験・大問別', '66.74', '57.42'] },
   { path: 'test/2025_数学IA_本試験問題.pdf/index.html', required: ['2025年度本試験・大問別', '62.06', '58.54'] },
   { path: 'test/2026_数学IA_本試験問題.pdf/index.html', required: ['2025年度との大問別得点率比較', '20.29', '21.65'] },
@@ -110,12 +108,10 @@ const withAds = [
   'common-test-2026-analysis/index.html',
   'common-test-2025-analysis/index.html',
   'test/2026_国語_本試験問題_訂正付.pdf/index.html',
-  'test/2020_国語_本試験問題.pdf/index.html',
 ];
 const withoutAds = [
   'overview/index.html', 'archives/index.html', 'privacy/index.html', 'contact/index.html', 'terms/index.html',
   'year/2026/index.html', 'subject/kokugo/index.html',
-  'test/2011_国語_追試験問題.pdf/index.html',
   'test/2026_国語_追試験問題.pdf/index.html',
 ];
 for (const path of withAds) {
@@ -128,14 +124,10 @@ for (const path of withoutAds) {
   if (!existsSync(file)) { errors.push('Unmonetized archive HTML missing: '+path); continue; }
   if (readFileSync(file, 'utf8').includes('adsbygoogle.js')) errors.push('AdSense code found on unreviewed archive/navigation page: '+path);
 }
-const historicalHtml = readFileSync(join(dist,'test/2020_国語_本試験問題.pdf/index.html'),'utf8');
-if (!historicalHtml.includes('過去') ||
-    !historicalHtml.includes('中央値60.22%') || !historicalHtml.includes('位'))
-  errors.push('Monetized historical exam lacks actual computed comparative statistics');
 // Reject generic filler previously duplicated across thousands of exam pages.
 for (const route of ['index.html','common-test-2026-analysis/index.html',
     'test/2026_国語_本試験問題_訂正付.pdf/index.html',
-    'test/2020_国語_本試験問題.pdf/index.html']) {
+    'test/2026_物理_本試験問題.pdf/index.html']) {
   const html = readFileSync(join(dist, route), 'utf8');
   for (const phrase of [
     '数値はサイトの試験情報データベースに基づきます',
@@ -146,6 +138,49 @@ for (const route of ['index.html','common-test-2026-analysis/index.html',
     if (html.includes(phrase)) errors.push(route + ': redundant explanation remains: ' + phrase);
   }
 }
+
+// The publication scope is 2021+ Common Test records only. Keep these URLs
+// inaccessible even when the legacy source records and archive lists remain.
+const noLongerPublished = [
+  'test/2020_国語_本試験問題.pdf/index.html',
+  'test/1985_国語_本試験問題.pdf/index.html',
+  'test/2011_国語_追試験問題.pdf/index.html',
+  'test/2025_公共_試作問題.pdf/index.html',
+];
+for (const oldPath of noLongerPublished) {
+  if (existsSync(join(dist, oldPath))) errors.push('Non-Common Test detail HTML still published: ' + oldPath);
+}
+const xml = readFileSync(join(root,'public/sitemap.xml'),'utf8');
+for (const oldPrefix of ['test/2020_', 'test/1985_', 'test/2011_', 'test/2025_%E5%85%AC%E5%85%B1_%E8%A9%A6%E4%BD%9C']) {
+  if (xml.includes(oldPrefix)) errors.push('Closed individual page in sitemap: ' + oldPrefix);
+}
+const archiveHtml = readFileSync(join(dist, 'year/2020/index.html'),'utf8');
+if (archiveHtml.includes('href="/test/2020_')) errors.push('Old center-test archive still links to individual pages');
+const commonYearHtml = readFileSync(join(dist, 'year/2026/index.html'),'utf8');
+if (!commonYearHtml.includes('href="/test/2026_')) errors.push('Common Test archive lost individual page links');
+
+// Check server-side Cloudflare route guard independently of the React bundle.
+const { onRequest: guardTestDetail } = await import('../functions/test/[[path]].js');
+const runGuard = async (pathname) => guardTestDetail({
+  request: new Request('https://kyotsu.org' + pathname),
+  next: () => new Response('permitted', { status: 204 }),
+});
+for (const pdf of [
+  '2020_国語_本試験問題.pdf',
+  '1985_国語_本試験問題.pdf',
+  '2025_公共_試作問題.pdf',
+  'does-not-exist.pdf',
+]) {
+  const blocked = await runGuard('/test/' + encodeURIComponent(pdf) + '/');
+  if (blocked.status !== 404 || !blocked.headers.get('X-Robots-Tag')?.includes('noindex')) {
+    errors.push('Cloudflare guard did not 404 blocked PDF detail: ' + pdf);
+  }
+}
+for (const pdf of ['2021_国語_本試験問題.pdf','2026_国語_本試験問題_訂正付.pdf']) {
+  const allowed = await runGuard('/test/' + encodeURIComponent(pdf) + '/');
+  if (allowed.status !== 204) errors.push('Cloudflare guard rejected Common Test detail: ' + pdf);
+}
+
 // AdSense readiness: ownership code, ads.txt and sitemap directives must agree.
 const publicAds = readFileSync(join(root, 'public/ads.txt'), 'utf8');
 const siteIndex = readFileSync(join(root, 'index.html'), 'utf8');
