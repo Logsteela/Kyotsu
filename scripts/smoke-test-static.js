@@ -74,7 +74,7 @@ for (const record of main2026) {
   if (!existsSync(file)) { errors.push('Missing 2026 main-exam HTML: ' + subject); continue; }
   examined2026++;
   const html = readFileSync(file, 'utf8');
-  const expected = qualitative.has(subject) ? '本試験の出題内容と問題評価' : '本試験の大問別得点率・正答率';
+  const expected = qualitative.has(subject) ? '本試験の出題・問題評価' : '本試験の大問別得点率・正答率';
   if (!html.includes(expected)) errors.push(subject + ': generated HTML lacks verified analysis (' + expected + ')');
   if (!html.includes('試験情報')) errors.push(subject + ': generated HTML lacks exam metadata');
 }
