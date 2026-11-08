@@ -12,6 +12,7 @@ const DIST_INDEX = join(DIST_DIR, 'index.html');
 const DATABASE_PATH = join(__dirname, '../src/app/data/testDatabase.ts');
 const DETAILS_PATH = join(__dirname, '../src/app/data/testDetailsDatabase.ts');
 const QUESTION_RESEARCH_PATH = join(__dirname, '../src/app/data/commonTest2026Research.ts');
+const PREP_SCHOOL_EVALUATIONS_PATH = join(__dirname, '../src/app/data/prepSchoolEvaluations.ts');
 const PRIOR_RESEARCH_PATH = join(__dirname, '../src/app/data/commonTest2025GroupComparison.ts');
 const FOREIGN_RESEARCH_PATH = join(__dirname, '../src/app/data/commonTest2026ForeignLanguages.ts');
 const FOREIGN_2025_PATH = join(__dirname, '../src/app/data/commonTest2025ForeignLanguages.ts');
@@ -179,6 +180,14 @@ function loadQuestionResearch() {
   return JSON.parse(block);
 }
 
+function loadPrepSchoolEvaluations() {
+  const source = readFileSync(PREP_SCHOOL_EVALUATIONS_PATH, 'utf8');
+  const marker = 'PREP_SCHOOL_EVALUATIONS: Record<string, Record<string, PrepSchoolReview>> = ';
+  const at = source.indexOf(marker);
+  if (at < 0) throw new Error('Prep-school evaluations not found');
+  return JSON.parse(source.slice(at + marker.length).trim().replace(/;$/, ''));
+}
+
 function difficultyAppropriateness(subject) {
   return ['物理','生物','地学','生物基礎','地学基礎','フランス語','韓国語'].includes(subject) ? 3 : 4;
 }
@@ -251,7 +260,7 @@ function staticNavigation() {
   return '<nav aria-label="サイト案内"><a href="/">ホーム</a> ｜ <a href="/common-test-2026-analysis">2026年度本試験の分析</a> ｜ <a href="/common-test-2025-analysis">2025年度本試験の分析</a> ｜ <a href="/overview">全試験一覧</a> ｜ <a href="/statistics">平均点の推移</a> ｜ <a href="/year-statistics">年度別統計</a> ｜ <a href="/coverage">収録状況</a> ｜ <a href="/sources">資料の出典</a> ｜ <a href="/guide">資料の使い方</a> ｜ <a href="/about">サイトについて</a> ｜ <a href="/privacy">プライバシーポリシー</a> ｜ <a href="/contact">お問い合わせ</a> ｜ <a href="/terms">利用案内・免責事項</a></nav>';
 }
 
-function buildStaticBody(page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution, social2025, foreign2025) {
+function buildStaticBody(page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution, social2025, foreign2025, prepSchool) {
   const heading = '<h1>' + escapeHtml(page.title) + '</h1>';
   const intro = page.path.startsWith('/test/') ? '' : '<p>' + escapeHtml(page.description) + '</p>';
   let content = '';
@@ -523,12 +532,16 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
         }
         const priorYear = examYear === 2025 ? priorResearch[r.subject] : null;
         if (priorYear && priorYear.groups.length) {
+          const zkaiRatings = prepSchool['2025']?.[r.subject]?.zkai;
           const highest = priorYear.groups.reduce((a,b)=>a.previousRate > b.previousRate ? a:b);
           const lowest = priorYear.groups.reduce((a,b)=>a.previousRate < b.previousRate ? a:b);
           content += '<h2>2025年度本試験・大問別の得点率</h2>' +
-            '<table><thead><tr><th>大問</th><th>分野</th><th>配点</th><th>得点率</th></tr></thead><tbody>' +
+            '<table><thead><tr><th>大問</th><th>分野</th><th>配点</th><th>得点率</th>' +
+            (zkaiRatings ? '<th>Ｚ会難度</th>' : '') + '</tr></thead><tbody>' +
             priorYear.groups.map(p => '<tr><td>第' + p.number + '問</td><td>' + escapeHtml(p.topic) +
-              '</td><td>' + p.points + '点</td><td>' + p.previousRate.toFixed(2) + '%</td></tr>').join('') +
+              '</td><td>' + p.points + '点</td><td>' + p.previousRate.toFixed(2) + '%</td>' +
+              (zkaiRatings ? '<td>' + escapeHtml(zkaiRatings[p.number-1] ?? '—') + '</td>' : '') +
+              '</tr>').join('') +
             '</tbody></table>' +
             (priorYear.nonAdditive ? '<p>※選択問題をすべて表示（合計116点）。</p>' : '') +
             (priorYear.nonComparable ? '<p>' + escapeHtml(priorYear.comment) + '</p>' : '');
@@ -544,15 +557,21 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
         const researched = examYear === 2026 ? questionResearch[r.subject] : null;
         if (researched) {
           const parts = researched.parts;
+          const zkaiRatings = prepSchool['2026']?.[r.subject]?.zkai;
+          const toshin = prepSchool['2026']?.[r.subject]?.toshin;
           const best = parts.reduce((a,b) => a.scoreRate > b.scoreRate ? a : b);
           const worst = parts.reduce((a,b) => a.scoreRate < b.scoreRate ? a : b);
           content += '<h2>本試験の大問別得点率・正答率</h2><p>外部評価分科会の評価：' +
-            difficultyAppropriateness(r.subject) + '／4</p><p>得点率最高：第' +
-            best.number + '問 ' + best.scoreRate.toFixed(2) + '% ／ 最低：第' +
+            difficultyAppropriateness(r.subject) + '／4</p>' +
+            (toshin ? '<p>東進：' + escapeHtml(toshin) + '（前年比）</p>' : '') +
+            '<p>得点率最高：第' + best.number + '問 ' + best.scoreRate.toFixed(2) + '% ／ 最低：第' +
             worst.number + '問 ' + worst.scoreRate.toFixed(2) + '%。</p>' +
-            '<table><thead><tr><th>大問</th><th>分野</th><th>配点</th><th>得点率</th><th>正答率</th></tr></thead><tbody>' +
+            '<table><thead><tr><th>大問</th><th>分野</th><th>配点</th><th>得点率</th><th>正答率</th>' +
+            (zkaiRatings ? '<th>Ｚ会難度</th>' : '') + '</tr></thead><tbody>' +
             parts.map(p => '<tr><td>第' + p.number + '問</td><td>' + escapeHtml(p.topic) + '</td><td>' + p.points +
-              '</td><td>' + p.scoreRate.toFixed(2) + '%</td><td>' + (p.correctRate === null ? '—' : p.correctRate.toFixed(2) + '%') + '</td></tr>').join('') +
+              '</td><td>' + p.scoreRate.toFixed(2) + '%</td><td>' + (p.correctRate === null ? '—' : p.correctRate.toFixed(2) + '%') + '</td>' +
+              (zkaiRatings ? '<td>' + escapeHtml(zkaiRatings[p.number-1] ?? '—') + '</td>' : '') +
+              '</tr>').join('') +
             '</tbody></table>' +
             (researched.review ? '<h3>出題・問題評価</h3><p>' + escapeHtml(researched.review) + '</p>' : '') +
             (researched.detail ? '<h3>個別設問</h3><p>' + escapeHtml(researched.detail) + '</p>' : '');
@@ -690,8 +709,8 @@ function removeAdSenseCode(html) {
   );
 }
 
-function injectBody(html, page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution, social2025, foreign2025) {
-  const fallback = buildStaticBody(page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution, social2025, foreign2025);
+function injectBody(html, page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution, social2025, foreign2025, prepSchool) {
+  const fallback = buildStaticBody(page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution, social2025, foreign2025, prepSchool);
   return html.replace('<div id="root"></div>', '<div id="root">' + fallback + '</div>');
 }
 
@@ -907,6 +926,7 @@ function main() {
   const subjectCategories = loadSubjectCategories();
   const archives = JSON.parse(readFileSync(ARCHIVES_PATH, 'utf8'));
   const questionResearch = loadQuestionResearch();
+  const prepSchool = loadPrepSchoolEvaluations();
   const priorResearch = loadPriorResearch();
   const foreignResearch = loadForeignResearch();
   const foreign2025 = loadForeign2025();
@@ -918,7 +938,7 @@ function main() {
   let adEligiblePages = 0;
 
   for (const page of pages) {
-    const contentHtml = injectBody(injectMeta(baseHtml, page), page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution, social2025, foreign2025);
+    const contentHtml = injectBody(injectMeta(baseHtml, page), page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution, social2025, foreign2025, prepSchool);
     const adEligible = shouldLoadAdSense(page, records, details, questionResearch, priorResearch, foreignResearch, social2025, foreign2025);
     const html = adEligible ? contentHtml : removeAdSenseCode(contentHtml);
     if (adEligible) adEligiblePages += 1;
