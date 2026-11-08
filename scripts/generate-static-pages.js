@@ -335,6 +335,20 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
       '</ul><p>得点率は平均得点÷配点、正答率は完全に正答した割合の集計。分析文は元資料を参照して当サイトでまとめたもので、年度間の得点分布差を試験難易度の差と断定しません。</p>' +
       '<h2>問題・解答・音源の出典</h2><p>サイトの試験詳細にある出典の記載を集計しました。記載がない資料について提供元を推定していません。</p><table><thead><tr><th>出典記録</th><th>登録件数</th></tr></thead><tbody>' +
       sorted.map(([source, count]) => '<tr><td>' + escapeHtml(source) + '</td><td>' + count + '</td></tr>').join('') + '</tbody></table>';
+
+    content += '<h2>2026年度予備校の難易度判定・大問別評価</h2>' +
+      '<ul><li><a href="https://www.toshin.com/news_newtest/gaiyou/">東進・科目別難易度</a></li>' +
+      '<li><a href="https://kaisoku.kawai-juku.ac.jp/nyushi/kyotsutest/26/">河合塾・2026年度分析速報</a></li>' +
+      '<li><a href="https://www.zkai.co.jp/kyotsu-test/bunseki/">Z会・2026年度大問別分析</a></li></ul>' +
+      '<h3>河合塾・科目別資料</h3><ul>' +
+      Object.entries(schoolDifficulty).flatMap(([subject, rows]) => rows
+        .filter(r => r.school === '河合塾')
+        .map(r => '<li><a href="' + escapeHtml(r.source) + '">' +
+          escapeHtml(subject) + '</a></li>')).join('') + '</ul>' +
+      '<h3>Z会・大問別資料</h3><ul>' +
+      Object.entries(schoolSections).map(([subject, r]) =>
+        '<li><a href="' + escapeHtml(r.source) + '">' + escapeHtml(subject) +
+        '</a></li>').join('') + '</ul>';
   } else if (page.path === '/archives') {
     content = '<h2>入試の記録比較</h2><p>収録された統計をもとに、平均得点率や各種得点記録の順位を整理した一覧です。年度や受験者集団による違いを考慮し、順位だけで難易度を判断しないでください。</p>' +
       archives.map(t => '<section><h3>' + escapeHtml(t.title) + '</h3><ol>' +
