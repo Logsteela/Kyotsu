@@ -266,8 +266,8 @@ for(const [subject,entry] of Object.entries(zkai22)) {
 const zkai21Source = readFileSync(join(root,'src/app/data/zkai2021QuestionRatings.ts'),'utf8');
 const zkai21Marker = 'ZKAI_2021_QUESTION_RATINGS: Record<string,HistoricRatingSubject> = ';
 const zkai21 = JSON.parse(zkai21Source.split(zkai21Marker)[1].trim().replace(/;$/, ''));
-if (Object.keys(zkai21).length !== 8 ||
-    Object.values(zkai21).reduce((n,entry)=>n+entry.parts.length,0) !== 55) {
+if (Object.keys(zkai21).length !== 18 ||
+    Object.values(zkai21).reduce((n,entry)=>n+entry.parts.length,0) !== 99) {
   errors.push('Z-kai 2021 difficulty data count mismatch');
 }
 for(const [subject,entry] of Object.entries(zkai21)) {
@@ -276,6 +276,31 @@ for(const [subject,entry] of Object.entries(zkai21)) {
     errors.push('Invalid 2021 source or part: '+subject);
   }
 }
+
+// Confirm new 2021 sections remain in the HTML served to search and ad crawlers.
+for(const [pdf, topic] of [
+  ['2021_日本史B_本試験問題.pdf', '貨幣の歴史'],
+  ['2021_世界史B_本試験問題.pdf', '資料と世界史上の出来事'],
+  ['2021_地理B_本試験問題.pdf', '京都府宮津市周辺'],
+  ['2021_化学基礎_本試験問題.pdf', '陽イオン交換樹脂'],
+  ['2021_生物基礎_本試験問題.pdf', '水分調節'],
+  ['2021_地学基礎_本試験問題.pdf', '地球の活動'],
+  ['2021_現代社会_本試験問題.pdf', '買い物弱者'],
+  ['2021_倫理_本試験問題.pdf', '日本思想'],
+  ['2021_政治経済_本試験問題.pdf', '日本の開発協力'],
+  ['2021_倫理政治経済_本試験問題.pdf', '民主主義'],
+]) {
+  const name = join(dist, 'test', pdf, 'index.html');
+  if (!existsSync(name)) {
+    errors.push('2021 detail article missing: ' + pdf);
+    continue;
+  }
+  const html = readFileSync(name, 'utf8');
+  if (!html.includes(topic) || !html.includes('Ｚ会難度')) {
+    errors.push('2021 source-based question analysis missing: ' + pdf);
+  }
+}
+
 // AdSense readiness: ownership code, ads.txt and sitemap directives must agree.
 const publicAds = readFileSync(join(root, 'public/ads.txt'), 'utf8');
 const siteIndex = readFileSync(join(root, 'index.html'), 'utf8');
