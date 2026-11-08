@@ -1,6 +1,7 @@
 import { COMMON_TEST_2026_RESEARCH } from '@/app/data/commonTest2026Research';
 import { CommonTest2026SocialDistribution } from '@/app/components/CommonTest2026SocialDistribution';
 import { getDifficultyAppropriateness } from '@/app/data/commonTest2026Evaluations';
+import { PREP_SCHOOL_EVALUATIONS } from '@/app/data/prepSchoolEvaluations';
 import { COMMON_TEST_GROUP_COMPARISONS } from '@/app/data/commonTest2025GroupComparison';
 import { SortHeader } from '@/app/components/SortHeader';
 import { useSortedRows } from '@/app/utils/useSortedRows';
@@ -13,7 +14,11 @@ export function CommonTestQuestionDetails({ year, subject }: { year: number | st
   const difference = highest.scoreRate - lowest.scoreRate;
   return <section className="mt-5">
     <h3 className="text-base sm:text-lg font-semibold mb-2">大問別得点率・正答率</h3>
-    <p className="text-xs text-gray-600 mb-3">外部評価分科会の評価：{getDifficultyAppropriateness(subject)}／4</p>
+    <div className="flex flex-wrap gap-x-5 gap-y-1 text-sm text-gray-700 mb-3">
+      <span>外部評価分科会：{getDifficultyAppropriateness(subject)}／4</span>
+      {PREP_SCHOOL_EVALUATIONS['2026']?.[subject]?.toshin &&
+        <span>東進：{PREP_SCHOOL_EVALUATIONS['2026'][subject].toshin}（前年比）</span>}
+    </div>
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
       <p className="bg-gray-50 border rounded p-3 text-sm">得点率が最高の大問：<strong>第{highest.number}問 {highest.scoreRate.toFixed(2)}%</strong></p>
       <p className="bg-gray-50 border rounded p-3 text-sm">得点率が最低の大問：<strong>第{lowest.number}問 {lowest.scoreRate.toFixed(2)}%</strong></p>
@@ -25,7 +30,7 @@ export function CommonTestQuestionDetails({ year, subject }: { year: number | st
     {['地理総合','歴史総合','公共'].includes(subject) && <p className="text-sm mb-4 border-l-4 border-gray-300 pl-3">
       「地理総合／歴史総合／公共」から2領域選択。この表は50点分の1領域です。
     </p>}
-    <ExamQuestionTable parts={record.parts}/>
+    <ExamQuestionTable parts={record.parts} subject={subject}/>
     <PriorYearGroupComparison subject={subject} parts={record.parts} />
     {record.review && <section className="mt-5">
       <h3 className="font-semibold mb-2">出題・問題評価</h3>
@@ -71,8 +76,10 @@ export function CommonTestQuestionDetails({ year, subject }: { year: number | st
 }
 
 type Part = { number:number; points:number; scoreRate:number; correctRate:number | null; topic:string };
-function ExamQuestionTable({parts}:{parts:Part[]}) {
-  const { sorted, sortKey, direction, sortBy } = useSortedRows(parts, 'number', 'asc');
+function ExamQuestionTable({parts,subject}:{parts:Part[];subject:string}) {
+  const ratings = PREP_SCHOOL_EVALUATIONS['2026']?.[subject]?.zkai;
+  const enriched = parts.map(p => ({...p, zkai:ratings?.[p.number-1] ?? null}));
+  const { sorted, sortKey, direction, sortBy } = useSortedRows(enriched, 'number', 'asc');
   return <div className="overflow-x-auto">
     <table className="w-full text-sm text-left">
       <thead><tr className="bg-gray-50 border-b">
@@ -81,6 +88,7 @@ function ExamQuestionTable({parts}:{parts:Part[]}) {
         <SortHeader label="配点" column="points" {...{sortKey,direction}} onSort={sortBy} />
         <SortHeader label="得点率" column="scoreRate" {...{sortKey,direction}} onSort={sortBy} />
         <SortHeader label="正答率" column="correctRate" {...{sortKey,direction}} onSort={sortBy} />
+        {ratings && <SortHeader label="Ｚ会難度" column="zkai" {...{sortKey,direction}} onSort={sortBy} />}
       </tr></thead>
       <tbody>{sorted.map(p => <tr key={p.number} className="border-b">
         <th className="p-3 whitespace-nowrap font-medium">第{p.number}問</th>
@@ -88,6 +96,7 @@ function ExamQuestionTable({parts}:{parts:Part[]}) {
         <td className="p-3 tabular-nums">{p.points}点</td>
         <td className="p-3 tabular-nums">{p.scoreRate.toFixed(2)}%</td>
         <td className="p-3 tabular-nums">{p.correctRate === null ? '—' : `${p.correctRate.toFixed(2)}%`}</td>
+        {ratings && <td className="p-3 whitespace-nowrap">{p.zkai ?? '—'}</td>}
       </tr>)}</tbody>
     </table>
   </div>;
