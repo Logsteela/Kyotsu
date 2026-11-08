@@ -67,29 +67,19 @@ export function HistoricalExamContext({
     value: currentInHistory.rate,
   } : null;
   return <section className="mt-5 border border-[var(--color-table-border)] bg-white rounded-lg p-5 sm:p-6 text-gray-800">
-    <h2 className="text-lg font-semibold mb-3">同じ試験制度・科目の前後年度を比較</h2>
-    <p className="text-sm leading-relaxed mb-3">
-      この資料は{REGIME_NAME[regimeOf(year)]}の{year}年度本試験です。
-      同じ科目名、同じ満点、同じ試験制度のうち、近い前後年度の記録を並べました。
-      別の試験制度や、名称が異なる科目は自動的に同一視していません。
-    </p>
-    {diff!==null && <p className="text-sm mb-3">
-      比較可能な前年度の記録（{prev.year}年度）と比べた平均得点率は
-      <strong> {diff>0?'+':''}{diff.toFixed(2)}ポイント</strong>です。
-      これは受験者の平均の変化であり、問題の難しさそのものを測る値ではありません。
+    <h2 className="text-lg font-semibold mb-3">平均点の年度比較</h2>
+    {diff!==null && <p className="text-sm mb-3">{prev.year}年度比：
+      <strong> {diff>0?'+':''}{diff.toFixed(2)}ポイント</strong>
     </p>}
     {longTerm && <div className="mb-4 border-l-4 border-[var(--color-brand-green)] bg-gray-50 p-3 sm:p-4">
-      <h3 className="font-semibold text-sm mb-2">同制度・同科目での長期比較</h3>
+      <h3 className="font-semibold text-sm mb-2">過去{longTerm.total}年度中の位置</h3>
       <p className="text-sm leading-relaxed">
-        比較できる{longTerm.total}年度の平均得点率を高い順に並べると、
-        {year}年度の{longTerm.value.toFixed(2)}%は<strong>{longTerm.rank}番目</strong>です。
-        これらの年度の中央値は{longTerm.median.toFixed(2)}%で、
-        その差は<strong>{longTerm.value-longTerm.median>=0?'+':''}{(longTerm.value-longTerm.median).toFixed(2)}ポイント</strong>です。
+        平均得点率<strong>{longTerm.value.toFixed(2)}%</strong>・高い順で<strong>{longTerm.rank}位</strong>。
+        中央値<strong>{longTerm.median.toFixed(2)}%</strong>（差{longTerm.value-longTerm.median>=0?'+':''}{(longTerm.value-longTerm.median).toFixed(2)}ポイント）。
       </p>
       <p className="text-sm leading-relaxed mt-2">
-        平均得点率が最も高いのは{longTerm.highest.year}年度（{longTerm.highest.rate.toFixed(2)}%）、
-        最も低いのは{longTerm.lowest.year}年度（{longTerm.lowest.rate.toFixed(2)}%）です。
-        受験者の平均点の比較であり、問題の難易度順位ではありません。
+        最高：{longTerm.highest.year}年度 {longTerm.highest.rate.toFixed(2)}% ／
+        最低：{longTerm.lowest.year}年度 {longTerm.lowest.rate.toFixed(2)}%
       </p>
     </div>}
     <div className="overflow-x-auto">
@@ -110,9 +100,5 @@ export function HistoricalExamContext({
         </tr>)}</tbody>
       </table>
     </div>
-    <p className="text-xs text-gray-600 leading-relaxed mt-3">
-      「—」は対応する統計が未登録であることを示します。科目名や満点が一致していても、
-      学習指導要領・出題範囲・選択方式・受験者集団は変化し得るため、年度間の平均得点率をそのまま難易度順位として用いないでください。
-    </p>
   </section>;
 }

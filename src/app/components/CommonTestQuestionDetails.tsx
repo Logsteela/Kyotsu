@@ -12,44 +12,31 @@ export function CommonTestQuestionDetails({ year, subject }: { year: number | st
   const lowest = record.parts.reduce((a,b) => a.scoreRate <= b.scoreRate ? a : b);
   const difference = highest.scoreRate - lowest.scoreRate;
   return <section className="mt-5">
-    <h3 className="text-base sm:text-lg font-semibold mb-2">大問ごとの得点状況（2026年度本試験）</h3>
-    <p className="text-xs text-gray-600 mb-3">高校教員による「難易度の適正さ」評価：{getDifficultyAppropriateness(subject)}／4（問題の難しさを数値化した値ではありません）</p>
-    <p className="text-sm leading-relaxed mb-3">
-      実際の受験者の成績から、大問の得点率と正答率を比較しました。得点率は部分点を含む平均得点の割合、
-      正答率は小問を完全に正解した割合の大問内平均です。未照合の正答率は「—」と表示します。大問の正答率は配点による重み付けをしていないため、
-      得点率と一致しない場合があります。
-    </p>
+    <h3 className="text-base sm:text-lg font-semibold mb-2">大問別得点率・正答率</h3>
+    <p className="text-xs text-gray-600 mb-3">外部評価分科会の評価：{getDifficultyAppropriateness(subject)}／4</p>
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
       <p className="bg-gray-50 border rounded p-3 text-sm">得点率が最高の大問：<strong>第{highest.number}問 {highest.scoreRate.toFixed(2)}%</strong></p>
       <p className="bg-gray-50 border rounded p-3 text-sm">得点率が最低の大問：<strong>第{lowest.number}問 {lowest.scoreRate.toFixed(2)}%</strong></p>
     </div>
-    <p className="text-sm mb-4">大問間の得点率の差は<strong>{difference.toFixed(2)}ポイント</strong>。{record.observation}</p>
+    <p className="text-sm mb-4">最高と最低の差：<strong>{difference.toFixed(2)}ポイント</strong></p>
     {subject === '数学Ⅱ，数学Ｂ，数学Ｃ' && <p className="text-sm mb-4 border-l-4 border-gray-300 pl-3">
-      この試験は必答3大問（計52点）と、4大問から3大問を選ぶ選択部分（各16点）で100点満点です。
-      表は選択肢を含めた7大問・計116点を掲載するため、全大問の平均点を足しても100点満点の試験平均にはなりません。
-      選択大問の得点率には、選択した受験者の構成の違いが含まれます。
+      第4～7問から3問選択。表には選択肢4問すべてを載せているため、配点合計は116点です（試験は100点満点）。
     </p>}
     {['地理総合','歴史総合','公共'].includes(subject) && <p className="text-sm mb-4 border-l-4 border-gray-300 pl-3">
-      これは「地理総合／歴史総合／公共」の3領域から2つを選ぶ試験のうち、50点分の1領域です。
-      受験者の選択状況は領域によって異なるため、領域間の得点率をそのまま難易度の差として扱えません。
+      「地理総合／歴史総合／公共」から2領域選択。この表は50点分の1領域です。
     </p>}
     <ExamQuestionTable parts={record.parts}/>
     <PriorYearGroupComparison subject={subject} parts={record.parts} />
     {record.review && <section className="mt-5">
-      <h3 className="font-semibold mb-2">出題内容・問題評価から読み取れること</h3>
+      <h3 className="font-semibold mb-2">出題・問題評価</h3>
       <p className="text-sm leading-relaxed mb-3">{record.review}</p>
     </section>}
     {record.detail && <section className="mt-3">
-      <h3 className="font-semibold mb-2">設問単位で注目する点</h3>
+      <h3 className="font-semibold mb-2">個別設問</h3>
       <p className="text-sm leading-relaxed mb-3">{record.detail}</p>
     </section>}
     {subject === '国語' && <section className="mt-5">
       <h3 className="font-semibold mb-2">国語の得点分布：2025年度と2026年度の比較</h3>
-      <p className="text-sm leading-relaxed mb-3">
-        2026年度は平均点116.37点で、2025年度の126.67点から10.30点下がりました。
-        分布でも160点以上（8割以上）の割合が19.93%から10.04%へ、180点以上（9割以上）は4.07%から1.65%へ減っています。
-        これは平均点の変化だけでなく、特に高得点帯の人数構成が変わったことを意味します。
-      </p>
       <table className="w-full text-sm text-left mb-3">
         <thead><tr className="border-b bg-gray-50"><th className="p-2">分布の指標</th><th className="p-2">2025年度</th><th className="p-2">2026年度</th></tr></thead>
         <tbody>{[
@@ -62,16 +49,10 @@ export function CommonTestQuestionDetails({ year, subject }: { year: number | st
           ['下位80%の境目','159点','146点'],
         ].map(([name,prev,curr])=><tr key={name} className="border-b"><th className="p-2 font-medium">{name}</th><td className="p-2">{prev}</td><td className="p-2">{curr}</td></tr>)}</tbody>
       </table>
-      <p className="text-sm leading-relaxed mb-3">
-        分位点は下位20%が8点、40%が12点、60%と80%がそれぞれ13点下がっています。
-        2026年度の160点以上の割合は前年のおよそ半分です。ただし、出題内容だけでなく受験者の違いも含むため、
-        得点分布の差をそのまま問題難易度の差とはみなしません。
-      </p>
     </section>}
     <CommonTest2026SocialDistribution subject={subject} />
     {subject === '情報Ⅰ' && <section className="mt-5">
       <h3 className="font-semibold mb-2">得点分布の変化（2025年度から2026年度）</h3>
-      <p className="text-sm leading-relaxed mb-3">2026年度の科目別成績分布では、中央値・最頻値とも56点。前年の中央値70点・最頻値71点から移動しています。平均点だけでなく、得点分布の中心が下がったことが確認できます。</p>
       <table className="w-full text-sm text-left mb-3">
         <thead><tr className="border-b bg-gray-50"><th className="p-2">指標</th><th className="p-2">2025年度</th><th className="p-2">2026年度</th></tr></thead>
         <tbody>
@@ -85,12 +66,7 @@ export function CommonTestQuestionDetails({ year, subject }: { year: number | st
           ].map(([title,before,after])=><tr className="border-b" key={title}><th className="p-2 font-medium">{title}</th><td className="p-2">{before}</td><td className="p-2">{after}</td></tr>)}
         </tbody>
       </table>
-      <p className="text-sm leading-relaxed mb-3">80点以上の割合は約29%から約8%に低下しました。上位層の人数が減っただけでなく、20%点から80%点までの境界もおおむね12～14点下がっています。得点率の前年差とあわせると、2026年度は第1問・第2問の成績低下が全体の平均点に大きく影響したと読み取れます。</p>
     </section>}
-    <p className="text-xs text-gray-600 mt-4 leading-relaxed">
-      試験情報の数値は大学入試センター公表の2026年度本試験データに基づく。分析文は問題評価報告書等を踏まえた当サイトの整理です。
-      全体の正答率・得点率を、個人の得点可能性や問題そのものの客観的難易度に読み替えることはできません。
-    </p>
   </section>;
 }
 
@@ -132,12 +108,7 @@ function PriorYearGroupComparison({ subject, parts }: { subject: string; parts: 
   if (!baseline || baseline.nonComparable || rows.length !== baseline.groups.length) return null;
   return <section className="mt-6">
     <h3 className="text-base font-semibold mb-2">2025年度との大問別得点率比較</h3>
-    <p className="text-sm mb-3 leading-relaxed">
-      両年度で大問番号・配点が対応する科目について、2025年度と2026年度の得点率を比べました。
-      同じ番号でも問題の内容は違います。{optional
-        ? 'この科目は4つの選択大問から3つを選ぶため、平均点への寄与を一律に算出できません。'
-        : '「科目平均点への寄与」は大問の配点×得点率の差から計算した値です。'}
-    </p>
+    {optional && <p className="text-sm mb-3">※第4～7問は選択問題のため、平均点への寄与は算出していません。</p>}
     <div className="overflow-x-auto mb-3"><table className="w-full text-sm text-left">
       <thead><tr className="bg-gray-50 border-b">
         <SortHeader label="大問" column="number" {...{sortKey,direction}} onSort={sortBy} />
