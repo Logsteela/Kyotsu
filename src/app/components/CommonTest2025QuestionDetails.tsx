@@ -29,7 +29,7 @@ export function CommonTest2025QuestionDetails({ year, subject }: {year: number|s
             <th className="p-3">出題領域</th>
             <SortHeader label="配点" column="points" {...{sortKey,direction}} onSort={sortBy} />
             <SortHeader label="得点率" column="previousRate" {...{sortKey,direction}} onSort={sortBy} />
-            {ratings && <th className="p-3">Ｚ会難度</th>}
+            {ratings && <SortHeader label="Ｚ会難度" column="zkai" {...{sortKey,direction}} onSort={sortBy} />}
           </tr></thead>
           <tbody>{sorted.map(p=><tr className="border-b" key={p.number}>
             <th className="p-3">第{p.number}問</th>
