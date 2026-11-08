@@ -359,5 +359,185 @@ export const ZKAI_2023_QUESTION_RATINGS: Record<string,HistoricRatingSubject> = 
         "sortNo": 7
       }
     ]
+  },
+  "日本史Ｂ": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2023/nihonshi-2023/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "日本史を地図から考える",
+        "difficulty": "標準",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "古代の陰陽道",
+        "difficulty": "標準",
+        "sortNo": 2
+      },
+      {
+        "label": "第3問",
+        "topic": "中世の京都",
+        "difficulty": "標準",
+        "sortNo": 3
+      },
+      {
+        "label": "第4問",
+        "topic": "江戸時代の人々のつながり",
+        "difficulty": "標準",
+        "sortNo": 4
+      },
+      {
+        "label": "第5問",
+        "topic": "幕末から明治の日本",
+        "difficulty": "標準",
+        "sortNo": 5
+      },
+      {
+        "label": "第6問",
+        "topic": "近現代の「旅」",
+        "difficulty": "やや難",
+        "sortNo": 6
+      }
+    ]
+  },
+  "世界史Ｂ": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2023/sekaishi-2023/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "歴史の中の女性",
+        "difficulty": "やや易",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "君主の地位の継承",
+        "difficulty": "標準",
+        "sortNo": 2
+      },
+      {
+        "label": "第3問",
+        "topic": "歴史知識を巡る疑問と議論",
+        "difficulty": "標準",
+        "sortNo": 3
+      },
+      {
+        "label": "第4問",
+        "topic": "さまざまな歴史資料",
+        "difficulty": "やや難",
+        "sortNo": 4
+      },
+      {
+        "label": "第5問",
+        "topic": "歴史統計",
+        "difficulty": "標準",
+        "sortNo": 5
+      }
+    ]
+  },
+  "地理Ｂ": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2023/chiri-2023/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "自然環境と災害",
+        "difficulty": "標準",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "資源と産業",
+        "difficulty": "標準",
+        "sortNo": 2
+      },
+      {
+        "label": "第3問",
+        "topic": "日本の人口と都市",
+        "difficulty": "標準",
+        "sortNo": 3
+      },
+      {
+        "label": "第4問",
+        "topic": "インド・中国の地誌",
+        "difficulty": "標準",
+        "sortNo": 4
+      },
+      {
+        "label": "第5問",
+        "topic": "利根川下流域の地域調査",
+        "difficulty": "やや易",
+        "sortNo": 5
+      }
+    ]
+  },
+  "化学基礎": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2023/kagaku-kiso-2023/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "物質の構成と変化",
+        "difficulty": "やや易",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "沈殿滴定の実験",
+        "difficulty": "やや難",
+        "sortNo": 2
+      }
+    ]
+  },
+  "生物基礎": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2023/seibutsu-kiso-2023/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "原核・真核細胞とDNA複製",
+        "difficulty": "標準",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "脂肪消化と免疫",
+        "difficulty": "標準",
+        "sortNo": 2
+      },
+      {
+        "label": "第3問",
+        "topic": "水槽の物質循環とバイオーム",
+        "difficulty": "やや難",
+        "sortNo": 3
+      }
+    ]
+  },
+  "地学基礎": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2023/chigaku-kiso-2023/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "地球の形・地層・鉱物・火山",
+        "difficulty": "やや易",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "地上天気図と黒潮",
+        "difficulty": "標準",
+        "sortNo": 2
+      },
+      {
+        "label": "第3問",
+        "topic": "銀河系",
+        "difficulty": "標準",
+        "sortNo": 3
+      },
+      {
+        "label": "第4問",
+        "topic": "日本の自然環境",
+        "difficulty": "やや易",
+        "sortNo": 4
+      }
+    ]
   }
 };
