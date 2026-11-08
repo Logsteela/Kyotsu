@@ -13,6 +13,7 @@ const DATABASE_PATH = join(__dirname, '../src/app/data/testDatabase.ts');
 const DETAILS_PATH = join(__dirname, '../src/app/data/testDetailsDatabase.ts');
 const QUESTION_RESEARCH_PATH = join(__dirname, '../src/app/data/commonTest2026Research.ts');
 const PREP_SCHOOL_EVALUATIONS_PATH = join(__dirname, '../src/app/data/prepSchoolEvaluations.ts');
+const ZKAI_2024_RATINGS_PATH = join(__dirname, '../src/app/data/zkai2024QuestionRatings.ts');
 const PRIOR_RESEARCH_PATH = join(__dirname, '../src/app/data/commonTest2025GroupComparison.ts');
 const FOREIGN_RESEARCH_PATH = join(__dirname, '../src/app/data/commonTest2026ForeignLanguages.ts');
 const FOREIGN_2025_PATH = join(__dirname, '../src/app/data/commonTest2025ForeignLanguages.ts');
@@ -188,6 +189,14 @@ function loadPrepSchoolEvaluations() {
   return JSON.parse(source.slice(at + marker.length).trim().replace(/;$/, ''));
 }
 
+function loadZkai2024Ratings() {
+  const source = readFileSync(ZKAI_2024_RATINGS_PATH, 'utf8');
+  const marker = 'ZKAI_2024_QUESTION_RATINGS: Record<string,HistoricRatingSubject> = ';
+  const at = source.indexOf(marker);
+  if (at < 0) throw new Error('Z-kai 2024 ratings not found');
+  return JSON.parse(source.slice(at + marker.length).trim().replace(/;$/, ''));
+}
+
 function difficultyAppropriateness(subject) {
   return ['物理','生物','地学','生物基礎','地学基礎','フランス語','韓国語'].includes(subject) ? 3 : 4;
 }
@@ -260,7 +269,7 @@ function staticNavigation() {
   return '<nav aria-label="サイト案内"><a href="/">ホーム</a> ｜ <a href="/common-test-2026-analysis">2026年度本試験の分析</a> ｜ <a href="/common-test-2025-analysis">2025年度本試験の分析</a> ｜ <a href="/overview">全試験一覧</a> ｜ <a href="/statistics">平均点の推移</a> ｜ <a href="/year-statistics">年度別統計</a> ｜ <a href="/coverage">収録状況</a> ｜ <a href="/sources">資料の出典</a> ｜ <a href="/guide">資料の使い方</a> ｜ <a href="/about">サイトについて</a> ｜ <a href="/privacy">プライバシーポリシー</a> ｜ <a href="/contact">お問い合わせ</a> ｜ <a href="/terms">利用案内・免責事項</a></nav>';
 }
 
-function buildStaticBody(page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution, social2025, foreign2025, prepSchool) {
+function buildStaticBody(page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution, social2025, foreign2025, prepSchool, zkai2024) {
   const heading = '<h1>' + escapeHtml(page.title) + '</h1>';
   const intro = page.path.startsWith('/test/') ? '' : '<p>' + escapeHtml(page.description) + '</p>';
   let content = '';
@@ -484,6 +493,15 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
       }
       // The same fact-based comparison must also be available without executing React.
       const examYear = Number(r.year);
+      if (examYear === 2024 && r.examType === 'main' && zkai2024[r.subject]) {
+        const source = zkai2024[r.subject];
+        content += '<h2>2024年度本試験・大問別の出題・難度</h2><table>' +
+          '<thead><tr><th>大問</th><th>出題領域</th><th>Ｚ会難度</th></tr></thead><tbody>' +
+          source.parts.map(p => '<tr><td>' + escapeHtml(p.label) +
+            '</td><td>' + escapeHtml(p.topic) + '</td><td>' +
+            escapeHtml(p.difficulty) + '</td></tr>').join('') + '</tbody></table>';
+      }
+
       if (/^[0-9]{4}$/.test(r.year) && examYear >= 2021 && examYear <= 2026 && r.examType === 'main') {
         const max = d?.totalScore;
         const byYear = new Map();
@@ -709,8 +727,8 @@ function removeAdSenseCode(html) {
   );
 }
 
-function injectBody(html, page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution, social2025, foreign2025, prepSchool) {
-  const fallback = buildStaticBody(page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution, social2025, foreign2025, prepSchool);
+function injectBody(html, page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution, social2025, foreign2025, prepSchool, zkai2024) {
+  const fallback = buildStaticBody(page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution, social2025, foreign2025, prepSchool, zkai2024);
   return html.replace('<div id="root"></div>', '<div id="root">' + fallback + '</div>');
 }
 
@@ -927,6 +945,7 @@ function main() {
   const archives = JSON.parse(readFileSync(ARCHIVES_PATH, 'utf8'));
   const questionResearch = loadQuestionResearch();
   const prepSchool = loadPrepSchoolEvaluations();
+  const zkai2024 = loadZkai2024Ratings();
   const priorResearch = loadPriorResearch();
   const foreignResearch = loadForeignResearch();
   const foreign2025 = loadForeign2025();
@@ -938,7 +957,7 @@ function main() {
   let adEligiblePages = 0;
 
   for (const page of pages) {
-    const contentHtml = injectBody(injectMeta(baseHtml, page), page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution, social2025, foreign2025, prepSchool);
+    const contentHtml = injectBody(injectMeta(baseHtml, page), page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution, social2025, foreign2025, prepSchool, zkai2024);
     const adEligible = shouldLoadAdSense(page, records, details, questionResearch, priorResearch, foreignResearch, social2025, foreign2025);
     const html = adEligible ? contentHtml : removeAdSenseCode(contentHtml);
     if (adEligible) adEligiblePages += 1;

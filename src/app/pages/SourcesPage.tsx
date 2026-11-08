@@ -7,6 +7,7 @@ import { testDatabase } from '@/app/data/testDatabase';
 import { getTestDetails } from '@/app/data/testDetailsDatabase';
 import { isPublishedTestPdf } from '@/app/utils/publicTestDetail';
 import { PREP_SCHOOL_EVALUATIONS } from '@/app/data/prepSchoolEvaluations';
+import { ZKAI_2024_QUESTION_RATINGS } from '@/app/data/zkai2024QuestionRatings';
 
 type SourceItem = { label: string; count: number; example: string[] };
 type SourceGroup = { kind: string; sources: SourceItem[] };
@@ -89,7 +90,7 @@ export function SourcesPage() {
             </ul>
             <h3 className="font-semibold mb-2">予備校による難易度・問題評価</h3>
             <p className="text-sm mb-3">
-              東進の2026年度・科目全体の前年からの難易度変化と、Ｚ会の2025・2026年度の大問別判定。
+              東進の2026年度・科目全体の前年からの難易度変化と、Ｚ会の2024～2026年度の大問別判定。
               各試験ページの得点率表に並記しています。
             </p>
             <ul className="list-disc pl-5 text-sm mb-4 space-y-1">
@@ -102,6 +103,12 @@ export function SourcesPage() {
               <li><a href="https://www.zkai.co.jp/kyotsu-test/bunseki-2022/" target="_blank" rel="noopener noreferrer" className="text-[var(--color-brand-green)] underline">Ｚ会：2022年度 科目別分析</a></li>
               <li><a href="https://www.zkai.co.jp/kyotsu-test/bunseki-2021/" target="_blank" rel="noopener noreferrer" className="text-[var(--color-brand-green)] underline">Ｚ会：2021年度 科目別分析</a></li>
             </ul>
+            <h4 className="font-semibold mb-2 text-sm">2024年度の大問別判定</h4>
+            <div className="flex flex-wrap gap-x-4 gap-y-2 mb-5 text-sm">
+              {Object.entries(ZKAI_2024_QUESTION_RATINGS).map(([sub,data]) =>
+                <a key={sub} href={data.sourceUrl} target="_blank" rel="noopener noreferrer"
+                  className="text-[var(--color-brand-green)] underline">{sub}</a>)}
+            </div>
             <div className="overflow-x-auto mb-6">
               <table className="w-full text-sm text-left">
                 <thead><tr className="border-b bg-gray-100">
