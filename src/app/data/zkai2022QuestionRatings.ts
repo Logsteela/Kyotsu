@@ -544,5 +544,145 @@ export const ZKAI_2022_QUESTION_RATINGS: Record<string,HistoricRatingSubject> = 
         "sortNo": 4
       }
     ]
+  },
+  "現代社会": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2022/gendaishakai-2022/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "地方自治体での就業体験",
+        "difficulty": "標準",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "新しい環境での学び・法的ルール",
+        "difficulty": "標準",
+        "sortNo": 2
+      },
+      {
+        "label": "第3問",
+        "topic": "日本経済と金融",
+        "difficulty": "標準",
+        "sortNo": 3
+      },
+      {
+        "label": "第4問",
+        "topic": "新たな共同体の構築",
+        "difficulty": "標準",
+        "sortNo": 4
+      },
+      {
+        "label": "第5問",
+        "topic": "持続可能な社会の形成",
+        "difficulty": "やや易",
+        "sortNo": 5
+      }
+    ]
+  },
+  "倫理": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2022/rinri-2022/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "議論（源流思想）",
+        "difficulty": "標準",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "理想をめぐる思索（日本思想）",
+        "difficulty": "やや易",
+        "sortNo": 2
+      },
+      {
+        "label": "第3問",
+        "topic": "考えること（西洋思想）",
+        "difficulty": "標準",
+        "sortNo": 3
+      },
+      {
+        "label": "第4問",
+        "topic": "未来世代に対する責任",
+        "difficulty": "標準",
+        "sortNo": 4
+      }
+    ]
+  },
+  "政治・経済": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2022/seijikeizai-2022/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "まちづくりの取組み",
+        "difficulty": "標準",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "経済主体の関係",
+        "difficulty": "やや難",
+        "sortNo": 2
+      },
+      {
+        "label": "第3問",
+        "topic": "日本経済・国際経済",
+        "difficulty": "やや難",
+        "sortNo": 3
+      },
+      {
+        "label": "第4問",
+        "topic": "地方自治への住民の関わり",
+        "difficulty": "標準",
+        "sortNo": 4
+      }
+    ]
+  },
+  "倫理，政治・経済": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2022/rinsei-2022/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "議論（倫理）",
+        "difficulty": "標準",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "理想をめぐる思索（倫理）",
+        "difficulty": "やや易",
+        "sortNo": 2
+      },
+      {
+        "label": "第3問",
+        "topic": "考えること（倫理）",
+        "difficulty": "標準",
+        "sortNo": 3
+      },
+      {
+        "label": "第4問",
+        "topic": "未来世代に対する責任（倫理）",
+        "difficulty": "標準",
+        "sortNo": 4
+      },
+      {
+        "label": "第5問",
+        "topic": "まちづくりの取組み（政治・経済）",
+        "difficulty": "標準",
+        "sortNo": 5
+      },
+      {
+        "label": "第6問",
+        "topic": "経済主体の関係（政治・経済）",
+        "difficulty": "やや難",
+        "sortNo": 6
+      },
+      {
+        "label": "第7問",
+        "topic": "地方自治への住民の関わり（政治・経済）",
+        "difficulty": "標準",
+        "sortNo": 7
+      }
+    ]
   }
 };

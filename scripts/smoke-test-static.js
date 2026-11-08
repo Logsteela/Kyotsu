@@ -240,8 +240,8 @@ for(const [subject,entry] of Object.entries(zkai24)) {
 const zkai23Source = readFileSync(join(root,'src/app/data/zkai2023QuestionRatings.ts'),'utf8');
 const zkai23Marker = 'ZKAI_2023_QUESTION_RATINGS: Record<string,HistoricRatingSubject> = ';
 const zkai23 = JSON.parse(zkai23Source.split(zkai23Marker)[1].trim().replace(/;$/, ''));
-if (Object.keys(zkai23).length !== 14 ||
-    Object.values(zkai23).reduce((n,entry)=>n+entry.parts.length,0) !== 78) {
+if (Object.keys(zkai23).length !== 18 ||
+    Object.values(zkai23).reduce((n,entry)=>n+entry.parts.length,0) !== 98) {
   errors.push('Z-kai 2023 difficulty data count mismatch');
 }
 for(const [subject,entry] of Object.entries(zkai23)) {
@@ -253,8 +253,8 @@ for(const [subject,entry] of Object.entries(zkai23)) {
 const zkai22Source = readFileSync(join(root,'src/app/data/zkai2022QuestionRatings.ts'),'utf8');
 const zkai22Marker = 'ZKAI_2022_QUESTION_RATINGS: Record<string,HistoricRatingSubject> = ';
 const zkai22 = JSON.parse(zkai22Source.split(zkai22Marker)[1].trim().replace(/;$/, ''));
-if (Object.keys(zkai22).length !== 14 ||
-    Object.values(zkai22).reduce((n,entry)=>n+entry.parts.length,0) !== 79) {
+if (Object.keys(zkai22).length !== 18 ||
+    Object.values(zkai22).reduce((n,entry)=>n+entry.parts.length,0) !== 99) {
   errors.push('Z-kai 2022 difficulty data count mismatch');
 }
 for(const [subject,entry] of Object.entries(zkai22)) {
@@ -266,8 +266,8 @@ for(const [subject,entry] of Object.entries(zkai22)) {
 const zkai21Source = readFileSync(join(root,'src/app/data/zkai2021QuestionRatings.ts'),'utf8');
 const zkai21Marker = 'ZKAI_2021_QUESTION_RATINGS: Record<string,HistoricRatingSubject> = ';
 const zkai21 = JSON.parse(zkai21Source.split(zkai21Marker)[1].trim().replace(/;$/, ''));
-if (Object.keys(zkai21).length !== 8 ||
-    Object.values(zkai21).reduce((n,entry)=>n+entry.parts.length,0) !== 55) {
+if (Object.keys(zkai21).length !== 18 ||
+    Object.values(zkai21).reduce((n,entry)=>n+entry.parts.length,0) !== 99) {
   errors.push('Z-kai 2021 difficulty data count mismatch');
 }
 for(const [subject,entry] of Object.entries(zkai21)) {
@@ -276,6 +276,52 @@ for(const [subject,entry] of Object.entries(zkai21)) {
     errors.push('Invalid 2021 source or part: '+subject);
   }
 }
+
+// Confirm new 2021 sections remain in the HTML served to search and ad crawlers.
+for(const [pdf, topic] of [
+  ['2021_日本史B_本試験問題.pdf', '貨幣の歴史'],
+  ['2021_世界史B_本試験問題.pdf', '資料と世界史上の出来事'],
+  ['2021_地理B_本試験問題.pdf', '京都府宮津市周辺'],
+  ['2021_化学基礎_本試験問題.pdf', '陽イオン交換樹脂'],
+  ['2021_生物基礎_本試験問題.pdf', '水分調節'],
+  ['2021_地学基礎_本試験問題.pdf', '地球の活動'],
+  ['2021_現代社会_本試験問題.pdf', '買い物弱者'],
+  ['2021_倫理_本試験問題.pdf', '日本思想'],
+  ['2021_政治経済_本試験問題.pdf', '日本の開発協力'],
+  ['2021_倫理政治経済_本試験問題.pdf', '民主主義'],
+]) {
+  const name = join(dist, 'test', pdf, 'index.html');
+  if (!existsSync(name)) {
+    errors.push('2021 detail article missing: ' + pdf);
+    continue;
+  }
+  const html = readFileSync(name, 'utf8');
+  if (!html.includes(topic) || !html.includes('Ｚ会難度')) {
+    errors.push('2021 source-based question analysis missing: ' + pdf);
+  }
+}
+
+// Confirm 2022/2023 civics source-based analysis is included in crawlable HTML.
+for (const [pdf, topic] of [
+  ['2022_現代社会_本試験問題.pdf','持続可能な社会の形成'],
+  ['2022_倫理_本試験問題.pdf','未来世代に対する責任'],
+  ['2022_政治経済_本試験問題.pdf','経済主体の関係'],
+  ['2022_倫理政治経済_本試験問題.pdf','経済主体の関係'],
+  ['2023_現代社会_本試験問題.pdf','子どもの貧困'],
+  ['2023_倫理_本試験問題.pdf','不平等・格差'],
+  ['2023_政治経済_本試験問題.pdf','SDGs'],
+  ['2023_倫理政治経済_本試験問題.pdf','戦争と平和'],
+]) {
+ const target=join(dist,'test',pdf,'index.html');
+ if(!existsSync(target)) {
+   errors.push('Civics detail not generated: '+pdf);
+   continue;
+ }
+ const html=readFileSync(target,'utf8');
+ if(!html.includes(topic)||!html.includes('Ｚ会難度'))
+   errors.push('Missing sourced civics data on '+pdf);
+}
+
 // AdSense readiness: ownership code, ads.txt and sitemap directives must agree.
 const publicAds = readFileSync(join(root, 'public/ads.txt'), 'utf8');
 const siteIndex = readFileSync(join(root, 'index.html'), 'utf8');

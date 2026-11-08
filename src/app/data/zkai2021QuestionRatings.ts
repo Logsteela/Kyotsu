@@ -371,5 +371,319 @@ export const ZKAI_2021_QUESTION_RATINGS: Record<string,HistoricRatingSubject> = 
         "sortNo": 8
       }
     ]
+  },
+  "日本史Ｂ": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2021/nihonshi-2021/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "貨幣の歴史",
+        "difficulty": "標準",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "文字使用の歴史",
+        "difficulty": "標準",
+        "sortNo": 2
+      },
+      {
+        "label": "第3問",
+        "topic": "中世の都市と地方",
+        "difficulty": "標準",
+        "sortNo": 3
+      },
+      {
+        "label": "第4問",
+        "topic": "近世の儀式・儀礼",
+        "difficulty": "標準",
+        "sortNo": 4
+      },
+      {
+        "label": "第5問",
+        "topic": "景山英子と女性解放運動",
+        "difficulty": "標準",
+        "sortNo": 5
+      },
+      {
+        "label": "第6問",
+        "topic": "農地改革",
+        "difficulty": "標準",
+        "sortNo": 6
+      }
+    ]
+  },
+  "世界史Ｂ": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2021/sekaishi-2021/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "資料と世界史上の出来事",
+        "difficulty": "やや易",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "世界史上の貨幣",
+        "difficulty": "標準",
+        "sortNo": 2
+      },
+      {
+        "label": "第3問",
+        "topic": "文学者・ジャーナリストの作品",
+        "difficulty": "標準",
+        "sortNo": 3
+      },
+      {
+        "label": "第4問",
+        "topic": "国家や官僚の文書",
+        "difficulty": "標準",
+        "sortNo": 4
+      },
+      {
+        "label": "第5問",
+        "topic": "旅と歴史",
+        "difficulty": "やや難",
+        "sortNo": 5
+      }
+    ]
+  },
+  "地理Ｂ": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2021/chiri-2021/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "世界の自然環境",
+        "difficulty": "やや難",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "産業",
+        "difficulty": "標準",
+        "sortNo": 2
+      },
+      {
+        "label": "第3問",
+        "topic": "都市と人口",
+        "difficulty": "標準",
+        "sortNo": 3
+      },
+      {
+        "label": "第4問",
+        "topic": "アメリカ合衆国の地誌",
+        "difficulty": "標準",
+        "sortNo": 4
+      },
+      {
+        "label": "第5問",
+        "topic": "京都府宮津市周辺の地域調査",
+        "difficulty": "標準",
+        "sortNo": 5
+      }
+    ]
+  },
+  "現代社会": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2021/gendaishakai-2021/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "現代社会の学習",
+        "difficulty": "標準",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "持続可能な開発",
+        "difficulty": "標準",
+        "sortNo": 2
+      },
+      {
+        "label": "第3問",
+        "topic": "市場経済と政府の役割",
+        "difficulty": "標準",
+        "sortNo": 3
+      },
+      {
+        "label": "第4問",
+        "topic": "現代社会と青年期",
+        "difficulty": "標準",
+        "sortNo": 4
+      },
+      {
+        "label": "第5問",
+        "topic": "買い物弱者問題",
+        "difficulty": "標準",
+        "sortNo": 5
+      }
+    ]
+  },
+  "倫理": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2021/rinri-2021/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "源流思想",
+        "difficulty": "やや易",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "日本思想",
+        "difficulty": "標準",
+        "sortNo": 2
+      },
+      {
+        "label": "第3問",
+        "topic": "西洋思想",
+        "difficulty": "標準",
+        "sortNo": 3
+      },
+      {
+        "label": "第4問",
+        "topic": "青年期・現代社会の諸課題",
+        "difficulty": "標準",
+        "sortNo": 4
+      }
+    ]
+  },
+  "政治・経済": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2021/seijikeizai-2021/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "望ましい社会の姿",
+        "difficulty": "標準",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "民主主義・日本国憲法",
+        "difficulty": "標準",
+        "sortNo": 2
+      },
+      {
+        "label": "第3問",
+        "topic": "現代の経済状況",
+        "difficulty": "やや難",
+        "sortNo": 3
+      },
+      {
+        "label": "第4問",
+        "topic": "日本の開発協力",
+        "difficulty": "標準",
+        "sortNo": 4
+      }
+    ]
+  },
+  "倫理，政治・経済": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2021/rinsei-2021/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "源流思想（倫理）",
+        "difficulty": "やや易",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "日本思想（倫理）",
+        "difficulty": "標準",
+        "sortNo": 2
+      },
+      {
+        "label": "第3問",
+        "topic": "西洋思想（倫理）",
+        "difficulty": "標準",
+        "sortNo": 3
+      },
+      {
+        "label": "第4問",
+        "topic": "青年期・現代社会の諸課題（倫理）",
+        "difficulty": "標準",
+        "sortNo": 4
+      },
+      {
+        "label": "第5問",
+        "topic": "民主主義・日本国憲法",
+        "difficulty": "やや難",
+        "sortNo": 5
+      },
+      {
+        "label": "第6問",
+        "topic": "現代の経済状況",
+        "difficulty": "やや難",
+        "sortNo": 6
+      },
+      {
+        "label": "第7問",
+        "topic": "日本の開発協力",
+        "difficulty": "標準",
+        "sortNo": 7
+      }
+    ]
+  },
+  "化学基礎": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2021/kagaku-kiso-2021/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "物質の構成・変化",
+        "difficulty": "標準",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "酸塩基・陽イオン交換樹脂",
+        "difficulty": "やや難",
+        "sortNo": 2
+      }
+    ]
+  },
+  "生物基礎": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2021/seibutsu-kiso-2021/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "細胞・遺伝子の転写と翻訳",
+        "difficulty": "標準",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "体内の水分調節・免疫",
+        "difficulty": "標準",
+        "sortNo": 2
+      },
+      {
+        "label": "第3問",
+        "topic": "バイオーム・生態系",
+        "difficulty": "標準",
+        "sortNo": 3
+      }
+    ]
+  },
+  "地学基礎": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2021/chigaku-kiso-2021/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "地球の活動・砕屑物・岩石",
+        "difficulty": "標準",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "台風・高潮・地球温暖化",
+        "difficulty": "標準",
+        "sortNo": 2
+      },
+      {
+        "label": "第3問",
+        "topic": "太陽・宇宙の進化と天体観測",
+        "difficulty": "やや易",
+        "sortNo": 3
+      }
+    ]
   }
 };
