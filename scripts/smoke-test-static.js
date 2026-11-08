@@ -12,7 +12,7 @@ const cases = [
   { path: 'common-test-2026-analysis/index.html', required: ['23科目', '大問', '国語', '地学', '数学Ⅰ'] },
   { path: 'test/2026_国語_本試験問題_訂正付.pdf/index.html', required: ['国語', '45.68', '160点以上', '2025', '大問別得点率・出題分析と問題PDF'] },
   { path: 'test/2026_物理_本試験問題.pdf/index.html', required: ['Z会の大問別評価と実測得点率','東進','河合塾','標準','やや難','第2問'] },
-  { path: 'test/2026_情報I_本試験問題.pdf/index.html', required: ['予備校の難易度判定（2025年度比）','Z会の大問別評価と実測得点率','難化','第4問'] },
+  { path: 'test/2026_情報I_本試験問題.pdf/index.html', required: ['予備校の難易度判定（前年との比較）','Z会の大問別評価と実測得点率','難化','第4問'] },
   { path: 'test/2025_国語_本試験問題.pdf/index.html', required: ['2025年度本試験・大問別', '66.74', '57.42'] },
   { path: 'test/2025_物理_本試験問題.pdf/index.html', required: ['2025年度・Z会の大問別評価と実測得点率','標準／やや難（A／B）','第3問'] },
   { path: 'test/2025_情報I_本試験問題.pdf/index.html', required: ['2025年度・Z会の大問別評価と実測得点率','やや易','第4問'] },
