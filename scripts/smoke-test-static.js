@@ -20,6 +20,9 @@ const cases = [
   { path: 'test/2022_物理_本試験問題.pdf/index.html', required: ['2022年度本試験・大問別の出題・難度', 'コイル', 'Ｚ会難度'] },
   { path: 'test/2023_物理_本試験問題.pdf/index.html', required: ['2023年度本試験・大問別の出題・難度', 'コンデンサー容量', 'Ｚ会難度'] },
   { path: 'test/2024_物理_本試験問題.pdf/index.html', required: ['2024年度本試験・大問別の出題・難度', 'ペットボトルロケット', 'Ｚ会難度'] },
+  { path: 'test/2024_日本史B_本試験問題.pdf/index.html', required: ['2024年度本試験・大問別の出題・難度','印刷の歴史','Ｚ会難度'] },
+  { path: 'test/2024_地理B_本試験問題.pdf/index.html', required: ['2024年度本試験・大問別の出題・難度','石見地方','Ｚ会難度'] },
+  { path: 'test/2024_地学基礎_本試験問題.pdf/index.html', required: ['2024年度本試験・大問別の出題・難度','台風と海洋','Ｚ会難度'] },
   { path: 'test/2025_数学IA_本試験問題.pdf/index.html', required: ['2025年度本試験・大問別', '62.06', '58.54'] },
   { path: 'test/2026_数学IA_本試験問題.pdf/index.html', required: ['2025年度との大問別得点率比較', '20.29', '21.65'] },
   { path: 'test/2026_数学IIBC_本試験問題.pdf/index.html', required: ['116点', '選択', '第5問', '36.95'] },
@@ -218,8 +221,8 @@ if(Object.values(prep['2026']).filter(x=>x.zkai).length!==14 ||
 const zkai24Source = readFileSync(join(root,'src/app/data/zkai2024QuestionRatings.ts'),'utf8');
 const zkai24Marker = 'ZKAI_2024_QUESTION_RATINGS: Record<string,HistoricRatingSubject> = ';
 const zkai24 = JSON.parse(zkai24Source.split(zkai24Marker)[1].trim().replace(/;$/, ''));
-if (Object.keys(zkai24).length !== 8 ||
-    Object.values(zkai24).reduce((n,entry)=>n+entry.parts.length,0) !== 52) {
+if (Object.keys(zkai24).length !== 14 ||
+    Object.values(zkai24).reduce((n,entry)=>n+entry.parts.length,0) !== 76) {
   errors.push('Z-kai 2024 difficulty data count mismatch');
 }
 for(const [subject,entry] of Object.entries(zkai24)) {
