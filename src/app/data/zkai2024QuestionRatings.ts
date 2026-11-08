@@ -355,5 +355,179 @@ export const ZKAI_2024_QUESTION_RATINGS: Record<string,HistoricRatingSubject> = 
         "sortNo": 7
       }
     ]
+  },
+  "日本史Ｂ": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2024/nihonshi-2024/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "印刷の歴史",
+        "difficulty": "標準",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "古代の食物",
+        "difficulty": "標準",
+        "sortNo": 2
+      },
+      {
+        "label": "第3問",
+        "topic": "中世社会の特色",
+        "difficulty": "標準",
+        "sortNo": 3
+      },
+      {
+        "label": "第4問",
+        "topic": "近世の貿易・経済",
+        "difficulty": "標準",
+        "sortNo": 4
+      },
+      {
+        "label": "第5問",
+        "topic": "幕末から明治の洋服・銀行",
+        "difficulty": "標準",
+        "sortNo": 5
+      },
+      {
+        "label": "第6問",
+        "topic": "世界大戦後の日本外交",
+        "difficulty": "標準",
+        "sortNo": 6
+      }
+    ]
+  },
+  "世界史Ｂ": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2024/sekaishi-2024/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "各地域の統治制度",
+        "difficulty": "標準",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "諸勢力による支配と拡大",
+        "difficulty": "やや易",
+        "sortNo": 2
+      },
+      {
+        "label": "第3問",
+        "topic": "交通と社会の変化",
+        "difficulty": "標準",
+        "sortNo": 3
+      },
+      {
+        "label": "第4問",
+        "topic": "言語・文字と文化的な帰属",
+        "difficulty": "標準",
+        "sortNo": 4
+      }
+    ]
+  },
+  "地理Ｂ": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2024/chiri-2024/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "自然環境と自然災害",
+        "difficulty": "標準",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "資源・産業構造の変化",
+        "difficulty": "やや易",
+        "sortNo": 2
+      },
+      {
+        "label": "第3問",
+        "topic": "都市と生活文化",
+        "difficulty": "標準",
+        "sortNo": 3
+      },
+      {
+        "label": "第4問",
+        "topic": "環太平洋の地域地誌",
+        "difficulty": "標準",
+        "sortNo": 4
+      },
+      {
+        "label": "第5問",
+        "topic": "島根県石見地方の地域調査",
+        "difficulty": "やや易",
+        "sortNo": 5
+      }
+    ]
+  },
+  "化学基礎": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2024/kagaku-kiso-2024/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "物質の構成・物質変化",
+        "difficulty": "標準",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "宇宙ステーションの空気制御",
+        "difficulty": "やや易",
+        "sortNo": 2
+      }
+    ]
+  },
+  "生物基礎": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2024/seibutsu-kiso-2024/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "細胞・ゲノムと細胞周期",
+        "difficulty": "やや易",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "血液・血管と腎臓",
+        "difficulty": "標準",
+        "sortNo": 2
+      },
+      {
+        "label": "第3問",
+        "topic": "バイオーム・生態系と外来生物",
+        "difficulty": "やや易",
+        "sortNo": 3
+      }
+    ]
+  },
+  "地学基礎": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2024/chigaku-kiso-2024/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "地震・鉱物と地球環境",
+        "difficulty": "やや易",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "台風と海洋",
+        "difficulty": "やや易",
+        "sortNo": 2
+      },
+      {
+        "label": "第3問",
+        "topic": "太陽系・恒星・宇宙",
+        "difficulty": "標準",
+        "sortNo": 3
+      },
+      {
+        "label": "第4問",
+        "topic": "火山噴火による災害",
+        "difficulty": "標準",
+        "sortNo": 4
+      }
+    ]
   }
 };
