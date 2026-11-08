@@ -51,5 +51,7 @@ export function isAdEligiblePath(pathname: string): boolean {
 
   const d = getTestDetails(record.questionPdf);
   if (!(d?.totalScore && d.totalScore > 0) || typeof d.averageScore !== 'number') return false;
+  // Historical editorial pages must carry a recorded provenance as well as calculated comparisons.
+  if (year < 2021 && !/(?:問題|解答|音源)：/.test(d.specialNotes || '')) return false;
   return comparableYears(subject, year, d.totalScore) >= (year >= 2021 ? 4 : 5);
 }

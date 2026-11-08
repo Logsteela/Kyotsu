@@ -650,7 +650,8 @@ function comparableMainExamCount(record, records, details) {
   const own = details.get(record.questionPdf);
   if (!Number.isInteger(year) || year < 1979 || year > 2026 ||
       record.examType !== 'main' || !(own?.totalScore > 0) ||
-      typeof own.averageScore !== 'number') return 0;
+      typeof own.averageScore !== 'number' ||
+      (year < 2021 && !/(?:問題|解答|音源)：/.test(own.specialNotes || ''))) return 0;
   const regime = y => y < 1990 ? 'first' : y < 2021 ? 'center' : 'common';
   const byYear = new Map();
   for (const entry of records) {
