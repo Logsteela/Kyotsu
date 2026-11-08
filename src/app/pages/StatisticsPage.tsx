@@ -51,7 +51,6 @@ export function StatisticsPage() {
       <div className="flex-1 bg-gray-100 px-4 sm:px-6 py-6 lg:py-8">
         <section className="bg-white rounded-lg border border-[var(--color-table-border)] p-6 lg:p-8 max-w-6xl">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">科目別平均点の年度推移</h1>
-          <p className="text-gray-700 leading-relaxed mb-5">本試験の記録から平均点と満点が揃った資料を抽出し、平均得点率（平均点÷満点）を計算しました。異なる科目名は勝手に統合せず、試験制度ごとに期間を絞り込めます。データは各年度の資料情報に紐付いています。</p>
           <div className="flex flex-col sm:flex-row gap-4 mb-6">
             <div>
               <label htmlFor="stat-subject" className="block font-semibold mb-2">科目</label>
@@ -100,12 +99,9 @@ export function StatisticsPage() {
               ) : <p className="py-6 text-gray-600">選択した期間には、比較可能な統計記録がありません。全期間を選択してください。</p>}
             </>
           ) : <p>比較可能な統計データがありません。</p>}
-          <h2 className="text-lg font-semibold mt-7 mb-2">数値の読み方</h2>
-          <p className="text-sm text-gray-700 mb-3">平均得点率は各試験の平均点を満点で割った比率です。表の集計値はサイトの保存データから再計算しています。単純平均は年度の重みづけや受験者数による補正を行っていません。最高・最低の年度も、問題の難易度を客観的に決めるものではありません。</p>
-          <p className="text-sm text-gray-700 mb-3">同じ名前の科目でも試験制度・範囲・受験者集団が変化しています。古い試行試験や研究試験の数値は、一般の本試験と母集団が異なる可能性があります。追試験や平均点未公表の資料は除外し、科目の名称が違えば別集計です。</p>
           <div className="flex flex-wrap gap-4 text-sm">
             <Link className="text-[var(--color-brand-green)] underline" to="/coverage">収録・欠損状況を確認</Link>
-            <Link className="text-[var(--color-brand-green)] underline" to="/guide">試験制度の違い</Link>
+            <Link className="text-[var(--color-brand-green)] underline" to="/sources#research-methods">集計方法</Link>
           </div>
         </section>
       </div>

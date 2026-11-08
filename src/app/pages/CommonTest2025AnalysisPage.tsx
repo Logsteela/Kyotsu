@@ -48,8 +48,7 @@ export function CommonTest2025AnalysisPage() {
     <main className="flex-1 bg-gray-100 px-4 sm:px-6 py-6 lg:py-8">
       <article className="bg-white rounded-lg border border-[var(--color-table-border)] p-6 lg:p-8 max-w-6xl text-gray-800 leading-relaxed">
         <h1 className="text-2xl font-bold mb-4">2025年度共通テスト本試験・大問別の分析</h1>
-        <p className="mb-4">新課程の共通テストが始まった2025年度の本試験27科目を整理しました。20科目は大問別の得点率・配点に基づく分析、7科目は問題評価や大問の題材を調べた分析です。元の資料へ移動せず、各科目の試験詳細ページで内容を確認できます。</p>
-        <p className="text-sm mb-5">得点率が未確認の科目には平均得点率と大問構成のみを示し、大問の数値を推定で補完していません。大問の得点率の大小だけから受験者集団の異なる科目の難易度は比較できません。</p>
+        <p className="mb-4">大問別得点率：20科目 ／ 問題評価：7科目</p>
         <div className="flex flex-wrap gap-3 mb-5">
           <label className="text-sm">科目名
             <input className="block p-2 mt-1 border bg-white rounded" placeholder="例：情報、歴史、化学" value={search} onChange={e=>setSearch(e.target.value)}/>
@@ -60,7 +59,7 @@ export function CommonTest2025AnalysisPage() {
             </select>
           </label>
         </div>
-        <p className="text-sm mb-2">{rows.length}科目を表示。列見出しで並び替え可能です。</p>
+        <p className="text-sm mb-2">{rows.length}科目</p>
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
             <thead><tr className="bg-gray-50 border-b">
@@ -82,7 +81,7 @@ export function CommonTest2025AnalysisPage() {
           </table>
         </div>
         <h2 className="font-semibold text-lg mt-7 mb-3">2026年度との比較</h2>
-        <p className="text-sm mb-3">2025年度と2026年度の大問別得点率が正確に対応する14科目については、2026年度の各試験ページで、変化が大きい大問と科目平均点への寄与（算出可能な場合のみ）を表示しています。旧課程選択や配点変更がある科目では安易に合計しません。</p>
+        <p className="text-sm mb-3">大問別得点率の前年差を比較できる科目は、2026年度の各試験ページに掲載しています。</p>
         <Link className="underline text-[var(--color-brand-green)] text-sm" to="/common-test-2026-analysis">2026年度の27科目分析と前年との比較</Link>
       </article>
     </main>

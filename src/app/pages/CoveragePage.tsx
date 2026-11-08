@@ -56,11 +56,6 @@ export function CoveragePage() {
       <div className="flex-1 bg-gray-100 px-4 sm:px-6 py-6 lg:py-8">
         <article className="bg-white rounded-lg border border-[var(--color-table-border)] p-6 lg:p-8 max-w-6xl leading-relaxed text-gray-800">
           <h1 className="text-2xl font-bold mb-4">収録状況と資料の確認状況</h1>
-          <p className="mb-5">
-            掲載済みの試験レコードを年度別に数え、問題・解答ファイルの登録状況、試験統計、
-            出典の記録状況を示します。資料が収録されているかどうかを、利用前に確認するための一覧です。
-            集計値はサイトのデータベースから自動的に算出しています。
-          </p>
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
             {[
               ['試験レコード', data.items.length],
@@ -102,7 +97,7 @@ export function CoveragePage() {
           <h2 className="text-xl font-bold mt-7 mb-2">集計の定義</h2>
           <p className="mb-3">「登録」は1つの試験問題ファイルを1件として数えます。英語などの異なる形式や、年度ごとの試行・試作問題も含まれます。「問題台帳」「解答台帳」は内部ファイル台帳とのファイル名一致件数です。台帳に載っていない資料でも実際には公開されている場合があり、逆に台帳への登録はリンクの通信成功や内容の正確性を保証しません。</p>
           <p className="mb-3">「平均点」は平均点と満点の両方が数値として登録されている件数です。追試験などで統計の公表がない場合は空欄になります。「出典記録」は提供元の記載の有無であり、転載・二次利用の許諾取得を意味しません。</p>
-          <p className="mb-3">試験年度や科目体系が異なるデータは単純比較できません。登録数が少ない資料群もあります。欠損や収録ミスを見つけた場合は右下のヘルプからお知らせください。</p>
+          <p className="mb-3">記録の誤りは<Link className="underline text-[var(--color-brand-green)]" to="/contact">お問い合わせ</Link>へ。</p>
           <div className="flex flex-wrap gap-4 text-[var(--color-brand-green)]">
             <Link className="underline" to="/statistics">平均点の年度推移</Link>
             <Link className="underline" to="/guide">資料を探す方法</Link>
