@@ -1,5 +1,5 @@
-import { PREP_SCHOOL_EVALUATIONS } from '@/app/data/prepSchoolEvaluations';
 import { Link } from 'react-router';
+import { PREP_SCHOOL_EVALUATIONS } from '@/app/data/prepSchoolEvaluations';
 import { COMMON_TEST_GROUP_COMPARISONS } from '@/app/data/commonTest2025GroupComparison';
 import { getEnhancedDatabase } from '@/app/data/testDatabase';
 import { SortHeader } from '@/app/components/SortHeader';
@@ -8,8 +8,6 @@ import { useSortedRows } from '@/app/utils/useSortedRows';
 export function CommonTest2025QuestionDetails({ year, subject }: {year: number|string; subject:string}) {
   const data = year === 2025 ? COMMON_TEST_GROUP_COMPARISONS[subject] : null;
   const rates = data?.groups ?? [];
-  const schoolName = PREP_SCHOOL_EVALUATIONS['2025']?.[subject]?.zkai?.length;
-  void schoolName;
   const optional = Boolean(data?.nonAdditive);
   const nonComparable = Boolean(data?.nonComparable);
   const mixedCurriculum = Boolean(data?.mixedCurriculum);
@@ -21,6 +19,7 @@ export function CommonTest2025QuestionDetails({ year, subject }: {year: number|s
   return (
     <section className="mt-5">
       <h3 className="text-base font-semibold mb-2">2025年度本試験・大問別の平均得点率</h3>
+      <p>{PREP_SCHOOL_EVALUATIONS['2025']?.[subject]?.zkai?.join(' / ')}</p>
       <div className="overflow-x-auto mb-3">
         <table className="w-full text-sm text-left">
           <thead><tr className="bg-gray-50 border-b">
