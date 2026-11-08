@@ -15,6 +15,8 @@ const cases = [
   { path: 'test/2024_国語_本試験問題.pdf/index.html', required: ['2024年度本試験・大問別の出題・難度', '小説「桟橋」', 'Ｚ会難度'] },
   { path: 'test/2023_国語_本試験問題.pdf/index.html', required: ['2023年度本試験・大問別の出題・難度', '小説「飢えの季節」', 'Ｚ会難度'] },
   { path: 'test/2022_国語_本試験問題.pdf/index.html', required: ['2022年度本試験・大問別の出題・難度', '小説「庭の男」', 'Ｚ会難度'] },
+  { path: 'test/2021_国語_本試験問題.pdf/index.html', required: ['2021年度第1日程・大問別の出題・難度', '羽織と時計', 'Ｚ会難度'] },
+  { path: 'test/2021_物理_本試験問題.pdf/index.html', required: ['2021年度第1日程・大問別の出題・難度', 'ダイヤモンド', 'Ｚ会難度'] },
   { path: 'test/2022_物理_本試験問題.pdf/index.html', required: ['2022年度本試験・大問別の出題・難度', 'コイル', 'Ｚ会難度'] },
   { path: 'test/2023_物理_本試験問題.pdf/index.html', required: ['2023年度本試験・大問別の出題・難度', 'コンデンサー容量', 'Ｚ会難度'] },
   { path: 'test/2024_物理_本試験問題.pdf/index.html', required: ['2024年度本試験・大問別の出題・難度', 'ペットボトルロケット', 'Ｚ会難度'] },
@@ -250,6 +252,19 @@ for(const [subject,entry] of Object.entries(zkai22)) {
   if (!entry.sourceUrl.startsWith('https://www.zkai.co.jp/kyotsu-test/bunseki-2022/') ||
       !entry.parts.every(p=>p.label && p.topic && p.difficulty)) {
     errors.push('Invalid 2022 source or part: '+subject);
+  }
+}
+const zkai21Source = readFileSync(join(root,'src/app/data/zkai2021QuestionRatings.ts'),'utf8');
+const zkai21Marker = 'ZKAI_2021_QUESTION_RATINGS: Record<string,HistoricRatingSubject> = ';
+const zkai21 = JSON.parse(zkai21Source.split(zkai21Marker)[1].trim().replace(/;$/, ''));
+if (Object.keys(zkai21).length !== 8 ||
+    Object.values(zkai21).reduce((n,entry)=>n+entry.parts.length,0) !== 55) {
+  errors.push('Z-kai 2021 difficulty data count mismatch');
+}
+for(const [subject,entry] of Object.entries(zkai21)) {
+  if (!entry.sourceUrl.startsWith('https://www.zkai.co.jp/kyotsu-test/bunseki-2021/') ||
+      !entry.parts.every(p=>p.label && p.topic && p.difficulty)) {
+    errors.push('Invalid 2021 source or part: '+subject);
   }
 }
 // AdSense readiness: ownership code, ads.txt and sitemap directives must agree.

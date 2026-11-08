@@ -1,13 +1,14 @@
 import { ZKAI_2024_QUESTION_RATINGS } from '@/app/data/zkai2024QuestionRatings';
 import { ZKAI_2023_QUESTION_RATINGS } from '@/app/data/zkai2023QuestionRatings';
 import { ZKAI_2022_QUESTION_RATINGS } from '@/app/data/zkai2022QuestionRatings';
+import { ZKAI_2021_QUESTION_RATINGS } from '@/app/data/zkai2021QuestionRatings';
 import { SortHeader } from '@/app/components/SortHeader';
 import { useSortedRows } from '@/app/utils/useSortedRows';
 
 const difficultyOrder: Record<string,number> = { '易':1, 'やや易':2, '標準':3, 'やや難':4, '難':5 };
 
 export function Zkai2024Details({year,subject,testType}: {year:number|string;subject:string;testType:string}) {
-  const record = testType === 'main' ? year === 2024 ? ZKAI_2024_QUESTION_RATINGS[subject] : year === 2023 ? ZKAI_2023_QUESTION_RATINGS[subject] : year === 2022 ? ZKAI_2022_QUESTION_RATINGS[subject] : undefined : undefined;
+  const record = testType === 'main' ? year === 2024 ? ZKAI_2024_QUESTION_RATINGS[subject] : year === 2023 ? ZKAI_2023_QUESTION_RATINGS[subject] : year === 2022 ? ZKAI_2022_QUESTION_RATINGS[subject] : year === 2021 ? ZKAI_2021_QUESTION_RATINGS[subject] : undefined : undefined;
   const rows = (record?.parts ?? []).map(p => ({...p, difficultyOrder:difficultyOrder[p.difficulty] ?? 99}));
   const {sorted,sortKey,direction,sortBy} = useSortedRows(rows,'sortNo','asc');
   if (!record) return null;
