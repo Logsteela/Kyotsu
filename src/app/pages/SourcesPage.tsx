@@ -5,6 +5,7 @@ import { SortHeader } from '@/app/components/SortHeader';
 import { useSortedRows } from '@/app/utils/useSortedRows';
 import { testDatabase } from '@/app/data/testDatabase';
 import { getTestDetails } from '@/app/data/testDetailsDatabase';
+import { isPublishedTestPdf } from '@/app/utils/publicTestDetail';
 
 type SourceItem = { label: string; count: number; example: string[] };
 type SourceGroup = { kind: string; sources: SourceItem[] };
@@ -30,7 +31,9 @@ function SourceTable({ items }: { items: SourceItem[] }) {
           <tr key={item.label} className="border-b">
             <td className="p-3 font-medium">{item.label}</td>
             <td className="p-3 tabular-nums">{item.count}</td>
-            <td className="p-3"><div className="flex flex-wrap gap-3">{item.example.map((pdf, i) => <Link key={pdf} to={`/test/${encodeURIComponent(pdf)}`} className="text-[var(--color-brand-green)] underline">例{i + 1}</Link>)}</div></td>
+            <td className="p-3"><div className="flex flex-wrap gap-3">{item.example.length
+  ? item.example.filter(isPublishedTestPdf).map((pdf, i) => <Link key={pdf} to={`/test/${encodeURIComponent(pdf)}`} className="text-[var(--color-brand-green)] underline">例{i + 1}</Link>)
+  : '—'}</div></td>
           </tr>
         ))}</tbody>
       </table>
@@ -51,7 +54,7 @@ export function SourcesPage() {
         const map = groups.get(item.kind) ?? new Map();
         const entry = map.get(item.source) ?? { count: 0, example: [] };
         entry.count++;
-        if (entry.example.length < 4) entry.example.push(record.questionPdf);
+        if (isPublishedTestPdf(record.questionPdf) && entry.example.length < 4) entry.example.push(record.questionPdf);
         map.set(item.source, entry);
         groups.set(item.kind, map);
       }

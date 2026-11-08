@@ -5,6 +5,7 @@ import { SortHeader } from '@/app/components/SortHeader';
 import { useSortedRows } from '@/app/utils/useSortedRows';
 import { getEnhancedDatabase } from '@/app/data/testDatabase';
 import { getTestDetails } from '@/app/data/testDetailsDatabase';
+import { isPublishedTestDetail } from '@/app/utils/publicTestDetail';
 
 type Score = { year: number; subject: string; questionPdf: string; average: number; max: number; rate: number; examinees: number | null };
 export function YearStatisticsPage() {
@@ -58,7 +59,9 @@ export function YearStatisticsPage() {
                     <td className="p-3 tabular-nums">{p.rate.toFixed(1)}%<span className="block bg-gray-100 h-1.5 rounded mt-1" aria-hidden="true"><span className="block h-full rounded bg-[var(--color-brand-green)]" style={{width: `${Math.max(0, Math.min(100, p.rate))}%`}} /></span></td>
                     <td className="p-3 tabular-nums">{delta === null ? '—' : `${delta > 0 ? '+' : ''}${delta.toFixed(1)}pt`}</td>
                     <td className="p-3">{p.examinees === null ? '—' : p.examinees.toLocaleString('ja-JP')}</td>
-                    <td className="p-3"><Link to={`/test/${encodeURIComponent(p.questionPdf)}`} className="text-[var(--color-brand-green)] underline">資料</Link></td>
+                    <td className="p-3">{isPublishedTestDetail(p)
+  ? <Link to={`/test/${encodeURIComponent(p.questionPdf)}`} className="text-[var(--color-brand-green)] underline">資料</Link>
+  : '—'}</td>
                   </tr>;
                 })}</tbody>
               </table>

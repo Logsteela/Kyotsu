@@ -12,6 +12,7 @@ import { FilterButton } from '@/app/components/FilterButton';
 import { PDFActionGroup, AudioActionGroup } from '@/app/components/PDFActionButton';
 import { TableLegend } from '@/app/components/TableLegend';
 import { getDisplaySubject } from '@/app/utils/subjectUtils';
+import { isPublishedTestDetail } from '@/app/utils/publicTestDetail';
 import pdfManifest from '@/app/data/pdfManifest.json';
 
 interface PDFTableWithFilterProps {
@@ -257,11 +258,12 @@ export function PDFTableWithFilter({
 
   const renderSubject = (item: EnhancedTestRecord) => {
     const label = getDisplaySubject(item.subject);
-    const detailPageUrl = `/test/${encodeURIComponent(item.questionPdf)}`;
-
+    if (!isPublishedTestDetail(item)) {
+      return <span className="font-bold text-black">{label}</span>;
+    }
     return (
       <Link
-        to={detailPageUrl}
+        to={`/test/${encodeURIComponent(item.questionPdf)}`}
         className="font-bold underline decoration-1 underline-offset-2 text-black hover:text-gray-600 transition-colors"
       >
         {label}

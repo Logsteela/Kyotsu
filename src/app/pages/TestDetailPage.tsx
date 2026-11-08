@@ -16,6 +16,7 @@ import { getTestDetails } from '@/app/data/testDetailsDatabase';
 import { getEraDisplay } from '@/app/utils/era';
 import { getDisplaySubject } from '@/app/utils/subjectUtils';
 import { getPdfUrlPath } from '@/app/utils/pdfPath';
+import { isPublishedTestDetail } from '@/app/utils/publicTestDetail';
 import { forceBrowserDownload } from '@/app/utils/downloadFile';
 import { Button } from '@/app/components/ui/button';
 import {
@@ -166,7 +167,7 @@ export function TestDetailPage() {
     return getTestDetails(decodedPdf);
   }, [decodedPdf]);
 
-  if (!testRecord) {
+  if (!testRecord || !isPublishedTestDetail(testRecord)) {
     return (
       <div className="p-4 lg:p-6">
         <h1 className="text-xl lg:text-2xl font-bold text-gray-900 mb-4">試験が見つかりません</h1>
@@ -225,7 +226,7 @@ export function TestDetailPage() {
     : hasQuestionReview ? '大問別の出題・問題評価。' : '';
   const description = `${displayTestName}。 ${analysisSummary}${facts.join('、')}${facts.length ? '。' : ''}`;
 
-  const relatedCandidates = getEnhancedDatabase().filter(r => r.subject === testRecord.subject && r.questionPdf !== testRecord.questionPdf);
+  const relatedCandidates = getEnhancedDatabase().filter(r => isPublishedTestDetail(r) && r.subject === testRecord.subject && r.questionPdf !== testRecord.questionPdf);
   const related: Array<{ name: string; url: string }> = [];
   const activeYear = typeof testRecord.year === 'number' ? testRecord.year : null;
   if (activeYear !== null) {

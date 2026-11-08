@@ -5,6 +5,7 @@ import { SortHeader } from '@/app/components/SortHeader';
 import { useSortedRows } from '@/app/utils/useSortedRows';
 import { getEnhancedDatabase } from '@/app/data/testDatabase';
 import { getTestDetails } from '@/app/data/testDetailsDatabase';
+import { isPublishedTestDetail } from '@/app/utils/publicTestDetail';
 
 type Point = { year: number; average: number; max: number; rate: number; examinees: number | null; questionPdf: string };
 type Period = 'all' | 'kyotsu' | 'center' | 'first';
@@ -92,7 +93,9 @@ export function StatisticsPage() {
                         </span>
                       </td>
                       <td className="p-3">{p.examinees === null ? '—' : p.examinees.toLocaleString('ja-JP')}</td>
-                      <td className="p-3"><Link className="text-[var(--color-brand-green)] underline" to={`/test/${encodeURIComponent(p.questionPdf)}`}>詳細</Link></td>
+                      <td className="p-3">{isPublishedTestDetail(p)
+  ? <Link className="text-[var(--color-brand-green)] underline" to={`/test/${encodeURIComponent(p.questionPdf)}`}>詳細</Link>
+  : '—'}</td>
                     </tr>)}</tbody>
                   </table>
                 </div>
