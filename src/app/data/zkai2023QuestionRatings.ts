@@ -539,5 +539,145 @@ export const ZKAI_2023_QUESTION_RATINGS: Record<string,HistoricRatingSubject> = 
         "sortNo": 4
       }
     ]
+  },
+  "現代社会": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2023/gendaishakai-2023/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "国際経済・国際社会",
+        "difficulty": "標準",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "青年期・日本経済と社会",
+        "difficulty": "標準",
+        "sortNo": 2
+      },
+      {
+        "label": "第3問",
+        "topic": "経済のしくみ",
+        "difficulty": "標準",
+        "sortNo": 3
+      },
+      {
+        "label": "第4問",
+        "topic": "司法と人権・政治参加",
+        "difficulty": "標準",
+        "sortNo": 4
+      },
+      {
+        "label": "第5問",
+        "topic": "探究学習・子どもの貧困",
+        "difficulty": "標準",
+        "sortNo": 5
+      }
+    ]
+  },
+  "倫理": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2023/rinri-2023/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "正義と人間の本性（源流思想）",
+        "difficulty": "標準",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "問いをめぐる思索（日本思想）",
+        "difficulty": "標準",
+        "sortNo": 2
+      },
+      {
+        "label": "第3問",
+        "topic": "自由（西洋思想）",
+        "difficulty": "標準",
+        "sortNo": 3
+      },
+      {
+        "label": "第4問",
+        "topic": "不平等・格差の背景",
+        "difficulty": "やや難",
+        "sortNo": 4
+      }
+    ]
+  },
+  "政治・経済": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2023/seijikeizai-2023/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "県の広報誌",
+        "difficulty": "標準",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "現代日本の諸課題",
+        "difficulty": "やや難",
+        "sortNo": 2
+      },
+      {
+        "label": "第3問",
+        "topic": "戦争と平和・日本の議会制民主主義",
+        "difficulty": "標準",
+        "sortNo": 3
+      },
+      {
+        "label": "第4問",
+        "topic": "SDGsの意義と課題",
+        "difficulty": "やや難",
+        "sortNo": 4
+      }
+    ]
+  },
+  "倫理，政治・経済": {
+    "sourceUrl": "https://www.zkai.co.jp/kyotsu-test/bunseki-2023/rinsei-2023/",
+    "parts": [
+      {
+        "label": "第1問",
+        "topic": "正義と人間の本性（倫理）",
+        "difficulty": "標準",
+        "sortNo": 1
+      },
+      {
+        "label": "第2問",
+        "topic": "問いをめぐる思索（倫理）",
+        "difficulty": "標準",
+        "sortNo": 2
+      },
+      {
+        "label": "第3問",
+        "topic": "自由（西洋思想・倫理）",
+        "difficulty": "標準",
+        "sortNo": 3
+      },
+      {
+        "label": "第4問",
+        "topic": "不平等・格差の背景（倫理）",
+        "difficulty": "やや難",
+        "sortNo": 4
+      },
+      {
+        "label": "第5問",
+        "topic": "現代日本の諸課題（政治・経済）",
+        "difficulty": "やや難",
+        "sortNo": 5
+      },
+      {
+        "label": "第6問",
+        "topic": "戦争と平和・議会制民主主義（政治・経済）",
+        "difficulty": "標準",
+        "sortNo": 6
+      },
+      {
+        "label": "第7問",
+        "topic": "SDGsの意義と課題（政治・経済）",
+        "difficulty": "やや難",
+        "sortNo": 7
+      }
+    ]
   }
 };
