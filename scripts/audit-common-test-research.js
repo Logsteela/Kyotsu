@@ -178,6 +178,25 @@ for (const [subject, entry] of Object.entries(zkai)) {
 if (Object.keys(zkai).length !== 14 || ratedSections !== 70) {
   problems.push('Z-kai group census changed: '+Object.keys(zkai).length+' subjects / '+ratedSections+' groups');
 }
+// 2025 school assessments must match the measured 2025 question-group tables.
+const schoolText2025 = read('src/app/data/commonTest2025SchoolReviews.ts');
+const schoolMarker2025 = 'COMMON_TEST_2025_ZKAI_SECTIONS: Record<string, SectionSchoolAssessment> = ';
+const schoolPos2025 = schoolText2025.indexOf(schoolMarker2025);
+if (schoolPos2025 < 0) throw new Error('2025 school reviews missing');
+const zkai2025 = JSON.parse(schoolText2025.slice(schoolPos2025+schoolMarker2025.length).trim().replace(/;$/, ''));
+let ratedSections2025 = 0;
+for (const [subject, entry] of Object.entries(zkai2025)) {
+  const actual = previousResearch[subject]?.groups;
+  if (!actual || entry.ratings?.length !== actual.length ||
+      entry.ratings.some(r => !validRatings.has(r) && r !== '標準／やや難（A／B）') ||
+      !entry.notes?.length ||
+      !/^https:\/\/www\.zkai\.co\.jp\//.test(entry.source)) {
+    problems.push(subject + ': 2025 Z-kai rating/source mismatch');
+  } else ratedSections2025 += entry.ratings.length;
+}
+if (Object.keys(zkai2025).length !== 14 || ratedSections2025 !== 70) {
+  problems.push('2025 Z-kai sections incorrect: '+Object.keys(zkai2025).length+' subjects/'+ratedSections2025);
+}
 const message = {
   tested: report.length,
   available: count2026,
@@ -190,6 +209,7 @@ const message = {
   optionalMeansNotAdditive: report.filter(r=>r.optional).map(r=>r.subject),
   schoolOpinions: Object.values(school).reduce((n,a)=>n+a.length,0),
   zkaiRatedSections: ratedSections,
+  zkaiRatedSections2025: ratedSections2025,
   errors: problems,
 };
 console.log('Common Test 2026 research audit:', JSON.stringify(message, null, 2));
