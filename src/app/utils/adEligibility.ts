@@ -1,5 +1,6 @@
 import { getEnhancedDatabase } from '@/app/data/testDatabase';
 import { getTestDetails } from '@/app/data/testDetailsDatabase';
+import { isPublishedTestDetail } from '@/app/utils/publicTestDetail';
 import { COMMON_TEST_2026_RESEARCH } from '@/app/data/commonTest2026Research';
 import { COMMON_TEST_2026_FOREIGN_LANGUAGES } from '@/app/data/commonTest2026ForeignLanguages';
 import { COMMON_TEST_GROUP_COMPARISONS } from '@/app/data/commonTest2025GroupComparison';
@@ -40,7 +41,7 @@ export function isAdEligiblePath(pathname: string): boolean {
   catch { return false; }
 
   const record = byPdf.get(pdf);
-  if (!record || record.testType !== 'main' || typeof record.year !== 'number') return false;
+  if (!record || !isPublishedTestDetail(record) || record.testType !== 'main') return false;
   const { year, subject } = record;
   if (year === 2026 && (COMMON_TEST_2026_RESEARCH[subject] ||
       COMMON_TEST_2026_FOREIGN_LANGUAGES[subject])) return true;
