@@ -248,7 +248,7 @@ function loadDetails() {
 }
 
 function staticNavigation() {
-  return '<nav aria-label="サイト案内"><a href="/">ホーム</a> ｜ <a href="/common-test-2026-analysis">2026年度本試験の分析</a> ｜ <a href="/common-test-2025-analysis">2025年度本試験の分析</a> ｜ <a href="/overview">全試験一覧</a> ｜ <a href="/statistics">平均点の推移</a> ｜ <a href="/year-statistics">年度別統計</a> ｜ <a href="/coverage">収録状況</a> ｜ <a href="/sources">資料の出典</a> ｜ <a href="/guide">資料の使い方</a> ｜ <a href="/about">サイトについて</a> ｜ <a href="/privacy">プライバシーポリシー</a></nav>';
+  return '<nav aria-label="サイト案内"><a href="/">ホーム</a> ｜ <a href="/common-test-2026-analysis">2026年度本試験の分析</a> ｜ <a href="/common-test-2025-analysis">2025年度本試験の分析</a> ｜ <a href="/overview">全試験一覧</a> ｜ <a href="/statistics">平均点の推移</a> ｜ <a href="/year-statistics">年度別統計</a> ｜ <a href="/coverage">収録状況</a> ｜ <a href="/sources">資料の出典</a> ｜ <a href="/guide">資料の使い方</a> ｜ <a href="/about">サイトについて</a> ｜ <a href="/privacy">プライバシーポリシー</a> ｜ <a href="/contact">お問い合わせ</a> ｜ <a href="/terms">利用案内・免責事項</a></nav>';
 }
 
 function buildStaticBody(page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution, social2025, foreign2025) {
@@ -276,6 +276,16 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
     content = '<h2>資料の探し方</h2><p>総覧、年度別、教科別の一覧から過去問を探せます。1979年に共通第1次学力試験、1990年にセンター試験、2021年に共通テストへ移行しました。異なる試験制度や受験者集団の得点は直接比較できない場合があります。</p>';
   } else if (page.path === '/about') {
     content = '<h2>独自の比較・分析と資料の整理方針</h2><p>2025・2026年度の本試験について、大問別得点率、正答率、出題内容、得点分布を照合して独自に比較しています。<a href="/common-test-2026-analysis">2026年度の分析</a>、<a href="/common-test-2025-analysis">2025年度の分析</a>、<a href="/sources#research-methods">出典と集計方法</a>をご覧ください。</p><p>年度、教科、試験区分、実施日、試験時間、平均点などを紐付けて記録し、古い資料を見つけやすくする非公式の個人運営サイトです。原資料の権利は各権利者に帰属します。</p>';
+  } else if (page.path === '/contact') {
+    content = '<h2>運営者への連絡</h2><p>このサイトは個人運営です。資料の誤り、PDFの不具合、掲載資料に関する権利の連絡はDiscordのユーザー名「loading_0318」宛にお送りください。</p>' +
+      '<p>公開してもよい不具合や改善提案は、<a href="https://github.com/Logsteela/Kyotsu/issues/new">GitHubのIssue</a>からも受け付けています。GitHubへのログインが必要です。権利や個人情報を含む内容は公開Issueに投稿しないでください。</p>' +
+      '<h2>連絡時に必要な情報</h2><p>該当する年度、科目、問題やページのURL、どこに誤りがあるか、確認できる根拠を知らせてください。受験者の個人情報などは送らないでください。</p>' +
+      '<p>公式の大学入試センター窓口ではありません。返信や修正の所要日数は保証できません。</p>';
+  } else if (page.path === '/terms') {
+    content = '<h2>資料の利用と免責事項</h2><p>共通テスト過去問総集は非公式の個人運営サイトです。問題・解答・音声などの権利は各権利者に帰属します。掲載によって第三者による自由な再配布・改変が許可されたことにはなりません。</p>' +
+      '<h2>統計と解説の限界</h2><p>得点率は平均点を満点で割った値です。平均点の増減だけから問題の難しさや個人の順位は判定できません。制度、選択方式、採点基準、受験者の構成が異なるデータを無条件に合算していません。数値未確認の欄を推定値で埋めることはしません。</p>' +
+      '<h2>資料の不備と外部サービス</h2><p>各試験の収録状況・閲覧可否は異なります。リンク先や外部サービスの仕様が変わった場合は閲覧できないことがあります。入試の最新の実施要項や制度は必ず公式発表を確認してください。</p>' +
+      '<h2>誤り・権利関係の連絡</h2><p>データの訂正や掲載上の連絡は<a href="/contact">お問い合わせページ</a>へお願いします。個人情報の取り扱いは<a href="/privacy">プライバシーポリシー</a>をご参照ください。</p>';
   } else if (page.path === '/privacy') {
     content = '<h2>広告とCookieについて</h2><p>Google AdSenseの利用を申請しています。広告が配信される場合はCookie等によって広告・ブラウザに関するデータが利用される可能性があります。Googleのデータ利用については https://policies.google.com/technologies/partner-sites を参照してください。</p>';
   } else if (page.path === '/coverage') {
@@ -453,8 +463,9 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
         if (ownRated && rated.length >= 5) {
           const sortedRates = [...rated].sort((a,b)=>a.average/a.max-b.average/b.max);
           const currentRate = ownRated.average/ownRated.max*100;
-          const middle = sortedRates[Math.floor((sortedRates.length-1)/2)];
-          const median = middle.average/middle.max*100;
+          const n = sortedRates.length;
+          const lower = sortedRates[Math.floor((n-1)/2)], upper = sortedRates[Math.floor(n/2)];
+          const median = ((lower.average/lower.max) + (upper.average/upper.max))*50;
           const rank = 1 + rated.filter(x=>x.average/x.max*100 > currentRate).length;
           const high = sortedRates[sortedRates.length-1], low = sortedRates[0];
           const delta = currentRate-median;
@@ -494,7 +505,8 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
         if (comparable.length >= 4 && d?.averageScore != null && max > 0) {
           const currentRate = d.averageScore/max*100;
           const sorted = [...comparable].sort((a,b)=>a.rate-b.rate);
-          const median = sorted[Math.floor((sorted.length-1)/2)].rate;
+          const n = sorted.length;
+          const median = (sorted[Math.floor((n-1)/2)].rate + sorted[Math.floor(n/2)].rate)/2;
           const rank = 1 + comparable.filter(x=>x.rate>currentRate).length;
           const delta = currentRate-median;
           content += '<h3>同じ科目の年度内比較</h3><p>同じ満点・科目名のうち集計可能な' +
@@ -783,6 +795,8 @@ function buildPages(records, questionResearch, priorResearch) {
     ['/guide', '過去問資料の使い方｜共通テスト過去問総集', '本試験・追試験と試験制度の変遷、資料を探す方法を説明します。'],
     ['/about', '独自比較・分析と資料の収録方針｜共通テスト過去問総集', '大問別得点率・問題評価・得点分布の比較方法と、収録資料の出典・運営情報を説明します。'],
     ['/privacy', 'プライバシーポリシー｜共通テスト過去問総集', '広告とCookie等の利用について説明します。'],
+    ['/contact', 'お問い合わせ・資料の訂正依頼｜共通テスト過去問総集', '資料の誤り、不具合、権利に関する連絡先と送り方を説明します。'],
+    ['/terms', '資料の利用案内・免責事項｜共通テスト過去問総集', '掲載資料の利用上の注意、統計の限界と第三者の権利について説明します。'],
     ['/statistics', '科目別平均点の年度推移｜共通テスト過去問総集', '本試験の科目別平均点と満点、平均得点率を比較します。'],
     ['/coverage', '収録状況・資料の確認状況｜共通テスト過去問総集', '登録資料数・平均点と出典の記載状況を年度ごとに照合します。'],
     ['/sources', '収録資料の出典一覧・来歴｜共通テスト過去問総集', '問題・解答・音源の記載上の出典を集計しています。'],
