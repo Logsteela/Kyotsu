@@ -11,6 +11,10 @@ export function PrivacyPage() {
           <p className="mb-5">当サイトはGoogle AdSenseの利用を申請しています。広告が配信される場合、Googleおよび広告パートナーはCookie等を利用して、アクセス情報や関心に応じた広告を表示する場合があります。Googleによる情報の利用については、<a className="underline text-[var(--color-brand-green)]" href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener noreferrer">Googleのパートナーサイトにおけるデータ利用</a>をご参照ください。広告のパーソナライズはGoogleの広告設定等で管理できます。</p>
           <h2 className="text-xl font-semibold mb-2">外部サイト・資料の閲覧</h2>
           <p className="mb-5">PDFや音声は外部のファイル配信基盤を経由して提供される場合があります。外部サービスではそれぞれの規約・プライバシーポリシーが適用されます。</p>
+          <h2 className="text-xl font-semibold mb-2">ファイル配信・アクセス情報</h2>
+          <p className="mb-5">当サイトのウェブページはCloudflare Pagesを、PDF等の配信にはCloudflare R2を利用しています。これらの事業者はサービスの提供・安全性維持のため、接続先IPアドレスやアクセス時刻などの技術的情報を処理する場合があります。取り扱いの詳細は各事業者のポリシーをご確認ください。</p>
+          <h2 className="text-xl font-semibold mb-2">Cookieと広告設定</h2>
+          <p className="mb-5">Cookieはブラウザの設定から管理・削除できます。広告のパーソナライズについては<a className="underline text-[var(--color-brand-green)]" href="https://myadcenter.google.com/" target="_blank" rel="noopener noreferrer">Google マイアド センター</a>も参照できます。広告が表示される画面と、問題・解答資料の閲覧を主目的とする画面は分けて運用します。</p>
           <h2 className="text-xl font-semibold mb-2">お問い合わせ</h2>
           <p className="mb-5">プライバシーに関するお問い合わせは、サイト運営者のDiscordアカウント <strong>loading_0318</strong> へお願いします。サイト右下の「ヘルプ」にも同じ連絡先を掲載しています。</p>
           <p className="text-sm text-gray-600">制定：2026年10月31日</p>

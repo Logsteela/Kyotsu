@@ -104,7 +104,7 @@ export function StructuredData({
     name: SITE_NAME,
     alternateName: ['共通テスト過去問', '共通テスト過去問総集'],
     description:
-      '大学入学共通テスト、旧センター試験、共通一次試験の問題・解答を年度別・教科別に探せる過去問アーカイブです。',
+      '共通テスト本試験の大問別得点率・問題評価・年度比較を独自に整理し、センター試験・共通一次の問題・解答や歴代統計も検索できる資料分析サイトです。',
     url: `${BASE_URL}/`,
     inLanguage: 'ja-JP',
     publisher: organizationEntity,

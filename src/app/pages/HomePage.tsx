@@ -128,12 +128,17 @@ export function HomePage() {
               <div>
                 <h4 className="font-semibold text-gray-900 mb-2">目的</h4>
                 <p className="leading-relaxed">
-                  大学入学共通テストの過去問は、過去三年分は大学入試センターから発表されますが、それ以前は非公開となります。また、予備校が発表する過去問は、速報を基盤としていることから、追試が欠落していることが多いです。<br/>このように、非常に高い公的性質を持つテストにもかかわらず、その過去の状況が非常につかみづらく、また演習を重ねたい人にとって非常に悪い環境となっています。<br/>そこで、これを改善すべく、直近の物から順に共通テスト・センター試験・共通一次試験の問題を収集することで、様々な用途に役立てることができると考えています。<br/>収録状況は資料ごとに異なります。欠損や出典が判明している場合は個別の試験情報に記録しています。<br/>他にも、独自の分析情報なども多数掲載されています。
+                  本サイトは、共通テストの得点率や問題評価を科目・大問・年度ごとに比較できるようにすることを目的としています。
+                  2025・2026年度の本試験について、公表された設問別成績と問題評価を整理し、
+                  大問ごとの得点差や、前年と比べて変化した部分を具体的な数値とともに掲載しています。<br/>
+                  また、古いセンター試験・共通第1次学力試験の記録や問題・解答資料も、科目別・年度別に検索できるようにまとめています。
+                  本試験と追試験を区別し、確認できない得点情報や正答率は推測で補っていません。
+                  <Link to="/sources#research-methods" className="underline text-[var(--color-brand-green)]">数値の集計方法と出典</Link>を公開しています。
                 </p>
               </div>
               <div>
                 <h4 className="font-semibold text-gray-900 mb-2">注意事項</h4>
-                <p className="leading-relaxed">・公式サイトではありません。問題や解答に関する問い合わせには回答できません。<br/>・掲載やシステムそのものに誤りがあると思われる場合は、右下のヘルプからメールアドレスを確認して連絡してください。<br/>・問題の解答に必要なもの以外は配布を行いません。また、解答などに必要と思われるものであっても、以下に示されたものは全て配布を行いません。今後の配布予定もありません。<br/>
+                <p className="leading-relaxed">・公式サイトではありません。問題や解答に関する問い合わせには回答できません。<br/>・掲載やシステムそのものに誤りがあると思われる場合は、サイト右下のヘルプにある連絡方法をご利用ください。<br/>・問題の解答に必要なもの以外は配布を行いません。また、解答などに必要と思われるものであっても、以下に示されたものは全て配布を行いません。今後の配布予定もありません。<br/>
 ①解答用紙<br/>
 ②問題冊子の表紙<br/>
 ③音声調整用音声<br/>
@@ -158,6 +163,16 @@ export function HomePage() {
               更新履歴
             </h3>
             <div className="space-y-4">
+              <div className="border-l-4 border-[var(--color-brand-green)] pl-4 py-2">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
+                  <span className="text-sm font-semibold text-gray-900">2026年11月8日</span>
+                  <span className="text-sm text-gray-600">統計・出題分析と資料閲覧機能を拡充</span>
+                </div>
+                <p className="text-gray-700 text-sm leading-relaxed">
+                  2025・2026年度共通テスト本試験の大問別成績と問題評価、前年との比較、平均点・得点分布の分析ページを追加。
+                  試験の統計を比較する機能、出典・集計方法の一覧、資料の登録状況確認を整備しました。
+                </p>
+              </div>
               <div className="border-l-4 border-gray-300 pl-4 py-2">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
                   <span className="text-sm font-semibold text-gray-900">2026年5月31日</span>
