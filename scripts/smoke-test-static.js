@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const dist = join(root, 'dist');
 const cases = [
-  { path: 'index.html', required: ['共通テストの大問別得点率・年度比較', '本試験の独自比較・分析', '23.79', '31.67', '/common-test-2026-analysis', '/common-test-2025-analysis'] },
+  { path: 'index.html', required: ['共通テストの大問別得点率・年度比較', '大問別得点率・正答率', '23.79', '31.67', '/common-test-2026-analysis', '/common-test-2025-analysis'] },
   { path: 'sources/index.html', required: ['設問別分析', 'www.dnc.ac.jp', '問題・解答・音源の出典'] },
   { path: 'contact/index.html', required: ['loading_0318','github.com/Logsteela/Kyotsu/issues/new','年度'] },
   { path: 'terms/index.html', required: ['免責事項','得点率','お問い合わせ'] },
@@ -17,7 +17,7 @@ const cases = [
   { path: 'test/2025_数学IA_本試験問題.pdf/index.html', required: ['2025年度本試験・大問別', '62.06', '58.54'] },
   { path: 'test/2026_数学IA_本試験問題.pdf/index.html', required: ['2025年度との大問別得点率比較', '20.29', '21.65'] },
   { path: 'test/2026_数学IIBC_本試験問題.pdf/index.html', required: ['116点', '選択', '第5問', '36.95'] },
-  { path: 'test/2025_数学IIBC_本試験問題.pdf/index.html', required: ['2025年度本試験・大問別', '36.95', '選択大問'] },
+  { path: 'test/2025_数学IIBC_本試験問題.pdf/index.html', required: ['2025年度本試験・大問別', '36.95', '選択問題'] },
   { path: 'test/2025_物理_本試験問題.pdf/index.html', required: ['2025年度本試験・大問別', '52.59'] },
   { path: 'test/2025_生物_本試験問題.pdf/index.html', required: ['2025年度本試験・大問別', '34.53', '配点'] },
   { path: 'test/2026_物理_本試験問題.pdf/index.html', required: ['2025年度との大問別得点率比較', '22.60'] },

@@ -260,7 +260,7 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
     const eng = questionResearch['英語（リーディング）'].parts;
     const p2 = phys.find(x => x.number === 2), p4 = phys.find(x => x.number === 4);
     const e4 = eng.find(x => x.number === 4), e7 = eng.find(x => x.number === 7);
-    content = '<h2>本試験の独自比較・分析</h2>' +
+    content = '<h2>大問別得点率・正答率</h2>' +
       '<p>2025・2026年度の共通テスト本試験について、大学入試センターの設問別得点率・正答率、得点分布、問題評価を照合し、当サイトで大問別に集計・比較しています。</p>' +
       '<h3>2026年度物理：大問間の得点率差</h3><p>第2問の得点率は' + p2.scoreRate.toFixed(2) + '%、第4問は' + p4.scoreRate.toFixed(2) +
       '%。同じ25点配点の大問で' + (p2.scoreRate-p4.scoreRate).toFixed(2) + 'ポイントの差があります。</p>' +
@@ -445,7 +445,7 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
         const own=unique.find(x=>x.pdf===pdf);
         const neighbors=[...previous,...(own?[own]:[]),...subsequent];
         if (neighbors.length>=2) {
-          content += '<h2>平均点の年度比較</h2>' +
+          content += '<h2>平均点の年度比較（' + escapeHtml(regime(archiveYear)) + '）</h2>' +
             '<table><thead><tr><th>年度</th><th>平均点</th><th>平均得点率</th><th>受験者数</th></tr></thead><tbody>' +
             neighbors.map(x => '<tr><td><a href="/test/' + encodeURIComponent(x.pdf) + '">' + x.year +
               '年度</a></td><td>' + (x.average ?? '—') + '</td><td>' +
@@ -870,13 +870,12 @@ function buildPages(records, questionResearch, priorResearch) {
     const hasReview = analyzedMain && !hasRates;
     const seoTopic = hasRates ? '大問別得点率・出題分析と問題PDF'
       : hasReview ? '出題内容・問題評価と問題PDF' : '問題・解答PDF';
-    const seoExplanation = hasRates
-      ? '大問別の得点率を整理し、出題内容や年度間の差を比較。'
-      : hasReview ? '問題評価報告書から出題内容と特徴を整理。' : '';
+    const seoExplanation = hasRates ? '大問別得点率・正答率、出題・問題評価、年度比較。'
+      : hasReview ? '大問別の出題・問題評価。' : '';
     add({
       path: testPath,
       title: `${formattedYear} ${subject} ${testType}｜${seoTopic}｜共通テスト過去問総集`,
-      description: `${formattedYear} ${subject} ${testType}。${seoExplanation}問題PDF、解答PDF、平均点、受験者数を確認。`,
+      description: `${formattedYear} ${subject} ${testType}。${seoExplanation}問題PDF・解答PDF・平均点・受験者数。`,
       keywords: `共通テスト,過去問,${formattedYear},${era},${subject},${testType},問題,解答,PDF,平均点,受験者数`,
       type: 'article',
       breadcrumbs: [
