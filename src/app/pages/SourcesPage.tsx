@@ -5,6 +5,8 @@ import { SortHeader } from '@/app/components/SortHeader';
 import { useSortedRows } from '@/app/utils/useSortedRows';
 import { testDatabase } from '@/app/data/testDatabase';
 import { getTestDetails } from '@/app/data/testDetailsDatabase';
+import { COMMON_TEST_2026_SCHOOL_DIFFICULTY, COMMON_TEST_2026_ZKAI_SECTIONS } from '@/app/data/commonTest2026SchoolReviews';
+import { COMMON_TEST_2025_ZKAI_SECTIONS } from '@/app/data/commonTest2025SchoolReviews';
 import { isPublishedTestPdf } from '@/app/utils/publicTestDetail';
 
 type SourceItem = { label: string; count: number; example: string[] };
@@ -86,6 +88,30 @@ export function SourcesPage() {
               <li><a className="underline text-[var(--color-brand-green)]" href="https://www.dnc.ac.jp/kyotsu/suii/R3_.html" target="_blank" rel="noopener noreferrer">共通テスト本試験の受験者数・平均点の推移</a></li>
               <li><a className="underline text-[var(--color-brand-green)]" href="https://www.dnc.ac.jp/kyotsu/hyouka/" target="_blank" rel="noopener noreferrer">過年度の問題評価報告書・試験情報データ一覧</a></li>
             </ul>
+            <h3 className="font-semibold mb-2">2026年度予備校の難易度判定・大問別評価</h3>
+            <ul className="list-disc pl-5 text-sm space-y-2 mb-3">
+              <li><a className="underline text-[var(--color-brand-green)]" href="https://www.toshin.com/news_newtest/gaiyou/" target="_blank" rel="noopener noreferrer">東進：2026年度共通テスト概況・科目別難易度変化</a></li>
+              <li><a className="underline text-[var(--color-brand-green)]" href="https://kaisoku.kawai-juku.ac.jp/nyushi/kyotsutest/26/" target="_blank" rel="noopener noreferrer">河合塾：2026年度共通テスト分析速報</a></li>
+              <li><a className="underline text-[var(--color-brand-green)]" href="https://www.zkai.co.jp/kyotsu-test/bunseki/" target="_blank" rel="noopener noreferrer">Z会：2026年度共通テスト大問別分析</a></li>
+            </ul>
+            <details className="text-sm mb-5">
+              <summary className="cursor-pointer font-semibold">予備校別の科目ごとの出典</summary>
+              <div className="grid sm:grid-cols-2 gap-4 mt-3">
+                <div><h4 className="font-semibold mb-2">河合塾</h4><ul className="list-disc ml-5 space-y-1">
+                  {Object.entries(COMMON_TEST_2026_SCHOOL_DIFFICULTY).flatMap(([subject, reviews]) =>
+                    reviews.filter(x=>x.school==='河合塾').map(x=><li key={subject}>
+                      <a className="underline text-[var(--color-brand-green)]" href={x.source} target="_blank" rel="noopener noreferrer">{subject}</a>
+                    </li>)
+                  )}
+                </ul></div>
+                <div><h4 className="font-semibold mb-2">Z会（2025・2026年度）</h4><ul className="list-disc ml-5 space-y-1">
+                  {([['2026', COMMON_TEST_2026_ZKAI_SECTIONS], ['2025', COMMON_TEST_2025_ZKAI_SECTIONS]] as const).flatMap(([year, data]) =>
+                    Object.entries(data).map(([subject, entry])=><li key={year + subject}>
+                      <a className="underline text-[var(--color-brand-green)]" href={entry.source} target="_blank" rel="noopener noreferrer">{year}・{subject}</a>
+                    </li>))}
+                </ul></div>
+              </div>
+            </details>
             <h3 className="font-semibold mb-2">数値照合・分布分析の補助資料</h3>
             <ul className="list-disc pl-5 text-sm space-y-2 mb-4">
               <li><a className="underline text-[var(--color-brand-green)]" href="https://eic.obunsha.co.jp/exam_info/2026/2026%E5%B9%B4-%E5%85%B1%E9%80%9A%E3%83%86%E3%82%B9%E3%83%88-%E5%B0%8F%E5%95%8F%E5%88%A5%E6%AD%A3%E7%AD%94%E7%8E%87/" target="_blank" rel="noopener noreferrer">旺文社教育情報センター・2026年の小問別正答率整理</a>：原資料の個別設問の数値の照合</li>

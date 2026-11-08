@@ -21,6 +21,30 @@ const ARCHIVES_PATH = join(__dirname, '../src/app/components/archivesTables.json
 const R2_ORIGIN = 'https://pub-43d2006e555442dca4a107e7bc0d01bb.r2.dev';
 
 
+const SCHOOL_REVIEWS_PATH = join(__dirname, '../src/app/data/commonTest2026SchoolReviews.ts');
+const schoolReviewsText = readFileSync(SCHOOL_REVIEWS_PATH, 'utf8');
+function schoolJson(marker, following) {
+  const pos = schoolReviewsText.indexOf(marker);
+  if (pos < 0) throw new Error('Missing reviewed school statistics: ' + marker);
+  const start = pos + marker.length;
+  const end = following ? schoolReviewsText.indexOf(following, start) : schoolReviewsText.length;
+  if (end < 0) throw new Error('Missing delimiter for school statistics');
+  return JSON.parse(schoolReviewsText.slice(start, end).trim().replace(/;$/, ''));
+}
+const schoolDifficulty = schoolJson(
+  'COMMON_TEST_2026_SCHOOL_DIFFICULTY: Record<string, RelativeSchoolAssessment[]> = ',
+  '\nexport const COMMON_TEST_2026_ZKAI_SECTIONS',
+);
+const schoolSections = schoolJson(
+  'COMMON_TEST_2026_ZKAI_SECTIONS: Record<string, SectionSchoolAssessment> = ', null,
+);
+
+const school2025Text = readFileSync(join(__dirname, '../src/app/data/commonTest2025SchoolReviews.ts'), 'utf8');
+const school2025Marker = 'COMMON_TEST_2025_ZKAI_SECTIONS: Record<string, SectionSchoolAssessment> = ';
+const school2025Pos = school2025Text.indexOf(school2025Marker);
+if (school2025Pos < 0) throw new Error('Missing 2025 Z-kai data');
+const school2025Sections = JSON.parse(school2025Text.slice(school2025Pos + school2025Marker.length).trim().replace(/;$/, ''));
+
 const DEFAULT_DESCRIPTION =
   '2025・2026年度共通テスト本試験の大問別得点率、設問別正答率、得点分布、問題評価を独自に整理・比較。過去問PDFと歴代平均点も年度・科目別に検索できます。';
 
@@ -317,6 +341,24 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
       '</ul><p>得点率は平均得点÷配点、正答率は完全に正答した割合の集計。分析文は元資料を参照して当サイトでまとめたもので、年度間の得点分布差を試験難易度の差と断定しません。</p>' +
       '<h2>問題・解答・音源の出典</h2><p>サイトの試験詳細にある出典の記載を集計しました。記載がない資料について提供元を推定していません。</p><table><thead><tr><th>出典記録</th><th>登録件数</th></tr></thead><tbody>' +
       sorted.map(([source, count]) => '<tr><td>' + escapeHtml(source) + '</td><td>' + count + '</td></tr>').join('') + '</tbody></table>';
+
+    content += '<h2>2026年度予備校の難易度判定・大問別評価</h2>' +
+      '<ul><li><a href="https://www.toshin.com/news_newtest/gaiyou/">東進・科目別難易度</a></li>' +
+      '<li><a href="https://kaisoku.kawai-juku.ac.jp/nyushi/kyotsutest/26/">河合塾・2026年度分析速報</a></li>' +
+      '<li><a href="https://www.zkai.co.jp/kyotsu-test/bunseki/">Z会・2026年度大問別分析</a></li></ul>' +
+      '<h3>河合塾・科目別資料</h3><ul>' +
+      Object.entries(schoolDifficulty).flatMap(([subject, rows]) => rows
+        .filter(r => r.school === '河合塾')
+        .map(r => '<li><a href="' + escapeHtml(r.source) + '">' +
+          escapeHtml(subject) + '</a></li>')).join('') + '</ul>' +
+      '<h3>Z会・2026年度大問別資料</h3><ul>' +
+      Object.entries(schoolSections).map(([subject, r]) =>
+        '<li><a href="' + escapeHtml(r.source) + '">' + escapeHtml(subject) +
+        '</a></li>').join('') + '</ul>' +
+      '<h3>Z会・2025年度大問別資料</h3><ul>' +
+      Object.entries(school2025Sections).map(([subject, r]) =>
+        '<li><a href="' + escapeHtml(r.source) + '">' + escapeHtml(subject) +
+        '</a></li>').join('') + '</ul>';
   } else if (page.path === '/archives') {
     content = '<h2>入試の記録比較</h2><p>収録された統計をもとに、平均得点率や各種得点記録の順位を整理した一覧です。年度や受験者集団による違いを考慮し、順位だけで難易度を判断しないでください。</p>' +
       archives.map(t => '<section><h3>' + escapeHtml(t.title) + '</h3><ol>' +
@@ -512,6 +554,29 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
             comparable.map(x => '<tr><td><a href="/test/' + encodeURIComponent(x.questionPdf) + '">' + x.year +
               '</a></td><td>' + x.info.averageScore + '</td><td>' + x.rate.toFixed(2) + '%</td><td>' +
               (x.info.examinees ?? '—') + '</td></tr>').join('') + '</tbody></table>';
+        }
+        if ((examYear === 2025 || examYear === 2026) && r.examType === 'main') {
+          const schoolRatings = examYear === 2026 ? schoolDifficulty[r.subject] || [] : [];
+          const zk = examYear === 2026 ? schoolSections[r.subject] : school2025Sections[r.subject];
+          const observed = examYear === 2026 ? questionResearch[r.subject]?.parts || []
+            : priorResearch[r.subject]?.groups.map(p=>({
+              number:p.number, topic:p.topic, scoreRate:p.previousRate,
+            })) || [];
+          if (schoolRatings.length) {
+            content += '<h2>予備校の難易度判定（前年との比較）</h2>' +
+              '<table><thead><tr><th>予備校</th><th>判定</th></tr></thead><tbody>' +
+              schoolRatings.map(x => '<tr><td>' + escapeHtml(x.school) +
+                '</td><td>' + escapeHtml(x.rating) + '</td></tr>').join('') + '</tbody></table>';
+          }
+          if (zk && observed.length === zk.ratings.length) {
+            content += '<h3>' + examYear + '年度・Z会の大問別評価と実測得点率</h3>' +
+              '<table><thead><tr><th>大問</th><th>分野</th><th>Z会評価</th><th>実測得点率</th></tr></thead><tbody>' +
+              observed.map((p,i) => '<tr><td>第' + p.number + '問</td><td>' +
+                escapeHtml(p.topic) + '</td><td>' + escapeHtml(zk.ratings[i]) +
+                '</td><td>' + p.scoreRate.toFixed(2) + '%</td></tr>').join('') +
+              '</tbody></table><ul>' +
+              zk.notes.map(x => '<li>' + escapeHtml(x) + '</li>').join('') + '</ul>';
+          }
         }
         const socialReview = examYear === 2025 ? social2025[r.subject] : null;
         if (socialReview) {

@@ -6,12 +6,16 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const dist = join(root, 'dist');
 const cases = [
   { path: 'index.html', required: ['共通テストの大問別得点率・年度比較', '大問別得点率・正答率', '23.79', '31.67', '/common-test-2026-analysis', '/common-test-2025-analysis'] },
-  { path: 'sources/index.html', required: ['設問別分析', 'www.dnc.ac.jp', '問題・解答・音源の出典'] },
+  { path: 'sources/index.html', required: ['設問別分析', 'www.dnc.ac.jp', '問題・解答・音源の出典','東進','河合塾','Z会','kaisoku.kawai-juku.ac.jp'] },
   { path: 'contact/index.html', required: ['loading_0318','github.com/Logsteela/Kyotsu/issues/new','年度'] },
   { path: 'terms/index.html', required: ['免責事項','得点率','お問い合わせ'] },
   { path: 'common-test-2026-analysis/index.html', required: ['23科目', '大問', '国語', '地学', '数学Ⅰ'] },
   { path: 'test/2026_国語_本試験問題_訂正付.pdf/index.html', required: ['国語', '45.68', '160点以上', '2025', '大問別得点率・出題分析と問題PDF'] },
+  { path: 'test/2026_物理_本試験問題.pdf/index.html', required: ['Z会の大問別評価と実測得点率','東進','河合塾','標準','やや難','第2問'] },
+  { path: 'test/2026_情報I_本試験問題.pdf/index.html', required: ['予備校の難易度判定（前年との比較）','Z会の大問別評価と実測得点率','難化','第4問'] },
   { path: 'test/2025_国語_本試験問題.pdf/index.html', required: ['2025年度本試験・大問別', '66.74', '57.42'] },
+  { path: 'test/2025_物理_本試験問題.pdf/index.html', required: ['2025年度・Z会の大問別評価と実測得点率','標準／やや難（A／B）','第3問'] },
+  { path: 'test/2025_情報I_本試験問題.pdf/index.html', required: ['2025年度・Z会の大問別評価と実測得点率','やや易','第4問'] },
   { path: 'test/2025_数学IA_本試験問題.pdf/index.html', required: ['2025年度本試験・大問別', '62.06', '58.54'] },
   { path: 'test/2026_数学IA_本試験問題.pdf/index.html', required: ['2025年度との大問別得点率比較', '20.29', '21.65'] },
   { path: 'test/2026_数学IIBC_本試験問題.pdf/index.html', required: ['116点', '選択', '第5問', '36.95'] },

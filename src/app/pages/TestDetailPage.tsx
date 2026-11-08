@@ -4,6 +4,7 @@ import { SEOMeta } from '@/app/components/SEOMeta';
 import { StructuredData } from '@/app/components/StructuredData';
 import { Breadcrumbs } from '@/app/components/Breadcrumbs';
 import { CommonTestMainInsights } from '@/app/components/CommonTestMainInsights';
+import { CommonTestSchoolReviews } from '@/app/components/CommonTestSchoolReviews';
 import { COMMON_TEST_2026_RESEARCH } from '@/app/data/commonTest2026Research';
 import { COMMON_TEST_2026_FOREIGN_LANGUAGES } from '@/app/data/commonTest2026ForeignLanguages';
 import { COMMON_TEST_GROUP_COMPARISONS } from '@/app/data/commonTest2025GroupComparison';
@@ -555,6 +556,8 @@ export function TestDetailPage() {
             examType={testRecord.testType}
             questionPdf={testRecord.questionPdf}
           />
+
+          <CommonTestSchoolReviews year={testRecord.year} subject={testRecord.subject} testType={testRecord.testType}/>
 
           <HistoricalExamContext
             year={testRecord.year}
