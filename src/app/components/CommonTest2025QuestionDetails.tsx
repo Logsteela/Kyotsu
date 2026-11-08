@@ -3,7 +3,8 @@ import { COMMON_TEST_GROUP_COMPARISONS } from '@/app/data/commonTest2025GroupCom
 import { getEnhancedDatabase } from '@/app/data/testDatabase';
 import { SortHeader } from '@/app/components/SortHeader';
 import { useSortedRows } from '@/app/utils/useSortedRows';
-import { PREP_SCHOOL_EVALUATIONS } from '@/app/data/prepSchoolEvaluations';
+import PREP_SCHOOL_DATA from '@/app/data/prepSchoolEvaluations.json';
+const PREP_SCHOOL_EVALUATIONS: Record<string,Record<string,{zkai?:string[]}>> = PREP_SCHOOL_DATA;
 
 export function CommonTest2025QuestionDetails({ year, subject }: {year: number|string; subject:string}) {
   const data = year === 2025 ? COMMON_TEST_GROUP_COMPARISONS[subject] : null;
