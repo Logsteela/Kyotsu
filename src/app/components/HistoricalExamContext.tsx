@@ -61,7 +61,7 @@ export function HistoricalExamContext({
   const longTerm = currentInHistory && historyRates.length >= 5 ? {
     total: historyRates.length,
     rank: 1 + historyRates.filter(x => x.rate > currentInHistory.rate).length,
-    median: [...historyRates].sort((a,b) => a.rate-b.rate)[Math.floor((historyRates.length-1)/2)].rate,
+    median: (() => { const ordered = [...historyRates].map(x=>x.rate).sort((a,b)=>a-b); const n=ordered.length; return (ordered[Math.floor((n-1)/2)]+ordered[Math.floor(n/2)])/2; })(),
     highest: historyRates.reduce((a,b) => a.rate > b.rate ? a : b),
     lowest: historyRates.reduce((a,b) => a.rate < b.rate ? a : b),
     value: currentInHistory.rate,

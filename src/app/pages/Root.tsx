@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router';
 import { HelpCircle } from 'lucide-react';
 import { Sidebar } from '@/app/components/Sidebar';
@@ -6,6 +6,7 @@ import { MobileSidebar } from '@/app/components/MobileSidebar';
 import { HelpPage } from '@/app/components/HelpPage';
 import { Button } from '@/app/components/ui/button';
 import { getYearList, getSubjectList } from '@/app/data/testDatabase';
+import { isAdEligiblePath } from '@/app/utils/adEligibility';
 
 export function Root() {
   const subjects = getSubjectList();
@@ -14,6 +15,21 @@ export function Root() {
   const mainRef = useRef<HTMLElement>(null);
   const location = useLocation();
   const prevPathRef = useRef(location.pathname);
+  const adDocumentPathRef = useRef(location.pathname);
+
+  // An SPA transition does not unload scripts from the preceding document.
+  // Reload only on transitions involving an ad-eligible screen so that the
+  // AdSense script and the page's actual editorial content always match.
+  // Navigation wholly inside the non-monetized archive stays instant.
+  useLayoutEffect(() => {
+    const previous = adDocumentPathRef.current;
+    const next = location.pathname;
+    if (previous !== next && (isAdEligiblePath(previous) || isAdEligiblePath(next))) {
+      window.location.reload();
+      return;
+    }
+    adDocumentPathRef.current = next;
+  }, [location.pathname]);
 
   useEffect(() => {
     const currentPath = location.pathname;
@@ -74,6 +90,8 @@ export function Root() {
             <Link to="/common-test-2025-analysis" className="hover:underline text-[var(--color-brand-green)]">2025本試験分析</Link>
             <Link to="/about" className="hover:underline text-[var(--color-brand-green)]">サイト・資料について</Link>
             <Link to="/privacy" className="hover:underline text-[var(--color-brand-green)]">プライバシーポリシー</Link>
+            <Link to="/contact" className="hover:underline text-[var(--color-brand-green)]">お問い合わせ</Link>
+            <Link to="/terms" className="hover:underline text-[var(--color-brand-green)]">利用案内・免責事項</Link>
           </nav>
         </footer>
       </main>

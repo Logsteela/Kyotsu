@@ -7,6 +7,8 @@ const dist = join(root, 'dist');
 const cases = [
   { path: 'index.html', required: ['共通テストの大問別得点率・年度比較', '本試験の独自比較・分析', '23.79', '31.67', '/common-test-2026-analysis', '/common-test-2025-analysis'] },
   { path: 'sources/index.html', required: ['設問別分析', 'www.dnc.ac.jp', '問題・解答・音源の出典'] },
+  { path: 'contact/index.html', required: ['loading_0318','github.com/Logsteela/Kyotsu/issues/new','年度'] },
+  { path: 'terms/index.html', required: ['免責事項','得点率','お問い合わせ'] },
   { path: 'common-test-2026-analysis/index.html', required: ['23科目', '大問', '国語', '地学', '数学Ⅰ'] },
   { path: 'test/2026_国語_本試験問題_訂正付.pdf/index.html', required: ['国語', '45.68', '160点以上', '2025', '大問別得点率・出題分析と問題PDF'] },
   { path: 'test/2020_国語_本試験問題.pdf/index.html', required: ['同じ科目・試験制度の前後年度比較', '2019年度', 'センター試験', '問題・解答PDF'] },
@@ -111,7 +113,7 @@ const withAds = [
   'test/2020_国語_本試験問題.pdf/index.html',
 ];
 const withoutAds = [
-  'overview/index.html', 'archives/index.html', 'privacy/index.html',
+  'overview/index.html', 'archives/index.html', 'privacy/index.html', 'contact/index.html', 'terms/index.html',
   'year/2026/index.html', 'subject/kokugo/index.html',
   'test/2011_国語_追試験問題.pdf/index.html',
   'test/2026_国語_追試験問題.pdf/index.html',
@@ -128,7 +130,7 @@ for (const path of withoutAds) {
 }
 const historicalHtml = readFileSync(join(dist,'test/2020_国語_本試験問題.pdf/index.html'),'utf8');
 if (!historicalHtml.includes('同制度・同科目の長期比較') ||
-    !historicalHtml.includes('中央値') || !historicalHtml.includes('番目'))
+    !historicalHtml.includes('中央値60.22%') || !historicalHtml.includes('番目'))
   errors.push('Monetized historical exam lacks actual computed comparative statistics');
 // AdSense readiness: ownership code, ads.txt and sitemap directives must agree.
 const publicAds = readFileSync(join(root, 'public/ads.txt'), 'utf8');

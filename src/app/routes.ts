@@ -10,6 +10,8 @@ import { StatisticsPage } from '@/app/pages/StatisticsPage';
 import { GuidePage } from '@/app/pages/GuidePage';
 import { AboutPage } from '@/app/pages/AboutPage';
 import { PrivacyPage } from '@/app/pages/PrivacyPage';
+import { ContactPage } from '@/app/pages/ContactPage';
+import { TermsPage } from '@/app/pages/TermsPage';
 import { Root } from '@/app/pages/Root';
 import { HomePage } from '@/app/pages/HomePage';
 import { OverviewPage } from '@/app/pages/OverviewPage';
@@ -42,6 +44,8 @@ const routes: RouteObject[] = [
       { path: 'guide', Component: GuidePage },
       { path: 'about', Component: AboutPage },
       { path: 'privacy', Component: PrivacyPage },
+      { path: 'contact', Component: ContactPage },
+      { path: 'terms', Component: TermsPage },
 
       { path: '*', Component: NotFoundPage },
     ],
