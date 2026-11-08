@@ -53,7 +53,6 @@ export function CommonTestChangesPage() {
       <div className="flex-1 bg-gray-100 px-4 sm:px-6 py-6 lg:py-8">
         <article className="bg-white rounded-lg border border-[var(--color-table-border)] p-6 lg:p-8 max-w-6xl text-gray-800 leading-relaxed">
           <h1 className="text-2xl font-bold mb-4">共通テスト本試験・平均点の前年差</h1>
-          <p className="mb-4">共通テストが始まった2021年度以降の本試験について、前年と当年で科目名と配点が一致する記録だけを抽出しました。問題の難易度を機械的に推測するのではなく、実際に公表された平均点の変化を客観的に比較するための一覧です。</p>
           <div className="flex flex-wrap gap-4 items-end mb-6">
             <div><label htmlFor="trends-year" className="block font-semibold mb-1">年度</label>
               <select id="trends-year" className="bg-white border rounded p-2" value={year} onChange={e => setYear(Number(e.target.value))}>
@@ -91,10 +90,7 @@ export function CommonTestChangesPage() {
             </table>
           </div>
           {!selection.length && <p className="py-5 text-gray-600">この条件で比較可能な資料はありません。</p>}
-          <h2 className="text-lg font-bold mt-6 mb-2">この表の読み方</h2>
-          <p className="text-sm mb-3">「平均点差」は当年平均点−前年平均点、「得点率の差」は両年の平均得点率の差です。平均得点率は平均点÷満点で求めます。出題課程・形式・受験者層が変わる場合があるため、平均点の変化だけから難化・易化と断定できません。</p>
-          <p className="text-sm mb-3">同じ年度の同名科目に複数の本試験記録がある場合、どれを通常日程として扱うか確認できないため自動比較から除外します。満点や科目名が変わった場合も強引に統合しません。</p>
-          <p className="text-sm mb-4">2025年度は新課程に対応した科目構成となり、2026年度は大学入試センターが得点調整を実施しないと公表しています。異なる年度を比較する際は制度上の違いも確認してください。</p>
+          <p className="text-sm mt-5"><Link className="underline text-[var(--color-brand-green)]" to="/sources#research-methods">集計方法</Link></p>
           <div className="flex flex-wrap gap-4 text-sm">
             <Link to="/sources#research-methods" className="text-[var(--color-brand-green)] underline">統計データの出典と集計方法</Link>
             <Link to="/statistics" className="text-[var(--color-brand-green)] underline">科目ごとの長期推移</Link>

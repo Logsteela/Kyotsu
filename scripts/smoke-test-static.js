@@ -5,19 +5,19 @@ import { fileURLToPath } from 'node:url';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const dist = join(root, 'dist');
 const cases = [
-  { path: 'index.html', required: ['共通テストの大問別得点率・年度比較', '本試験の独自比較・分析', '23.79', '31.67', '/common-test-2026-analysis', '/common-test-2025-analysis'] },
+  { path: 'index.html', required: ['共通テストの大問別得点率・年度比較', '大問別得点率・正答率', '23.79', '31.67', '/common-test-2026-analysis', '/common-test-2025-analysis'] },
   { path: 'sources/index.html', required: ['設問別分析', 'www.dnc.ac.jp', '問題・解答・音源の出典'] },
   { path: 'contact/index.html', required: ['loading_0318','github.com/Logsteela/Kyotsu/issues/new','年度'] },
   { path: 'terms/index.html', required: ['免責事項','得点率','お問い合わせ'] },
   { path: 'common-test-2026-analysis/index.html', required: ['23科目', '大問', '国語', '地学', '数学Ⅰ'] },
   { path: 'test/2026_国語_本試験問題_訂正付.pdf/index.html', required: ['国語', '45.68', '160点以上', '2025', '大問別得点率・出題分析と問題PDF'] },
-  { path: 'test/2020_国語_本試験問題.pdf/index.html', required: ['同じ科目・試験制度の前後年度比較', '2019年度', 'センター試験', '問題・解答PDF'] },
-  { path: 'test/1985_国語_本試験問題.pdf/index.html', required: ['同じ科目・試験制度の前後年度比較', '共通第1次学力試験'] },
+  { path: 'test/2020_国語_本試験問題.pdf/index.html', required: ['平均点の年度比較', '2019年度', 'センター試験', '問題・解答PDF'] },
+  { path: 'test/1985_国語_本試験問題.pdf/index.html', required: ['平均点の年度比較', '共通第1次学力試験'] },
   { path: 'test/2025_国語_本試験問題.pdf/index.html', required: ['2025年度本試験・大問別', '66.74', '57.42'] },
   { path: 'test/2025_数学IA_本試験問題.pdf/index.html', required: ['2025年度本試験・大問別', '62.06', '58.54'] },
   { path: 'test/2026_数学IA_本試験問題.pdf/index.html', required: ['2025年度との大問別得点率比較', '20.29', '21.65'] },
   { path: 'test/2026_数学IIBC_本試験問題.pdf/index.html', required: ['116点', '選択', '第5問', '36.95'] },
-  { path: 'test/2025_数学IIBC_本試験問題.pdf/index.html', required: ['2025年度本試験・大問別', '36.95', '選択大問'] },
+  { path: 'test/2025_数学IIBC_本試験問題.pdf/index.html', required: ['2025年度本試験・大問別', '36.95', '選択問題'] },
   { path: 'test/2025_物理_本試験問題.pdf/index.html', required: ['2025年度本試験・大問別', '52.59'] },
   { path: 'test/2025_生物_本試験問題.pdf/index.html', required: ['2025年度本試験・大問別', '34.53', '配点'] },
   { path: 'test/2026_物理_本試験問題.pdf/index.html', required: ['2025年度との大問別得点率比較', '22.60'] },
@@ -30,10 +30,10 @@ const cases = [
   { path: 'test/2025_地理総合_本試験問題.pdf/index.html', required: ['2025年度・大問別の出題内容', '東三河', '食品ロス'] },
   { path: 'test/2025_歴史総合_本試験問題.pdf/index.html', required: ['2025年度・大問別の出題内容', '装いの歴史', '歴史上の境界'] },
   { path: 'test/2025_公共_本試験問題.pdf/index.html', required: ['2025年度・大問別の出題内容', '男女共同参画', '為替'] },
-  { path: 'test/2025_ドイツ語_本試験問題.pdf/index.html', required: ['2025年度の高校教員', '水と人体', '色彩象徴'] },
-  { path: 'test/2025_フランス語_本試験問題.pdf/index.html', required: ['2025年度の高校教員', 'リエゾン', '語句整序'] },
-  { path: 'test/2025_中国語_本試験問題.pdf/index.html', required: ['2025年度の高校教員', '森林', '祖父'] },
-  { path: 'test/2025_韓国語_本試験問題.pdf/index.html', required: ['2025年度の高校教員', 'ラジオ', '観光'] },
+  { path: 'test/2025_ドイツ語_本試験問題.pdf/index.html', required: ['問題評価', '水と人体', '色彩象徴'] },
+  { path: 'test/2025_フランス語_本試験問題.pdf/index.html', required: ['問題評価', 'リエゾン', '語句整序'] },
+  { path: 'test/2025_中国語_本試験問題.pdf/index.html', required: ['問題評価', '森林', '祖父'] },
+  { path: 'test/2025_韓国語_本試験問題.pdf/index.html', required: ['問題評価', 'ラジオ', '観光'] },
   { path: 'test/2025_歴史総合世界史探究_本試験問題.pdf/index.html', required: ['2025年度本試験・大問別', '76.16'] },
   { path: 'test/2025_公共政治経済_本試験問題.pdf/index.html', required: ['2025年度本試験・大問別', '70.72'] },
   { path: 'test/2026_英語R_本試験問題.pdf/index.html', required: ['2025年度との大問別得点率比較', '14.61'] },
@@ -74,7 +74,7 @@ for (const record of main2026) {
   if (!existsSync(file)) { errors.push('Missing 2026 main-exam HTML: ' + subject); continue; }
   examined2026++;
   const html = readFileSync(file, 'utf8');
-  const expected = qualitative.has(subject) ? '本試験の出題内容と問題評価' : '本試験の大問別得点率・正答率';
+  const expected = qualitative.has(subject) ? '本試験の出題・問題評価' : '本試験の大問別得点率・正答率';
   if (!html.includes(expected)) errors.push(subject + ': generated HTML lacks verified analysis (' + expected + ')');
   if (!html.includes('試験情報')) errors.push(subject + ': generated HTML lacks exam metadata');
 }
@@ -129,9 +129,23 @@ for (const path of withoutAds) {
   if (readFileSync(file, 'utf8').includes('adsbygoogle.js')) errors.push('AdSense code found on unreviewed archive/navigation page: '+path);
 }
 const historicalHtml = readFileSync(join(dist,'test/2020_国語_本試験問題.pdf/index.html'),'utf8');
-if (!historicalHtml.includes('同制度・同科目の長期比較') ||
-    !historicalHtml.includes('中央値60.22%') || !historicalHtml.includes('番目'))
+if (!historicalHtml.includes('過去') ||
+    !historicalHtml.includes('中央値60.22%') || !historicalHtml.includes('位'))
   errors.push('Monetized historical exam lacks actual computed comparative statistics');
+// Reject generic filler previously duplicated across thousands of exam pages.
+for (const route of ['index.html','common-test-2026-analysis/index.html',
+    'test/2026_国語_本試験問題_訂正付.pdf/index.html',
+    'test/2020_国語_本試験問題.pdf/index.html']) {
+  const html = readFileSync(join(dist, route), 'utf8');
+  for (const phrase of [
+    '数値はサイトの試験情報データベースに基づきます',
+    '（問題の難しさを数値化した値ではありません）',
+    '実際の受験者の成績から、大問の得点率と正答率を比較しました',
+    '得点率だけで難易度を判断するものではありません',
+  ]) {
+    if (html.includes(phrase)) errors.push(route + ': redundant explanation remains: ' + phrase);
+  }
+}
 // AdSense readiness: ownership code, ads.txt and sitemap directives must agree.
 const publicAds = readFileSync(join(root, 'public/ads.txt'), 'utf8');
 const siteIndex = readFileSync(join(root, 'index.html'), 'utf8');

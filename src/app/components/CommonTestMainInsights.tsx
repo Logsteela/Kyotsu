@@ -50,11 +50,7 @@ export function CommonTestMainInsights({ year, subject, examType, questionPdf }:
     ? 1 + comparisons.filter(p => p.rate > comparisons[currentIndex].rate).length : null;
   return (
     <section aria-labelledby="exam-research-title" className="mt-6 border border-[var(--color-table-border)] bg-white rounded-lg p-5 sm:p-6 text-gray-800">
-      <h2 id="exam-research-title" className="text-lg font-bold mb-3">この本試験の統計と過去問比較</h2>
-      <p className="text-sm leading-relaxed mb-4">
-        {year}年度の{subject}を、同名の本試験がある年度と照合しています。満点が異なる場合は同じ表に混ぜず、
-        平均点÷満点から平均得点率を計算しています。数値はサイトの試験情報データベースに基づきます。
-      </p>
+      <h2 id="exam-research-title" className="text-lg font-bold mb-3">平均点・年度比較</h2>
       {currentRate !== null && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
           <div className="bg-gray-50 rounded p-3 border">
@@ -63,20 +59,19 @@ export function CommonTestMainInsights({ year, subject, examType, questionPdf }:
             <div className="text-xs text-gray-600">{current?.averageScore}点／{max}点</div>
           </div>
           <div className="bg-gray-50 rounded p-3 border">
-            <div className="text-xs text-gray-600">前年との差（同名・同満点）</div>
+            <div className="text-xs text-gray-600">前年との差</div>
             <div className="text-xl font-bold tabular-nums">{difference === null ? '比較不可' : `${difference > 0 ? '+' : ''}${difference.toFixed(2)}pt`}</div>
             <div className="text-xs text-gray-600">{prior ? `${prior.year}年度を基準` : '比較可能な前年データなし'}</div>
           </div>
           <div className="bg-gray-50 rounded p-3 border">
-            <div className="text-xs text-gray-600">収録比較年度中の平均得点率順位</div>
+            <div className="text-xs text-gray-600">平均得点率順位</div>
             <div className="text-xl font-bold tabular-nums">{order === null ? '—' : `${order}位／${comparisons.length}件`}</div>
-            <div className="text-xs text-gray-600">難易度順位ではありません</div>
           </div>
         </div>
       )}
       {comparisons.length >= 2 && (
         <>
-          <h3 className="text-base font-semibold mb-2">同じ科目名・満点の年度別記録</h3>
+          <h3 className="text-base font-semibold mb-2">年度別の平均点</h3>
           <div className="overflow-x-auto mb-4">
             <table className="w-full text-sm text-left">
               <thead><tr className="bg-gray-50 border-b">
@@ -102,10 +97,6 @@ export function CommonTestMainInsights({ year, subject, examType, questionPdf }:
       <CommonTest2025QuestionDetails year={year} subject={subject} />
       <CommonTest2025SocialReview year={year} subject={subject} />
       <CommonTestForeignLanguageReview year={year} subject={subject} />
-      <p className="text-xs text-gray-600 leading-relaxed mt-4">
-        注：平均点や得点率は受験者集団・科目構成・得点調整等の影響を受けます。同じ科目名でも年度により出題範囲や方式が異なる場合があります。
-        比較可能な年度が複数あっても、得点率だけから問題難易度の優劣は確定できません。
-      </p>
     </section>
   );
 }

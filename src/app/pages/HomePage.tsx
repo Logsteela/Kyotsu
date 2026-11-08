@@ -33,11 +33,10 @@ export function HomePage() {
               大学入試過去問の資料・分析集
             </h1>
             <p className="text-gray-700 leading-relaxed mb-4">
-              共通テストの平均点を眺めるだけでなく、<strong>大問ごとの得点率・設問別正答率・得点分布・前年との差</strong>を比較できます。
-              2025・2026年度本試験では、公表された試験成績と問題評価を照合し、出題内容と得点差の特徴を当サイトで整理しています。
+              <strong>大問別得点率・正答率、得点分布、前年との差</strong>を掲載。2025・2026年度本試験の大問別の成績と出題内容を比較できます。
             </p>
             <p className="text-gray-700 leading-relaxed">
-              共通テスト・センター試験・共通一次の問題と解答も、年度別・科目別に検索・閲覧できます。未収録や未照合の資料は、推測で補っていません。
+              共通テスト・センター試験・共通一次の過去問と解答も検索できます。
             </p>
           </section>
 
@@ -45,13 +44,8 @@ export function HomePage() {
           <section className="bg-white rounded-lg border border-[var(--color-table-border)] p-6 lg:p-8 mb-6" aria-labelledby="home-analysis-heading">
             <h2 id="home-analysis-heading" className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
               <BarChart3 className="w-5 h-5 text-[var(--color-brand-green)]" />
-              本試験の独自比較・分析
+              2026年度の大問別比較
             </h2>
-            <p className="text-gray-700 leading-relaxed mb-4">
-              どの大問が全体の成績を押し下げたのか、前年からどこが変わったのかを、
-              大学入試センター公表データの大問別集計と問題評価から読み取れます。
-              例えば2026年度本試験では、以下のような科目内の差が見られます。
-            </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
               <div className="border border-gray-200 rounded-md p-4">
                 <h3 className="font-semibold text-gray-900 mb-2">物理：電磁気の大問と力学の差</h3>
@@ -68,10 +62,7 @@ export function HomePage() {
                 </p>
               </div>
             </div>
-            <p className="text-xs text-gray-600 leading-relaxed mb-4">
-              得点率は受験者の平均得点を配点で割った値です。科目・大問間の差は、そのまま問題の客観的難易度を表すものではありません。
-              数値の定義と資料は<Link to="/sources#research-methods" className="underline text-[var(--color-brand-green)]">出典・集計方法</Link>にまとめています。
-            </p>
+            <p className="text-xs mb-4"><Link to="/sources#research-methods" className="underline text-[var(--color-brand-green)]">出典・集計方法</Link></p>
             <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold">
               <Link className="underline text-[var(--color-brand-green)]" to="/common-test-2026-analysis">2026年度・27科目の出題分析</Link>
               <Link className="underline text-[var(--color-brand-green)]" to="/common-test-2025-analysis">2025年度の分析と大問別得点率</Link>
@@ -122,20 +113,9 @@ export function HomePage() {
           <section className="bg-white rounded-lg border border-[var(--color-table-border)] p-6 lg:p-8 mb-6">
             <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
               <Info className="w-5 h-5 text-[var(--color-brand-green)]" />
-              このサイトについて
+              掲載資料について
             </h3>
             <div className="space-y-4 text-gray-700">
-              <div>
-                <h4 className="font-semibold text-gray-900 mb-2">目的</h4>
-                <p className="leading-relaxed">
-                  本サイトは、共通テストの得点率や問題評価を科目・大問・年度ごとに比較できるようにすることを目的としています。
-                  2025・2026年度の本試験について、公表された設問別成績と問題評価を整理し、
-                  大問ごとの得点差や、前年と比べて変化した部分を具体的な数値とともに掲載しています。<br/>
-                  また、古いセンター試験・共通第1次学力試験の記録や問題・解答資料も、科目別・年度別に検索できるようにまとめています。
-                  本試験と追試験を区別し、確認できない得点情報や正答率は推測で補っていません。
-                  <Link to="/sources#research-methods" className="underline text-[var(--color-brand-green)]">数値の集計方法と出典</Link>を公開しています。
-                </p>
-              </div>
               <div>
                 <h4 className="font-semibold text-gray-900 mb-2">注意事項</h4>
                 <p className="leading-relaxed">・公式サイトではありません。問題や解答に関する問い合わせには回答できません。<br/>・掲載やシステムそのものに誤りがあると思われる場合は、サイト右下のヘルプにある連絡方法をご利用ください。<br/>・問題の解答に必要なもの以外は配布を行いません。また、解答などに必要と思われるものであっても、以下に示されたものは全て配布を行いません。今後の配布予定もありません。<br/>

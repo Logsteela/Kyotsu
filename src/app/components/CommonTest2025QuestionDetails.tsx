@@ -18,11 +18,6 @@ export function CommonTest2025QuestionDetails({ year, subject }: {year: number|s
   return (
     <section className="mt-5">
       <h3 className="text-base font-semibold mb-2">2025年度本試験・大問別の平均得点率</h3>
-      <p className="text-sm leading-relaxed mb-3">
-        2025年度の設問別得点率データを大問単位に整理しました。得点率は大問の平均点÷配点です。
-        最も高かったのは第{max.number}問（{max.previousRate.toFixed(2)}%）、
-        最も低かったのは第{min.number}問（{min.previousRate.toFixed(2)}%）でした。
-      </p>
       <div className="overflow-x-auto mb-3">
         <table className="w-full text-sm text-left">
           <thead><tr className="bg-gray-50 border-b">
@@ -39,8 +34,11 @@ export function CommonTest2025QuestionDetails({ year, subject }: {year: number|s
           </tr>)}</tbody>
         </table>
       </div>
-      <p className="text-sm mb-3">{optional ? 'この科目は4つの選択大問から3つを選ぶ方式です。表の全大問を合計すると116点となり、100点満点の科目平均を再現できません。' : mixedCurriculum ? '2025年度化学は旧課程の受験者が第5問・第6問を選択するため、表の第1～5問だけを合計しても科目平均には一致しません。' : nonComparable ? '2025年と2026年で大問配点が変更されたため、2026年との大問別平均点への寄与は算出しません。' : '大問の配点と得点率を掛け合わせると、科目全体の平均点を概ね再現できます。'}
-        同じ大問番号でも2026年度は問題が変わるため、得点率の大小がそのまま難易度差を表すとは限りません。</p>
+      {(optional || mixedCurriculum || nonComparable) && <p className="text-sm mb-3">
+        {optional ? '※第4～7問は選択問題です（表の配点合計116点）。' :
+          mixedCurriculum ? '※旧課程履修者は第5・6問から選択しています。' :
+          '※2026年度とは大問の配点が異なります。'}
+      </p>}
       {next && <Link className="text-[var(--color-brand-green)] text-sm underline" to={`/test/${encodeURIComponent(next.questionPdf)}`}>{nonComparable ? "2026年度の大問別得点率を見る（配点構成は異なります）" : "2026年度の大問別得点率と前年差を見る"}</Link>}
       {nonComparable && <p className="text-sm mt-3">{data.comment}</p>}
     </section>

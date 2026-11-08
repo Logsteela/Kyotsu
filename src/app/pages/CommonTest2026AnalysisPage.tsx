@@ -61,13 +61,11 @@ export function CommonTest2026AnalysisPage() {
     <main className="flex-1 bg-gray-100 px-4 sm:px-6 py-6 lg:py-8">
       <article className="bg-white rounded-lg border border-[var(--color-table-border)] p-6 lg:p-8 max-w-6xl text-gray-800 leading-relaxed">
         <h1 className="text-2xl font-bold mb-4">2026年度共通テスト本試験・大問別の成績と分析</h1>
-        <p className="mb-3">23科目について、大学入試センターの設問別得点率・正答率表に基づく大問別の集計値を比較します。ドイツ語・フランス語・中国語・韓国語の4科目は、公式の問題評価に基づく大問別の題材・出題意図を別に整理しています。各科目名を開くと、出題内容と問題評価報告書を照らし合わせた分析、大問別の数値表、得点分布の分析（資料のある科目）を読むことができます。</p>
-        <p className="text-sm mb-3">*教員評価は「問題の難易度は適正である」との観点に対する高校教員の同意度です。4＝あてはまる、3＝ある程度あてはまる。数値が高いほど問題が難しいという意味ではありません。</p>
-        <p className="mb-5 text-sm">大問間の差は同じ科目の得点率が高い大問と低い大問の差です。大問の配点が異なる科目同士の難易度順位を示すものではありません。小問の正答率や考察は各詳細ページにまとめています。</p>
+        <p className="mb-3">大問別得点率・正答率：23科目 ／ 問題評価：外国語4科目</p>
         <label htmlFor="analysis-search" className="block font-semibold mb-1">科目を絞り込み</label>
         <input id="analysis-search" value={name} onChange={e=>setName(e.target.value)}
           placeholder="例：英語、数学、歴史、物理" className="border rounded p-2 bg-white mb-4 max-w-full w-full sm:w-80" />
-        <p className="text-sm mb-3">{selection.length}科目の研究データを表示。見出しをクリックすると並び替えられます。</p>
+        <p className="text-sm mb-3">{selection.length}科目</p>
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
             <thead><tr className="bg-gray-50 border-b">
@@ -77,7 +75,7 @@ export function CommonTest2026AnalysisPage() {
               <SortHeader label="最も低い大問" column="lowRate" {...{sortKey,direction}} onSort={sortBy} />
               <SortHeader label="最も高い大問" column="highRate" {...{sortKey,direction}} onSort={sortBy} />
               <SortHeader label="大問間の差" column="gap" {...{sortKey,direction}} onSort={sortBy} />
-              <SortHeader label="教員評価*" column="rating" {...{sortKey,direction}} onSort={sortBy} />
+              <SortHeader label="外部評価分科会" column="rating" {...{sortKey,direction}} onSort={sortBy} />
             </tr></thead>
             <tbody>{sorted.map(row=><tr key={row.questionPdf} className="border-b">
               <th className="p-3 font-medium"><Link className="text-[var(--color-brand-green)] underline" to={`/test/${encodeURIComponent(row.questionPdf)}`}>{row.subject}</Link></th>
@@ -91,21 +89,19 @@ export function CommonTest2026AnalysisPage() {
           </table>
         </div>
         <h2 className="text-lg font-semibold mt-7 mb-2">外国語4科目：大問別の問題評価</h2>
-        <p className="text-sm mb-3">以下の4科目は大問別得点率の正確な数値を未照合のため、得点率ランキングには加えず、
-          2026年度の出題内容と高校教員による評価を個別試験ページで掲載しています。</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
           {Object.entries(COMMON_TEST_2026_FOREIGN_LANGUAGES).map(([subject, note]) => {
             const record = getEnhancedDatabase().find(r => r.year === 2026 && r.testType === 'main' && r.subject === subject);
             if (!record) return null;
             return <div key={subject} className="border rounded p-4 bg-gray-50">
               <h3 className="font-semibold mb-2"><Link to={`/test/${encodeURIComponent(record.questionPdf)}`} className="underline text-[var(--color-brand-green)]">{subject}（{note.sections.length}大問）</Link></h3>
-              <p className="text-xs text-gray-600 mb-2">高校教員による難易度の適正さ評価：{getDifficultyAppropriateness(subject)}／4</p>
+              <p className="text-xs text-gray-600 mb-2">外部評価分科会：{getDifficultyAppropriateness(subject)}／4</p>
               <p className="text-sm leading-relaxed">{note.observation}</p>
             </div>;
           })}
         </div>
         <h2 className="text-lg font-semibold mt-7 mb-2">2025年度と大問別で比較できる科目</h2>
-        <p className="text-sm mb-3">11科目について、両年度の大問番号・配点が一致する部分の得点率を照合しました。「最大変化」は絶対値が最も大きい大問の得点率差です。大問の内容は年度ごとに異なり、同じ問題の成績比較ではありません。</p>
+        <p className="text-sm mb-3">最大変化：得点率の前年差（絶対値）が最大の大問</p>
         <div className="overflow-x-auto mb-6">
           <table className="w-full text-sm text-left">
             <thead><tr className="bg-gray-50 border-b"><th className="p-3">科目</th><th className="p-3">比較大問数</th><th className="p-3">変化最大の大問</th><th className="p-3">前年差</th><th className="p-3">平均点への寄与</th></tr></thead>
@@ -118,15 +114,13 @@ export function CommonTest2026AnalysisPage() {
             </tr>)}</tbody>
           </table>
         </div>
-        <p className="text-xs text-gray-600 mb-6">数学Ⅱ・B・Cは選択大問を含むため、得点率差を平均点差に換算していません。その他も受験者集団や課程の違いを考慮する必要があります。</p>
-        <h2 className="text-lg font-semibold mt-7 mb-2">全科目の大問の差を横断して読む</h2>
+        <p className="text-xs text-gray-600 mb-6">※数学Ⅱ・B・Cの選択大問は、平均点への寄与を算出していません。</p>
+        <h2 className="text-lg font-semibold mt-7 mb-2">大問間の得点率差</h2>
         <p className="text-sm mb-3">
           例えば英語リーディングでは第4問の79.92%と第7問の48.25%で31.67ポイント差、
           物理では第2問の53.78%と第4問の29.99%で23.79ポイント差があります。
-          一方、化学の大問間の差は12.85ポイントです。どれも設問ごとの負荷の偏りを示す数字ですが、
-          科目をまたいだ得点率の大小は、受験者集団の違いがあるため単純比較できません。
+          化学の大問間の差は12.85ポイントでした。
         </p>
-        <p className="text-sm mb-4">数値の出典・集計方法と外部の一次資料は<Link to="/sources#research-methods" className="underline text-[var(--color-brand-green)]">共通の資料一覧</Link>にまとめています。各科目の試験詳細画面では外部サイトへのリンクを並べず、主要な数値と考察をこのサイト内に記載しています。</p>
       </article>
     </main>
   </>;
