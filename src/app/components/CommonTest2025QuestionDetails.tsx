@@ -12,7 +12,8 @@ export function CommonTest2025QuestionDetails({ year, subject }: {year: number|s
   const optional = Boolean(data?.nonAdditive);
   const nonComparable = Boolean(data?.nonComparable);
   const mixedCurriculum = Boolean(data?.mixedCurriculum);
-  const { sorted, sortKey, direction, sortBy } = useSortedRows(rates, 'number', 'asc');
+  const rated = rates.map(p => ({...p, zkai:ratings?.[p.number-1] ?? null}));
+  const { sorted, sortKey, direction, sortBy } = useSortedRows(rated, 'number', 'asc');
   if(!data || !rates.length) return null;
   const max = rates.reduce((a,b)=>a.previousRate >= b.previousRate ? a:b);
   const min = rates.reduce((a,b)=>a.previousRate <= b.previousRate ? a:b);
@@ -35,7 +36,7 @@ export function CommonTest2025QuestionDetails({ year, subject }: {year: number|s
             <td className="p-3">{p.topic}</td>
             <td className="p-3 tabular-nums">{p.points}点</td>
             <td className="p-3 tabular-nums">{p.previousRate.toFixed(2)}%</td>
-            {ratings && <td className="p-3">{ratings[p.number - 1] ?? '—'}</td>}
+            {ratings && <td className="p-3">{p.zkai ?? '—'}</td>}
           </tr>)}</tbody>
         </table>
       </div>
