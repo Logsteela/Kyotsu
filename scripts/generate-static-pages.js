@@ -39,6 +39,12 @@ const schoolSections = schoolJson(
   'COMMON_TEST_2026_ZKAI_SECTIONS: Record<string, SectionSchoolAssessment> = ', null,
 );
 
+const school2025Text = readFileSync(join(__dirname, '../src/app/data/commonTest2025SchoolReviews.ts'), 'utf8');
+const school2025Marker = 'COMMON_TEST_2025_ZKAI_SECTIONS: Record<string, SectionSchoolAssessment> = ';
+const school2025Pos = school2025Text.indexOf(school2025Marker);
+if (school2025Pos < 0) throw new Error('Missing 2025 Z-kai data');
+const school2025Sections = JSON.parse(school2025Text.slice(school2025Pos + school2025Marker.length).trim().replace(/;$/, ''));
+
 const DEFAULT_DESCRIPTION =
   '2025・2026年度共通テスト本試験の大問別得点率、設問別正答率、得点分布、問題評価を独自に整理・比較。過去問PDFと歴代平均点も年度・科目別に検索できます。';
 
@@ -345,8 +351,12 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
         .filter(r => r.school === '河合塾')
         .map(r => '<li><a href="' + escapeHtml(r.source) + '">' +
           escapeHtml(subject) + '</a></li>')).join('') + '</ul>' +
-      '<h3>Z会・大問別資料</h3><ul>' +
+      '<h3>Z会・2026年度大問別資料</h3><ul>' +
       Object.entries(schoolSections).map(([subject, r]) =>
+        '<li><a href="' + escapeHtml(r.source) + '">' + escapeHtml(subject) +
+        '</a></li>').join('') + '</ul>' +
+      '<h3>Z会・2025年度大問別資料</h3><ul>' +
+      Object.entries(school2025Sections).map(([subject, r]) =>
         '<li><a href="' + escapeHtml(r.source) + '">' + escapeHtml(subject) +
         '</a></li>').join('') + '</ul>';
   } else if (page.path === '/archives') {
@@ -545,18 +555,21 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
               '</a></td><td>' + x.info.averageScore + '</td><td>' + x.rate.toFixed(2) + '%</td><td>' +
               (x.info.examinees ?? '—') + '</td></tr>').join('') + '</tbody></table>';
         }
-        if (examYear === 2026 && r.examType === 'main') {
-          const schoolRatings = schoolDifficulty[r.subject] || [];
-          const zk = schoolSections[r.subject];
-          const observed = questionResearch[r.subject]?.parts || [];
+        if ((examYear === 2025 || examYear === 2026) && r.examType === 'main') {
+          const schoolRatings = examYear === 2026 ? schoolDifficulty[r.subject] || [] : [];
+          const zk = examYear === 2026 ? schoolSections[r.subject] : school2025Sections[r.subject];
+          const observed = examYear === 2026 ? questionResearch[r.subject]?.parts || []
+            : priorResearch[r.subject]?.groups.map(p=>({
+              number:p.number, topic:p.topic, scoreRate:p.previousRate,
+            })) || [];
           if (schoolRatings.length) {
-            content += '<h2>予備校の難易度判定（2025年度比）</h2>' +
+            content += '<h2>予備校の難易度判定（前年との比較）</h2>' +
               '<table><thead><tr><th>予備校</th><th>判定</th></tr></thead><tbody>' +
               schoolRatings.map(x => '<tr><td>' + escapeHtml(x.school) +
                 '</td><td>' + escapeHtml(x.rating) + '</td></tr>').join('') + '</tbody></table>';
           }
           if (zk && observed.length === zk.ratings.length) {
-            content += '<h3>Z会の大問別評価と実測得点率</h3>' +
+            content += '<h3>' + examYear + '年度・Z会の大問別評価と実測得点率</h3>' +
               '<table><thead><tr><th>大問</th><th>分野</th><th>Z会評価</th><th>実測得点率</th></tr></thead><tbody>' +
               observed.map((p,i) => '<tr><td>第' + p.number + '問</td><td>' +
                 escapeHtml(p.topic) + '</td><td>' + escapeHtml(zk.ratings[i]) +
