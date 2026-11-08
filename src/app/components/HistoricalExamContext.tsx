@@ -19,12 +19,12 @@ const REGIME_NAME = {
 export function HistoricalExamContext({
   year, subject, testType, questionPdf
 }: {year:number|string;subject:string;testType:'main'|'makeup';questionPdf:string}) {
-  const items = useMemo(() => {
-    if (typeof year !== 'number' || year >= 2021 || testType !== 'main') return [];
+  const comparisonData = useMemo(() => {
+    if (typeof year !== 'number' || year >= 2021 || testType !== 'main') return { items: [], history: [] as Item[] };
     const same = new Map<string,Item>();
     const current = getTestDetails(questionPdf);
     const max = typeof current?.totalScore === 'number' && current.totalScore > 0 ? current.totalScore : null;
-    if (max === null) return []; // A matching scoring scale cannot be asserted if the maximum is unknown.
+    if (max === null) return { items: [], history: [] as Item[] }; // Only compare verified scoring scales.
     for (const entry of getEnhancedDatabase()) {
       if (typeof entry.year !== 'number' || entry.testType !== 'main' ||
           regimeOf(entry.year)!==regimeOf(year) || entry.subject !== subject ||
@@ -47,14 +47,25 @@ export function HistoricalExamContext({
     const previous=all.filter(x=>x.year<year).slice(-2);
     const next=all.filter(x=>x.year>year).slice(0,2);
     const present=all.find(x=>x.questionPdf===questionPdf);
-    return [...previous,...(present?[present]:[]),...next];
+    return { items: [...previous,...(present?[present]:[]),...next], history: all };
   },[year,subject,testType,questionPdf]);
+  const { items, history } = comparisonData;
   const {sorted,sortKey,direction,sortBy}=useSortedRows(items,'year','asc');
   if (typeof year !== 'number' || year >= 2021 || testType !== 'main' || items.length<2) return null;
   const prev=items.filter(x=>x.year<year && x.rate!==null).slice(-1)[0];
   const current=items.find(x=>x.questionPdf===questionPdf);
   const diff=prev?.rate!==null && prev && current?.rate!==null && current?.rate!==undefined
     ? current.rate-prev.rate : null;
+  const historyRates = history.filter((x): x is Item & { rate: number } => x.rate !== null);
+  const currentInHistory = historyRates.find(x => x.questionPdf === questionPdf);
+  const longTerm = currentInHistory && historyRates.length >= 5 ? {
+    total: historyRates.length,
+    rank: 1 + historyRates.filter(x => x.rate > currentInHistory.rate).length,
+    median: [...historyRates].sort((a,b) => a.rate-b.rate)[Math.floor((historyRates.length-1)/2)].rate,
+    highest: historyRates.reduce((a,b) => a.rate > b.rate ? a : b),
+    lowest: historyRates.reduce((a,b) => a.rate < b.rate ? a : b),
+    value: currentInHistory.rate,
+  } : null;
   return <section className="mt-5 border border-[var(--color-table-border)] bg-white rounded-lg p-5 sm:p-6 text-gray-800">
     <h2 className="text-lg font-semibold mb-3">同じ試験制度・科目の前後年度を比較</h2>
     <p className="text-sm leading-relaxed mb-3">
@@ -67,6 +78,20 @@ export function HistoricalExamContext({
       <strong> {diff>0?'+':''}{diff.toFixed(2)}ポイント</strong>です。
       これは受験者の平均の変化であり、問題の難しさそのものを測る値ではありません。
     </p>}
+    {longTerm && <div className="mb-4 border-l-4 border-[var(--color-brand-green)] bg-gray-50 p-3 sm:p-4">
+      <h3 className="font-semibold text-sm mb-2">同制度・同科目での長期比較</h3>
+      <p className="text-sm leading-relaxed">
+        比較できる{longTerm.total}年度の平均得点率を高い順に並べると、
+        {year}年度の{longTerm.value.toFixed(2)}%は<strong>{longTerm.rank}番目</strong>です。
+        これらの年度の中央値は{longTerm.median.toFixed(2)}%で、
+        その差は<strong>{longTerm.value-longTerm.median>=0?'+':''}{(longTerm.value-longTerm.median).toFixed(2)}ポイント</strong>です。
+      </p>
+      <p className="text-sm leading-relaxed mt-2">
+        平均得点率が最も高いのは{longTerm.highest.year}年度（{longTerm.highest.rate.toFixed(2)}%）、
+        最も低いのは{longTerm.lowest.year}年度（{longTerm.lowest.rate.toFixed(2)}%）です。
+        受験者の平均点の比較であり、問題の難易度順位ではありません。
+      </p>
+    </div>}
     <div className="overflow-x-auto">
       <table className="w-full text-sm text-left">
         <thead><tr className="bg-gray-50 border-b">

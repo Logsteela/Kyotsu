@@ -108,12 +108,12 @@ const withAds = [
   'common-test-2026-analysis/index.html',
   'common-test-2025-analysis/index.html',
   'test/2026_国語_本試験問題_訂正付.pdf/index.html',
+  'test/2020_国語_本試験問題.pdf/index.html',
 ];
 const withoutAds = [
   'overview/index.html', 'archives/index.html', 'privacy/index.html',
   'year/2026/index.html', 'subject/kokugo/index.html',
   'test/2011_国語_追試験問題.pdf/index.html',
-  'test/2020_国語_本試験問題.pdf/index.html',
   'test/2026_国語_追試験問題.pdf/index.html',
 ];
 for (const path of withAds) {
@@ -126,6 +126,10 @@ for (const path of withoutAds) {
   if (!existsSync(file)) { errors.push('Unmonetized archive HTML missing: '+path); continue; }
   if (readFileSync(file, 'utf8').includes('adsbygoogle.js')) errors.push('AdSense code found on unreviewed archive/navigation page: '+path);
 }
+const historicalHtml = readFileSync(join(dist,'test/2020_国語_本試験問題.pdf/index.html'),'utf8');
+if (!historicalHtml.includes('同制度・同科目の長期比較') ||
+    !historicalHtml.includes('中央値') || !historicalHtml.includes('番目'))
+  errors.push('Monetized historical exam lacks actual computed comparative statistics');
 // AdSense readiness: ownership code, ads.txt and sitemap directives must agree.
 const publicAds = readFileSync(join(root, 'public/ads.txt'), 'utf8');
 const siteIndex = readFileSync(join(root, 'index.html'), 'utf8');

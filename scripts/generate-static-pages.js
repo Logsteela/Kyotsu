@@ -446,6 +446,27 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
               (x.average != null && x.max > 0 ? (x.average/x.max*100).toFixed(2)+'%' : '—') +
               '</td><td>' + (x.examinees ?? '—') + '</td></tr>').join('') + '</tbody></table>';
         }
+        // All-year position within the exact same test regime, subject, and maximum score.
+        // Render these unique computed values into crawlable HTML, not generic templated filler.
+        const rated = unique.filter(x=>typeof x.average === 'number' && x.max > 0);
+        const ownRated = rated.find(x=>x.pdf===pdf);
+        if (ownRated && rated.length >= 5) {
+          const sortedRates = [...rated].sort((a,b)=>a.average/a.max-b.average/b.max);
+          const currentRate = ownRated.average/ownRated.max*100;
+          const middle = sortedRates[Math.floor((sortedRates.length-1)/2)];
+          const median = middle.average/middle.max*100;
+          const rank = 1 + rated.filter(x=>x.average/x.max*100 > currentRate).length;
+          const high = sortedRates[sortedRates.length-1], low = sortedRates[0];
+          const delta = currentRate-median;
+          content += '<h3>同制度・同科目の長期比較</h3><p>' +
+            '同じ試験制度・科目名・満点のうち平均点を確認できた' + rated.length +
+            '年度で高い順に並べると、' + archiveYear + '年度の平均得点率' + currentRate.toFixed(2) +
+            '%は' + rank + '番目です。中央値' + median.toFixed(2) +
+            '%との差は' + (delta>=0?'+':'') + delta.toFixed(2) + 'ポイント。' +
+            '最も高かったのは' + high.year + '年度（' + (high.average/high.max*100).toFixed(2) +
+            '%）、低かったのは' + low.year + '年度（' + (low.average/low.max*100).toFixed(2) +
+            '%）です。</p><p>この順位は試験問題の難易度の順位ではありません。</p>';
+        }
       }
       // The same fact-based comparison must also be available without executing React.
       const examYear = Number(r.year);
@@ -469,6 +490,17 @@ function buildStaticBody(page, records, details, subjectCategories, archives, qu
           content += '<h2>本試験の年度比較</h2><p>この科目の平均得点率は' + rate.toFixed(2) + '%（' + d.averageScore + '点／' + max + '点）。' +
             (diff !== null ? '前年度の同名・同配点試験との差は' + (diff >= 0 ? '+' : '') + diff.toFixed(2) + 'ポイントです。' : '比較可能な前年の記録はありません。') +
             'これらは試験の難易度順位を示す数値ではありません。</p>';
+        }
+        if (comparable.length >= 4 && d?.averageScore != null && max > 0) {
+          const currentRate = d.averageScore/max*100;
+          const sorted = [...comparable].sort((a,b)=>a.rate-b.rate);
+          const median = sorted[Math.floor((sorted.length-1)/2)].rate;
+          const rank = 1 + comparable.filter(x=>x.rate>currentRate).length;
+          const delta = currentRate-median;
+          content += '<h3>同じ科目の年度内比較</h3><p>同じ満点・科目名のうち集計可能な' +
+            comparable.length + '年度で、' + examYear + '年度の平均得点率は高い順で' + rank +
+            '番目です。中央値' + median.toFixed(2) + '%との差は' +
+            (delta>=0?'+':'') + delta.toFixed(2) + 'ポイント。これは難易度順位ではありません。</p>';
         }
         if (comparable.length > 1) {
           content += '<h3>同じ科目名・満点の推移</h3><table><thead><tr><th>年度</th><th>平均点</th><th>平均得点率</th><th>受験者数</th></tr></thead><tbody>' +
@@ -601,7 +633,28 @@ const AD_EDITORIAL_ROUTES = new Set([
   '/common-test-2025-analysis', '/common-test-2026-analysis',
 ]);
 
-function shouldLoadAdSense(page, records, questionResearch, priorResearch, foreignResearch, social2025, foreign2025) {
+function comparableMainExamCount(record, records, details) {
+  const year = Number(record.year);
+  const own = details.get(record.questionPdf);
+  if (!Number.isInteger(year) || year < 1979 || year > 2026 ||
+      record.examType !== 'main' || !(own?.totalScore > 0) ||
+      typeof own.averageScore !== 'number') return 0;
+  const regime = y => y < 1990 ? 'first' : y < 2021 ? 'center' : 'common';
+  const byYear = new Map();
+  for (const entry of records) {
+    const y = Number(entry.year);
+    if (!Number.isInteger(y) || y < 1979 || y > 2026 ||
+        regime(y) !== regime(year) || entry.examType !== 'main' ||
+        entry.subject !== record.subject) continue;
+    const d = details.get(entry.questionPdf);
+    if (!d || d.totalScore !== own.totalScore ||
+        typeof d.averageScore !== 'number') continue;
+    byYear.set(y, (byYear.get(y) ?? 0) + 1);
+  }
+  return [...byYear.values()].filter(n=>n===1).length;
+}
+
+function shouldLoadAdSense(page, records, details, questionResearch, priorResearch, foreignResearch, social2025, foreign2025) {
   if (AD_EDITORIAL_ROUTES.has(page.path)) return true;
   if (!page.path.startsWith('/test/')) return false;
   const pdf = decodeURIComponent(page.path.slice(6));
@@ -610,10 +663,14 @@ function shouldLoadAdSense(page, records, questionResearch, priorResearch, forei
   if (record.year === '2026') {
     return Boolean(questionResearch[record.subject] || foreignResearch[record.subject]);
   }
-  if (record.year === '2025') {
-    return Boolean(priorResearch[record.subject] || social2025[record.subject] || foreign2025[record.subject]);
-  }
-  return false;
+  if (record.year === '2025' &&
+      (priorResearch[record.subject] || social2025[record.subject] || foreign2025[record.subject])) return true;
+  const year = Number(record.year);
+  const comparable = comparableMainExamCount(record, records, details);
+  // Historical exam pages become eligible when they contain reproducible
+  // year-by-year statistical comparisons, not only a PDF download.
+  if (year >= 2021 && year <= 2026) return comparable >= 4;
+  return year >= 1979 && year <= 2020 && comparable >= 5;
 }
 
 function removeAdSenseCode(html) {
@@ -844,7 +901,7 @@ function main() {
 
   for (const page of pages) {
     const contentHtml = injectBody(injectMeta(baseHtml, page), page, records, details, subjectCategories, archives, questionResearch, priorResearch, foreignResearch, socialDistribution, social2025, foreign2025);
-    const adEligible = shouldLoadAdSense(page, records, questionResearch, priorResearch, foreignResearch, social2025, foreign2025);
+    const adEligible = shouldLoadAdSense(page, records, details, questionResearch, priorResearch, foreignResearch, social2025, foreign2025);
     const html = adEligible ? contentHtml : removeAdSenseCode(contentHtml);
     if (adEligible) adEligiblePages += 1;
     for (const filePath of pathToFilePaths(page.path)) {
