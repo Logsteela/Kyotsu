@@ -322,6 +322,22 @@ for (const [pdf, topic] of [
    errors.push('Missing sourced civics data on '+pdf);
 }
 
+// Download regression: the /dl Cloudflare Pages Function must be routed.
+// A hidden iframe targets /dl (not /test/), so omitting this breaks all DL buttons.
+const pagesRoutes = JSON.parse(readFileSync(join(dist, '_routes.json'), 'utf8'));
+if (!pagesRoutes.include.includes('/dl')) errors.push('Download endpoint /dl excluded by _routes.json');
+if (!pagesRoutes.include.includes('/test/*')) errors.push('Existing /test/* guard unexpectedly disabled');
+const dlFunction = readFileSync(join(root, 'functions/dl.ts'), 'utf8');
+const dlHelper = readFileSync(join(root, 'src/app/utils/downloadFile.ts'), 'utf8');
+if (!dlFunction.includes('export async function onRequestGet') ||
+    !dlFunction.includes('Content-Disposition') ||
+    !dlFunction.includes('R2_HOST')) {
+  errors.push('Download function missing, unguarded, or lacks attachment response');
+}
+if (!dlHelper.includes('/dl?') || !dlHelper.includes('frame.src = endpoint')) {
+  errors.push('Download button helper no longer calls /dl');
+}
+
 // AdSense readiness: ownership code, ads.txt and sitemap directives must agree.
 const publicAds = readFileSync(join(root, 'public/ads.txt'), 'utf8');
 const siteIndex = readFileSync(join(root, 'index.html'), 'utf8');
